@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Tienda — NomadCuts{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <span class="tag">Productos premium</span>
+    <h1>Tienda</h1>
+    <p>Los mismos productos que usamos en cada servicio.</p>
+  </div>
+
+  <!-- Filtros de categoría -->
+  <div class="products-header">
+    <div class="filter-tabs">
+      <a href="{{ url_for('tienda', categoria='todos') }}"
+         class="filter-tab {% if categoria_actual == 'todos' %}active{% endif %}">
+        Todos
+      </a>
+      <a href="{{ url_for('tienda', categoria='styling') }}"
+         class="filter-tab {% if categoria_actual == 'styling' %}active{% endif %}">
+        Styling
+      </a>
+      <a href="{{ url_for('tienda', categoria='barba') }}"
+         class="filter-tab {% if categoria_actual == 'barba' %}active{% endif %}">
+        Barba
+      </a>
+      <a href="{{ url_for('tienda', categoria='cabello') }}"
+         class="filter-tab {% if categoria_actual == 'cabello' %}active{% endif %}">
+        Cabello
+      </a>
+      <a href="{{ url_for('tienda', categoria='kit') }}"
+         class="filter-tab {% if categoria_actual == 'kit' %}active{% endif %}">
+        Kits
+      </a>
+    </div>
+    <p style="color:var(--muted); font-size:13px;">{{ productos|length }} producto(s)</p>
+  </div>
+
+  {% if productos %}
+  <div class="products-grid">
+    {% for p in productos %}
+    <div class="product-card">
+      <div class="product-img" style="background:{{ p['color_bg'] }};">
+        <div class="product-img-icon">
+          {% if p['categoria'] == 'styling' %}🫙
+          {% elif p['categoria'] == 'barba' %}🧴
+          {% elif p['categoria'] == 'kit' %}📦
+          {% else %}🚿{% endif %}
+        </div>
+        <span class="product-label">{{ p['categoria'] }}</span>
+      </div>
+      <div class="product-body">
+        <div class="product-name">{{ p['nombre'] }}</div>
+        <p class="product-desc">{{ p['descripcion'] }}</p>
+        <div class="product-footer">
+          <span class="product-price">${{ "%.2f"|format(p['precio']) }}</span>
+          <button class="btn-add" onclick="agregarAlCarrito({{ p['id'] }}, this)">
+            + Agregar
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center; padding:80px 0; color:var(--muted);">
+    <p style="font-size:40px; margin-bottom:16px;">📦</p>
+    <p>No hay productos en esta categoría.</p>
+    <a href="{{ url_for('tienda') }}" class="btn btn-outline" style="margin-top:20px;">Ver todos</a>
+  </div>
+  {% endif %}
+
+  <!-- Banner carrito -->
+  <div style="
+    margin-top: 64px;
+    margin-bottom: 64px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  ">
+    <div>
+      <p style="font-family:var(--font-d); font-size:20px; margin-bottom:4px;">¿Tienes productos en tu carrito?</p>
+      <p style="color:var(--muted); font-size:14px;">Revisa tu selección antes de finalizar el pedido.</p>
+    </div>
+    <a href="{{ url_for('carrito') }}" class="btn btn-primary">
+      Ver carrito
+      {% if cart_count > 0 %}
+        <span style="
+          background:rgba(0,0,0,.25);
+          border-radius:100px;
+          padding:2px 8px;
+          font-size:12px;
+        ">{{ cart_count }}</span>
+      {% endif %}
+    </a>
+  </div>
+</div>
+{% endblock %}

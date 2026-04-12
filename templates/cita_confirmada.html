@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Solicitud Recibida — NomadCuts{% endblock %}
+
+{% block content %}
+<div class="success-page">
+  <div style="max-width:500px;width:100%;">
+    <div class="success-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+        <path d="M12 8v4l3 3"/>
+      </svg>
+    </div>
+    <span class="tag">Solicitud recibida · Cita #{{ cita_id }}</span>
+    <h2 style="margin-bottom:8px;">¡Casi listo, {{ nombre }}!</h2>
+    <p style="color:var(--muted);margin-bottom:28px;">
+      Tu solicitud está pendiente de confirmación. Para reservar tu cita
+      definitivamente, realiza el depósito de ${{ "%.2f"|format(deposito) }} por Yappy.
+    </p>
+
+    <!-- Resumen -->
+    <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:16px;text-align:left;">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tr>
+          <td style="color:var(--muted);padding:8px 0;border-bottom:1px solid var(--border);">Servicio</td>
+          <td style="text-align:right;padding:8px 0;border-bottom:1px solid var(--border);">{{ servicio }}</td>
+        </tr>
+        <tr>
+          <td style="color:var(--muted);padding:8px 0;border-bottom:1px solid var(--border);">Fecha</td>
+          <td style="text-align:right;padding:8px 0;border-bottom:1px solid var(--border);">{{ fecha }}</td>
+        </tr>
+        <tr>
+          <td style="color:var(--muted);padding:8px 0;">Hora</td>
+          <td style="text-align:right;padding:8px 0;">{{ hora }}</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Instrucciones Yappy -->
+    <div style="background:#110D00;border:1px solid #3A2800;border-radius:var(--radius);padding:24px;margin-bottom:28px;text-align:left;">
+      <p style="color:#C9A84C;font-weight:600;margin:0 0 14px;font-size:15px;">💳 Deposita ${{ "%.2f"|format(deposito) }} por Yappy</p>
+
+      <p style="color:var(--muted);font-size:13px;margin-bottom:10px;">Envía el monto al siguiente número:</p>
+      <div style="background:var(--bg-3);border:1px solid var(--border);border-radius:4px;padding:14px;text-align:center;margin-bottom:14px;">
+        <span style="font-size:26px;font-weight:700;color:var(--text);letter-spacing:.08em;">{{ yappy }}</span>
+      </div>
+
+      <p style="color:var(--muted);font-size:13px;margin-bottom:6px;">En el comentario del pago escribe:</p>
+      <div style="background:var(--bg-3);border:1px dashed var(--gold-dim);border-radius:4px;padding:10px 14px;text-align:center;margin-bottom:14px;">
+        <span style="color:var(--gold);font-weight:600;font-size:14px;">NomadCuts #{{ cita_id }}</span>
+      </div>
+
+      <p style="color:var(--muted);font-size:12px;margin:0;">
+        Una vez verifiquemos tu pago recibirás un correo de confirmación final.
+        Tu horario queda reservado mientras procesas el pago.
+      </p>
+    </div>
+
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <a href="{{ url_for('inicio') }}" class="btn btn-outline">Volver al inicio</a>
+      <a href="{{ url_for('agendar') }}" class="btn btn-primary">Nueva cita</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

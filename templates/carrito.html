@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Carrito — NomadCuts{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <span class="tag">Tu selección</span>
+    <h1>Carrito</h1>
+    <p>Revisa tus productos antes de continuar.</p>
+  </div>
+
+  {% if items %}
+  <div class="cart-layout">
+
+    <!-- Lista de productos -->
+    <div>
+      <div class="cart-items">
+        {% for item in items %}
+        <div class="cart-item">
+          <div class="cart-item-img" style="background:{{ item.producto['color_bg'] }};">
+            {% if item.producto['categoria'] == 'styling' %}🫙
+            {% elif item.producto['categoria'] == 'barba' %}🧴
+            {% elif item.producto['categoria'] == 'kit' %}📦
+            {% else %}🚿{% endif %}
+          </div>
+          <div class="cart-item-info">
+            <div class="cart-item-name">{{ item.producto['nombre'] }}</div>
+            <div class="cart-item-price">${{ "%.2f"|format(item.producto['precio']) }} × {{ item.cantidad }}</div>
+          </div>
+          <div class="cart-item-subtotal">${{ "%.2f"|format(item.subtotal) }}</div>
+          <form method="POST" action="{{ url_for('quitar_del_carrito', producto_id=item.producto['id']) }}" style="margin-left:16px;">
+            <button type="submit" style="
+              background:none; border:none;
+              color:var(--muted); cursor:pointer;
+              font-size:18px; padding:4px;
+              transition:color .2s;
+            " onmouseover="this.style.color='#ff5555'" onmouseout="this.style.color='var(--muted)'"
+              title="Eliminar">✕</button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div style="margin-top:20px;">
+        <a href="{{ url_for('tienda') }}" class="btn btn-outline">
+          ← Seguir comprando
+        </a>
+      </div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="cart-summary">
+      <h3>Resumen del pedido</h3>
+      {% for item in items %}
+      <div class="summary-row">
+        <span>{{ item.producto['nombre'] }} ×{{ item.cantidad }}</span>
+        <span>${{ "%.2f"|format(item.subtotal) }}</span>
+      </div>
+      {% endfor %}
+      <div class="summary-row total">
+        <span>Total</span>
+        <span>${{ "%.2f"|format(total) }}</span>
+      </div>
+      <a href="{{ url_for('checkout') }}" class="btn btn-primary">
+        Finalizar pedido →
+      </a>
+      <p style="font-size:12px; color:var(--muted); text-align:center; margin-top:14px;">
+        Pago seguro. Envío a domicilio.
+      </p>
+    </div>
+
+  </div>
+
+  {% else %}
+
+  <div class="cart-empty">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <path d="M16 10a4 4 0 01-8 0"/>
+    </svg>
+    <h3>Tu carrito está vacío</h3>
+    <p>Explora nuestra tienda y agrega productos que te gusten.</p>
+    <a href="{{ url_for('tienda') }}" class="btn btn-primary">Ir a la tienda</a>
+  </div>
+
+  {% endif %}
+</div>
+{% endblock %}

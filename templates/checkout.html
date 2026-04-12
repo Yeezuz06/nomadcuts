@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Checkout — NomadCuts{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <span class="tag">Último paso</span>
+    <h1>Finalizar pedido</h1>
+    <p>Completa tus datos y paga con Stripe de forma segura.</p>
+  </div>
+
+  <div class="checkout-layout">
+
+    <!-- Formulario de contacto -->
+    <form method="POST" action="{{ url_for('checkout') }}">
+
+      <div style="margin-bottom:32px;">
+        <h3 style="font-family:var(--font-d);font-size:20px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);">
+          Datos de contacto
+        </h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nombre">Nombre completo</label>
+            <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required />
+          </div>
+          <div class="form-group">
+            <label for="telefono">Teléfono</label>
+            <input type="tel" id="telefono" name="telefono" placeholder="+1 555 0000" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="email">Correo electrónico</label>
+          <input type="email" id="email" name="email" placeholder="tu@correo.com" required />
+        </div>
+      </div>
+
+      <div style="margin-bottom:32px;">
+        <h3 style="font-family:var(--font-d);font-size:20px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);">
+          Dirección de envío
+        </h3>
+        <div class="form-group">
+          <label for="direccion">Dirección completa</label>
+          <textarea id="direccion" name="direccion" placeholder="Calle, número, colonia, ciudad..." required style="min-height:80px;"></textarea>
+        </div>
+      </div>
+
+      <!-- Botón → redirige a Stripe -->
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:16px;font-size:14px;gap:12px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+          <line x1="1" y1="10" x2="23" y2="10"/>
+        </svg>
+        Pagar ${{ "%.2f"|format(total) }} con Stripe
+      </button>
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--muted);">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+        <p style="font-size:12px;color:var(--muted);margin:0;">Pago 100% seguro con encriptación SSL por Stripe</p>
+      </div>
+    </form>
+
+    <!-- Resumen -->
+    <div class="checkout-summary">
+      <h3>Tu pedido</h3>
+      {% for item in items %}
+      <div class="checkout-item">
+        <div>
+          <div class="checkout-item-name">{{ item.producto['nombre'] }}</div>
+          <div class="checkout-item-qty">Cantidad: {{ item.cantidad }}</div>
+        </div>
+        <div class="checkout-item-price">${{ "%.2f"|format(item.subtotal) }}</div>
+      </div>
+      {% endfor %}
+      <div class="checkout-total">
+        <span>Total</span>
+        <span>${{ "%.2f"|format(total) }}</span>
+      </div>
+
+      <!-- Logos de pago -->
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+        <span style="font-size:11px;color:var(--muted);background:var(--bg-3);padding:4px 10px;border-radius:4px;border:1px solid var(--border);">Visa</span>
+        <span style="font-size:11px;color:var(--muted);background:var(--bg-3);padding:4px 10px;border-radius:4px;border:1px solid var(--border);">Mastercard</span>
+        <span style="font-size:11px;color:var(--muted);background:var(--bg-3);padding:4px 10px;border-radius:4px;border:1px solid var(--border);">Amex</span>
+        <span style="font-size:11px;color:var(--muted);background:var(--bg-3);padding:4px 10px;border-radius:4px;border:1px solid var(--border);">Apple Pay</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

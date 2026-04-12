@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}Agendar Cita — NomadCuts{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <span class="tag">Sin filas, sin esperas</span>
+    <h1>Agenda tu cita</h1>
+    <p>Elige servicio, fecha y hora disponible. Llegamos a ti.</p>
+  </div>
+
+  <div class="form-section">
+
+    {% if error %}
+    <div style="background:#1A0808;border:1px solid #5A1A1A;border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;display:flex;gap:12px;align-items:center;">
+      <span style="font-size:18px;">⚠️</span>
+      <p style="color:#FF6B6B;margin:0;font-size:14px;">{{ error }}</p>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('agendar') }}">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nombre">Nombre completo</label>
+          <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required />
+        </div>
+        <div class="form-group">
+          <label for="telefono">Teléfono</label>
+          <input type="tel" id="telefono" name="telefono" placeholder="6000-0000" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" name="email" placeholder="tu@correo.com" required />
+      </div>
+
+      <div class="form-group">
+        <label for="servicio">Servicio</label>
+        <select id="servicio" name="servicio" required>
+          <option value="" disabled selected>Selecciona un servicio</option>
+          <option value="Corte Clásico — $15">✂️  Corte Clásico — $15</option>
+          <option value="Barba Premium — $12">🪒  Barba Premium — $12</option>
+          <option value="Pack Completo — $24">💎  Pack Completo — $24</option>
+          <option value="Corte Niños — $10">👦  Corte Niños — $10</option>
+          <option value="Degradado / Fade — $18">🎨  Degradado / Fade — $18</option>
+          <option value="Servicio Corporativo">🏢  Servicio Corporativo (cotizar)</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fecha">Fecha</label>
+          <input type="date" id="fecha" name="fecha" required />
+        </div>
+        <div class="form-group">
+          <label for="hora">
+            Hora disponible
+            <span id="cargando-horas" style="color:var(--muted);font-weight:400;text-transform:none;display:none;"> · cargando...</span>
+          </label>
+          <select id="hora" name="hora" required>
+            <option value="" disabled selected>Primero selecciona una fecha</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="notas">Notas adicionales <span style="color:var(--muted);text-transform:none;font-weight:400;">(opcional)</span></label>
+        <textarea id="notas" name="notas" placeholder="Dirección, instrucciones especiales, estilo deseado..."></textarea>
+      </div>
+
+      <!-- Aviso depósito -->
+      <div style="background:#110D00;border:1px solid #3A2800;border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;display:flex;gap:12px;align-items:flex-start;">
+        <span style="font-size:20px;flex-shrink:0;">💳</span>
+        <div>
+          <p style="color:#C9A84C;font-weight:600;margin:0 0 4px;font-size:14px;">Se requiere depósito de $5 por Yappy</p>
+          <p style="color:#6B6760;font-size:13px;margin:0;">Para confirmar tu cita necesitas abonar $5 al número <strong style="color:#F0EDE8;">6328-6461</strong> por Yappy. Te enviaremos las instrucciones por correo.</p>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:16px;">
+        Solicitar cita
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+
+    </form>
+  </div>
+</div>
+
+<script>
+function fmt(h) {
+  const n = parseInt(h);
+  return n < 12 ? `${n}:00 AM` : n === 12 ? '12:00 PM' : `${n-12}:00 PM`;
+}
+
+const inputFecha = document.getElementById('fecha');
+const selectHora = document.getElementById('hora');
+const cargando   = document.getElementById('cargando-horas');
+
+// Fecha mínima: mañana
+const hoy = new Date();
+hoy.setDate(hoy.getDate() + 1);
+inputFecha.min = hoy.toISOString().split('T')[0];
+
+inputFecha.addEventListener('change', async () => {
+  const fecha = inputFecha.value;
+  if (!fecha) return;
+
+  cargando.style.display = 'inline';
+  selectHora.innerHTML = '<option value="" disabled selected>Cargando...</option>';
+  selectHora.disabled = true;
+
+  const res  = await fetch(`/agendar/horas-tomadas?fecha=${fecha}`);
+  const data = await res.json();
+
+  cargando.style.display = 'none';
+  selectHora.innerHTML = '';
+  selectHora.disabled = false;
+
+  // Día cerrado
+  if (data.cerrado) {
+    selectHora.innerHTML =
+      '<option value="" disabled selected>❌ No trabajamos ese día</option>';
+    selectHora.disabled = true;
+    return;
+  }
+
+  const disponibles = data.disponibles || [];
+  const tomadas     = data.tomadas || [];
+
+  if (disponibles.length === 0) {
+    selectHora.innerHTML =
+      '<option value="" disabled selected>Sin horas disponibles</option>';
+    selectHora.disabled = true;
+    return;
+  }
+
+  const placeholder = document.createElement('option');
+  placeholder.value = ''; placeholder.disabled = true; placeholder.selected = true;
+  placeholder.textContent = 'Selecciona una hora';
+  selectHora.appendChild(placeholder);
+
+  disponibles.forEach(h => {
+    const opt = document.createElement('option');
+    opt.value = h;
+    if (tomadas.includes(h)) {
+      opt.textContent = `${fmt(h)} — Ocupado`;
+      opt.disabled = true;
+      opt.style.color = '#555';
+    } else {
+      opt.textContent = fmt(h);
+    }
+    selectHora.appendChild(opt);
+  });
+});
+</script>
+{% endblock %}

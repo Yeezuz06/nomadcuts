@@ -1,0 +1,443 @@
+# ============================================================
+#  NomadCuts — Servidor principal
+#  Flask + SQLite + Gmail + Yappy
+# ============================================================
+
+from flask import (
+    Flask, render_template, request,
+    redirect, url_for, session, jsonify
+)
+import sqlite3, smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from datetime import datetime, date, timedelta
+
+import os
+import config
+
+app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'nomadcuts_clave_secreta_2024')
+DATABASE = 'nomadcuts.db'
+init_db_done = False
+
+
+DIAS_SEMANA = ['lunes','martes','miércoles','jueves','viernes','sábado','domingo']
+# Python weekday(): 0=lunes … 6=domingo
+
+
+# ── Base de datos ─────────────────────────────────────────────
+
+def get_db():
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def init_db():
+    with get_db() as conn:
+        conn.executescript('''
+            CREATE TABLE IF NOT EXISTS citas (
+                id        INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre    TEXT NOT NULL,
+                email     TEXT NOT NULL,
+                telefono  TEXT NOT NULL,
+                servicio  TEXT NOT NULL,
+                fecha     TEXT NOT NULL,
+                hora      TEXT NOT NULL,
+                notas     TEXT,
+                estado    TEXT DEFAULT "pendiente_pago",
+                creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS promociones (
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                titulo      TEXT NOT NULL,
+                descripcion TEXT,
+                descuento   TEXT,
+                activa      INTEGER DEFAULT 1
+            );
+
+            CREATE TABLE IF NOT EXISTS horario (
+                dia         TEXT PRIMARY KEY,
+                activo      INTEGER DEFAULT 1,
+                hora_inicio TEXT DEFAULT "08:00",
+                hora_fin    TEXT DEFAULT "18:00"
+            );
+        ''')
+
+        # Promociones de ejemplo
+        if conn.execute('SELECT COUNT(*) FROM promociones').fetchone()[0] == 0:
+            conn.executemany(
+                'INSERT INTO promociones (titulo, descripcion, descuento) VALUES (?,?,?)',
+                [
+                    ('Pack Lunes y Martes', 'Corte + Barba cualquier lunes o martes.', '20% OFF'),
+                    ('Trae un amigo', 'Tú y tu amigo reciben descuento en su próxima visita.', '15% OFF'),
+                    ('Primera visita', 'Descuento especial para nuevos clientes de NomadCuts.', '10% OFF'),
+                ]
+            )
+
+        # Horario por defecto: lunes–sábado 8am–6pm, domingo cerrado
+        if conn.execute('SELECT COUNT(*) FROM horario').fetchone()[0] == 0:
+            defaults = [
+                ('lunes',     1, '08:00', '18:00'),
+                ('martes',    1, '08:00', '18:00'),
+                ('miércoles', 1, '08:00', '18:00'),
+                ('jueves',    1, '08:00', '18:00'),
+                ('viernes',   1, '08:00', '18:00'),
+                ('sábado',    1, '09:00', '16:00'),
+                ('domingo',   0, '09:00', '14:00'),
+            ]
+            conn.executemany(
+                'INSERT INTO horario (dia, activo, hora_inicio, hora_fin) VALUES (?,?,?,?)',
+                defaults
+            )
+        conn.commit()
+
+
+# ── Helpers de horario ────────────────────────────────────────
+
+def get_horario_dia(fecha_str):
+    """Devuelve el row de horario para la fecha dada, o None si cerrado."""
+    try:
+        d = datetime.strptime(fecha_str, '%Y-%m-%d')
+        dia = DIAS_SEMANA[d.weekday()]
+        db = get_db()
+        row = db.execute('SELECT * FROM horario WHERE dia = ?', (dia,)).fetchone()
+        return row
+    except Exception:
+        return None
+
+
+def generar_horas(hora_inicio, hora_fin):
+    """Genera lista de horas en punto entre hora_inicio y hora_fin (exclusivo)."""
+    horas = []
+    h = int(hora_inicio.split(':')[0])
+    fin = int(hora_fin.split(':')[0])
+    while h < fin:
+        horas.append(f'{h:02d}:00')
+        h += 1
+    return horas
+
+
+# ── Emails ────────────────────────────────────────────────────
+
+def enviar_email(destinatario, asunto, html):
+    try:
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = asunto
+        msg['From']    = f"{config.NOMBRE_NEGOCIO} <{config.GMAIL_USER}>"
+        msg['To']      = destinatario
+        msg.attach(MIMEText(html, 'html'))
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+            smtp.login(config.GMAIL_USER, config.GMAIL_PASSWORD)
+            smtp.send_message(msg)
+        print(f'✉  Correo → {destinatario}')
+    except Exception as e:
+        print(f'⚠  Email error: {e}')
+
+
+def _base_email(contenido):
+    return f"""
+    <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#0A0A0A;
+                color:#F0EDE8;padding:40px 32px;border-radius:8px;">
+      <h1 style="font-size:26px;color:#C9A84C;margin-bottom:2px;">NomadCuts</h1>
+      <p style="color:#6B6760;margin-top:0;margin-bottom:28px;font-size:12px;">
+        Barbería a domicilio · Panamá
+      </p>
+      {contenido}
+      <p style="color:#444;font-size:12px;margin-top:28px;">
+        ¿Preguntas? <a href="mailto:{config.GMAIL_USER}" style="color:#C9A84C;">
+        {config.GMAIL_USER}</a>
+      </p>
+    </div>"""
+
+
+def _tabla_cita(servicio, fecha, hora, extra=''):
+    return f"""
+    <div style="background:#1C1C1C;border:1px solid #252525;border-radius:6px;
+                padding:20px;margin:16px 0;">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tr><td style="color:#6B6760;padding:7px 0;border-bottom:1px solid #252525;">Servicio</td>
+            <td style="text-align:right;padding:7px 0;border-bottom:1px solid #252525;">{servicio}</td></tr>
+        <tr><td style="color:#6B6760;padding:7px 0;border-bottom:1px solid #252525;">Fecha</td>
+            <td style="text-align:right;padding:7px 0;border-bottom:1px solid #252525;">{fecha}</td></tr>
+        <tr><td style="color:#6B6760;padding:7px 0;">Hora</td>
+            <td style="text-align:right;padding:7px 0;">{hora}</td></tr>
+      </table>
+      {extra}
+    </div>"""
+
+
+def email_pendiente_pago(nombre, email, servicio, fecha, hora, cita_id):
+    yappy_box = f"""
+    <div style="background:#110D00;border:1px solid #3A2800;border-radius:6px;
+                padding:18px;margin-top:16px;">
+      <p style="color:#C9A84C;font-weight:600;margin:0 0 10px;">💳 Deposita ${config.YAPPY_DEPOSITO:.2f} por Yappy</p>
+      <p style="color:#9A9790;font-size:13px;margin:0 0 10px;">
+        Envía al número <strong style="color:#F0EDE8;">{config.YAPPY_NUMERO}</strong>
+        y escribe en el comentario:
+      </p>
+      <div style="background:#1A1A1A;border-radius:4px;padding:10px;text-align:center;">
+        <span style="color:#C9A84C;font-weight:700;">NomadCuts #{cita_id}</span>
+      </div>
+    </div>"""
+    html = _base_email(f"""
+      <h2 style="font-size:19px;margin-bottom:6px;">¡Un paso más, {nombre}!</h2>
+      <p style="color:#9A9790;">Recibimos tu solicitud. Realiza el depósito para confirmar.</p>
+      {_tabla_cita(servicio, fecha, hora)}
+      {yappy_box}""")
+    enviar_email(email, f'✂ Completa tu reservación #{cita_id} — {config.NOMBRE_NEGOCIO}', html)
+
+
+def email_confirmacion_final(nombre, email, servicio, fecha, hora, cita_id):
+    html = _base_email(f"""
+      <div style="background:#0A1A0A;border:1px solid #1A3A1A;border-radius:6px;
+                  padding:14px 18px;margin-bottom:16px;">
+        <span style="color:#4CAF50;font-weight:600;">✅ ¡Cita confirmada!</span>
+      </div>
+      <p style="color:#9A9790;">
+        Hola <strong style="color:#F0EDE8;">{nombre}</strong>,
+        tu depósito fue verificado. ¡Te esperamos!
+      </p>
+      {_tabla_cita(servicio, fecha, hora)}
+      <p style="color:#9A9790;font-size:13px;">
+        Nos pondremos en contacto para confirmar la dirección exacta.
+      </p>""")
+    enviar_email(email, f'✅ Cita #{cita_id} confirmada — {config.NOMBRE_NEGOCIO}', html)
+
+
+def email_rechazo(nombre, email, cita_id):
+    html = _base_email(f"""
+      <h2 style="font-size:19px;margin-bottom:6px;">Sobre tu cita #{cita_id}</h2>
+      <p style="color:#9A9790;">
+        Hola {nombre}, no pudimos verificar tu depósito de Yappy.<br>
+        Si ya realizaste el pago, escríbenos y lo revisamos.
+      </p>""")
+    enviar_email(email, f'Actualización cita #{cita_id} — {config.NOMBRE_NEGOCIO}', html)
+
+
+# ── Rutas públicas ────────────────────────────────────────────
+
+@app.before_request
+def antes_de_cada_peticion():
+    global init_db_done
+    if not init_db_done:
+        init_db()
+        init_db_done = True
+
+
+@app.route('/')
+def inicio():
+    db = get_db()
+    return render_template('index.html',
+        promociones=db.execute('SELECT * FROM promociones WHERE activa=1').fetchall())
+
+
+@app.route('/servicios')
+def servicios():
+    return render_template('servicios.html')
+
+
+@app.route('/promociones')
+def promociones():
+    db = get_db()
+    return render_template('promociones.html',
+        promociones=db.execute('SELECT * FROM promociones WHERE activa=1').fetchall())
+
+
+# ── Agendamiento ──────────────────────────────────────────────
+
+@app.route('/agendar/horas-tomadas')
+def horas_tomadas():
+    fecha = request.args.get('fecha', '')
+    if not fecha:
+        return jsonify({'error': True, 'horas': [], 'disponibles': []})
+
+    horario = get_horario_dia(fecha)
+
+    # Día cerrado → no hay horas disponibles
+    if not horario or not horario['activo']:
+        return jsonify({'cerrado': True, 'horas': [], 'disponibles': []})
+
+    disponibles = generar_horas(horario['hora_inicio'], horario['hora_fin'])
+
+    db = get_db()
+    tomadas = [r['hora'] for r in db.execute(
+        "SELECT hora FROM citas WHERE fecha=? AND estado != 'rechazada'", (fecha,)
+    ).fetchall()]
+
+    return jsonify({'cerrado': False, 'tomadas': tomadas, 'disponibles': disponibles})
+
+
+@app.route('/agendar', methods=['GET', 'POST'])
+def agendar():
+    if request.method == 'POST':
+        nombre   = request.form['nombre']
+        email    = request.form['email']
+        telefono = request.form['telefono']
+        servicio = request.form['servicio']
+        fecha    = request.form['fecha']
+        hora     = request.form['hora']
+        notas    = request.form.get('notas', '')
+
+        db = get_db()
+
+        # Validar horario disponible
+        horario = get_horario_dia(fecha)
+        if not horario or not horario['activo']:
+            return render_template('agendar.html',
+                error='No trabajamos ese día. Por favor elige otra fecha.')
+
+        horas_ok = generar_horas(horario['hora_inicio'], horario['hora_fin'])
+        if hora not in horas_ok:
+            return render_template('agendar.html',
+                error='Esa hora no está disponible. Por favor elige otra.')
+
+        # Validar que no esté tomada
+        if db.execute(
+            "SELECT id FROM citas WHERE fecha=? AND hora=? AND estado!='rechazada'",
+            (fecha, hora)
+        ).fetchone():
+            return render_template('agendar.html',
+                error='Ese horario ya está reservado. Elige otra hora.')
+
+        cursor = db.execute('''
+            INSERT INTO citas (nombre,email,telefono,servicio,fecha,hora,notas,estado)
+            VALUES (?,?,?,?,?,?,?,'pendiente_pago')
+        ''', (nombre, email, telefono, servicio, fecha, hora, notas))
+        cita_id = cursor.lastrowid
+        db.commit()
+
+        email_pendiente_pago(nombre, email, servicio, fecha, hora, cita_id)
+        enviar_email(config.GMAIL_USER,
+            f'[NUEVA CITA #{cita_id}] {nombre} · {fecha} {hora}',
+            _base_email(f'<p>Nueva solicitud: <b>#{cita_id}</b> · {nombre}<br>'
+                        f'{servicio} · {fecha} {hora}<br>'
+                        f'Tel: {telefono} · {email}</p>'
+                        f'<p><a href="http://localhost:5001/admin" style="color:#C9A84C;">'
+                        f'→ Ver en el panel admin</a></p>'))
+
+        return redirect(url_for('cita_pendiente',
+            cita_id=cita_id, nombre=nombre,
+            servicio=servicio, fecha=fecha, hora=hora))
+
+    return render_template('agendar.html', error=None)
+
+
+@app.route('/agendar/pendiente')
+def cita_pendiente():
+    return render_template('cita_confirmada.html',
+        cita_id=request.args.get('cita_id',''),
+        nombre=request.args.get('nombre',''),
+        servicio=request.args.get('servicio',''),
+        fecha=request.args.get('fecha',''),
+        hora=request.args.get('hora',''),
+        yappy=config.YAPPY_NUMERO,
+        deposito=config.YAPPY_DEPOSITO)
+
+
+# ── Panel Admin ───────────────────────────────────────────────
+
+def admin_requerido(f):
+    """Decorador: redirige al login si no hay sesión admin."""
+    from functools import wraps
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if not session.get('admin'):
+            return redirect(url_for('admin_login'))
+        return f(*args, **kwargs)
+    return wrapper
+
+
+@app.route('/admin/login', methods=['GET','POST'])
+def admin_login():
+    if request.method == 'POST':
+        if request.form.get('password') == config.ADMIN_PASSWORD:
+            session['admin'] = True
+            return redirect(url_for('admin'))
+        return render_template('admin_login.html', error='Contraseña incorrecta')
+    return render_template('admin_login.html', error=None)
+
+
+@app.route('/admin/salir')
+def admin_salir():
+    session.pop('admin', None)
+    return redirect(url_for('inicio'))
+
+
+@app.route('/admin')
+@admin_requerido
+def admin():
+    db   = get_db()
+    hoy  = date.today().isoformat()
+
+    # Citas agrupadas
+    pendientes  = db.execute(
+        "SELECT * FROM citas WHERE estado='pendiente_pago' ORDER BY fecha,hora").fetchall()
+    proximas    = db.execute(
+        "SELECT * FROM citas WHERE estado='confirmada' AND fecha>=? ORDER BY fecha,hora LIMIT 30",
+        (hoy,)).fetchall()
+    pasadas     = db.execute(
+        "SELECT * FROM citas WHERE estado='confirmada' AND fecha<? ORDER BY fecha DESC LIMIT 20",
+        (hoy,)).fetchall()
+    rechazadas  = db.execute(
+        "SELECT * FROM citas WHERE estado='rechazada' ORDER BY fecha DESC LIMIT 10").fetchall()
+
+    # Horario semanal
+    horario = {r['dia']: r for r in db.execute('SELECT * FROM horario').fetchall()}
+
+    return render_template('admin.html',
+        pendientes=pendientes, proximas=proximas,
+        pasadas=pasadas, rechazadas=rechazadas,
+        horario=horario, dias=DIAS_SEMANA, hoy=hoy)
+
+
+@app.route('/admin/confirmar/<int:cita_id>', methods=['POST'])
+@admin_requerido
+def confirmar_cita(cita_id):
+    db   = get_db()
+    cita = db.execute('SELECT * FROM citas WHERE id=?', (cita_id,)).fetchone()
+    if cita:
+        db.execute("UPDATE citas SET estado='confirmada' WHERE id=?", (cita_id,))
+        db.commit()
+        email_confirmacion_final(cita['nombre'], cita['email'],
+            cita['servicio'], cita['fecha'], cita['hora'], cita_id)
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin/rechazar/<int:cita_id>', methods=['POST'])
+@admin_requerido
+def rechazar_cita(cita_id):
+    db   = get_db()
+    cita = db.execute('SELECT * FROM citas WHERE id=?', (cita_id,)).fetchone()
+    if cita:
+        db.execute("UPDATE citas SET estado='rechazada' WHERE id=?", (cita_id,))
+        db.commit()
+        email_rechazo(cita['nombre'], cita['email'], cita_id)
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin/horario', methods=['POST'])
+@admin_requerido
+def guardar_horario():
+    db = get_db()
+    for dia in DIAS_SEMANA:
+        activo      = 1 if request.form.get(f'activo_{dia}') else 0
+        hora_inicio = request.form.get(f'inicio_{dia}', '08:00')
+        hora_fin    = request.form.get(f'fin_{dia}',    '18:00')
+        db.execute(
+            'UPDATE horario SET activo=?, hora_inicio=?, hora_fin=? WHERE dia=?',
+            (activo, hora_inicio, hora_fin, dia))
+    db.commit()
+    return redirect(url_for('admin') + '#horario')
+
+
+# ── Arranque ──────────────────────────────────────────────────
+
+if __name__ == '__main__':
+    init_db()
+    port = int(os.environ.get('PORT', 5001))
+    debug = os.environ.get('RENDER') is None  # debug solo en local
+    print(f'\n✂  NomadCuts → http://localhost:{port}')
+    print(f'🔐 Admin      → http://localhost:{port}/admin\n')
+    app.run(debug=debug, host='0.0.0.0', port=port)

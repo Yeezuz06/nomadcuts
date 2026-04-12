@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Promociones — NomadCuts{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <span class="tag">Ofertas especiales</span>
+    <h1>Promociones</h1>
+    <p>Descuentos exclusivos para que siempre luzcas impecable.</p>
+  </div>
+
+  <div class="promos-grid" style="margin-bottom:80px;">
+    {% for p in promociones %}
+    <div class="promo-card">
+      <div class="promo-badge">{{ p['descuento'] }}</div>
+      <div class="promo-title">{{ p['titulo'] }}</div>
+      <p class="promo-desc">{{ p['descripcion'] }}</p>
+      <a href="{{ url_for('agendar') }}" class="btn btn-primary" style="margin-top:auto;width:100%;justify-content:center;">
+        Agendar con descuento
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius);padding:40px;text-align:center;margin-bottom:80px;">
+    <span class="tag">¿No encontraste lo que buscas?</span>
+    <h3 style="font-family:var(--font-d);font-size:24px;margin:12px 0 8px;">Escríbenos directamente</h3>
+    <p style="color:var(--muted);margin-bottom:24px;">Podemos hacer un arreglo especial para grupos, eventos o visitas frecuentes.</p>
+    <a href="mailto:hypestbasiclatam@gmail.com" class="btn btn-outline">Contactar</a>
+  </div>
+</div>
+{% endblock %}

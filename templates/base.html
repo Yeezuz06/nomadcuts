@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}NomadCuts{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+  <!-- ── Navegación ── -->
+  <nav class="nav">
+    <a href="{{ url_for('inicio') }}" class="nav-logo">
+      <img src="{{ url_for('static', filename='img/logo.png') }}"
+           alt="NomadCuts"
+           class="nav-logo-img"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+      <span class="nav-logo-fallback">NOMADCUTS</span>
+    </a>
+    <div class="nav-links">
+      <a href="{{ url_for('inicio') }}">Inicio</a>
+      <a href="{{ url_for('servicios') }}">Servicios</a>
+      <a href="{{ url_for('promociones') }}">Promociones</a>
+      <a href="{{ url_for('agendar') }}" class="nav-cta">Agendar cita</a>
+    </div>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <main>{% block content %}{% endblock %}</main>
+
+  <!-- ── Footer ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="footer-logo">NOMADCUTS</span>
+        <p>Barbería de precisión. A tu puerta.</p>
+        <p style="margin-top:8px;font-size:13px;">📍 Panamá · Servicio a domicilio</p>
+      </div>
+      <div class="footer-links">
+        <a href="{{ url_for('inicio') }}">Inicio</a>
+        <a href="{{ url_for('servicios') }}">Servicios</a>
+        <a href="{{ url_for('promociones') }}">Promociones</a>
+        <a href="{{ url_for('agendar') }}">Agendar cita</a>
+      </div>
+      <div class="footer-contact">
+        <p>¿Dudas o consultas?</p>
+        <a href="mailto:hypestbasiclatam@gmail.com">hypestbasiclatam@gmail.com</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 NomadCuts. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

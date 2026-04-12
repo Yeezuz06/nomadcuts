@@ -1,0 +1,9 @@
+config.py
+nomadcuts.db
+__pycache__/
+*.pyc
+.env
+.DS_Store
+.vscode/
+.claude/
+run.sh

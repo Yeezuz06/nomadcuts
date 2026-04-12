@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}NomadCuts — Barbería a Domicilio · Panamá{% endblock %}
+
+{% block content %}
+
+<!-- ── Hero con foto real ─────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-bg">
+    <img src="{{ url_for('static', filename='img/hero.jpg') }}" alt="NomadCuts" />
+    <div class="hero-overlay"></div>
+  </div>
+  <div class="hero-inner">
+    <p class="hero-eyebrow">Barbería profesional a domicilio · Panamá</p>
+    <h1>El corte<br>que <em>mereces</em>,<br>donde estés.</h1>
+    <p class="hero-sub">
+      NomadCuts lleva la experiencia de una barbería de primer nivel
+      directamente a tu hogar, oficina o donde nos necesites.
+    </p>
+    <div class="hero-actions">
+      <a href="{{ url_for('agendar') }}" class="btn btn-primary">
+        Agendar cita
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+      <a href="{{ url_for('servicios') }}" class="btn btn-glass">Ver servicios</a>
+    </div>
+  </div>
+  <div class="hero-scroll">Scroll</div>
+</section>
+
+<!-- ── Stats ─────────────────────────────────────────────── -->
+<div class="stats">
+  <div class="stats-grid">
+    <div class="stat">
+      <div class="stat-num">500+</div>
+      <div class="stat-label">Clientes satisfechos</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">4.9</div>
+      <div class="stat-label">Calificación promedio</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">5★</div>
+      <div class="stat-label">Servicio garantizado</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Servicios ──────────────────────────────────────────── -->
+<section class="section container">
+  <span class="tag">Lo que hacemos</span>
+  <div class="divider"></div>
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;flex-wrap:wrap;gap:16px;">
+    <h2 style="font-family:var(--font-d);font-size:clamp(28px,4vw,42px);">Servicios</h2>
+    <a href="{{ url_for('servicios') }}" class="btn btn-outline">Ver todos</a>
+  </div>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-icon">✂️</div>
+      <div class="service-name">Corte Clásico</div>
+      <p class="service-desc">Tijeras, navaja y acabado perfecto. El clásico reinventado con precisión.</p>
+      <div class="service-price">$15 <span>/ visita</span></div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🪒</div>
+      <div class="service-name">Barba Premium</div>
+      <p class="service-desc">Perfilado, rasurado con navaja caliente y tratamiento con aceites naturales.</p>
+      <div class="service-price">$12 <span>/ visita</span></div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">💎</div>
+      <div class="service-name">Pack Completo</div>
+      <p class="service-desc">Corte + Barba + Tratamiento capilar. La experiencia NomadCuts completa.</p>
+      <div class="service-price">$24 <span>/ visita</span></div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🎨</div>
+      <div class="service-name">Degradado / Fade</div>
+      <p class="service-desc">Skin fade, low fade, mid fade o high fade. Transiciones perfectas.</p>
+      <div class="service-price">$18 <span>/ visita</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Galería de fotos ───────────────────────────────────── -->
+<section class="section container" style="padding-top:0;">
+  <span class="tag">El trabajo habla</span>
+  <div class="divider"></div>
+  <h2 style="font-family:var(--font-d);font-size:clamp(28px,4vw,42px);margin-bottom:40px;">Precisión en cada detalle.</h2>
+  <div class="gallery">
+    <div class="gallery-main">
+      <img src="{{ url_for('static', filename='img/corte.jpg') }}" alt="Corte de cabello" />
+    </div>
+    <div class="gallery-grid">
+      <img src="{{ url_for('static', filename='img/maquina.jpg') }}" alt="Máquina de corte" />
+      <img src="{{ url_for('static', filename='img/navaja.jpg') }}" alt="Navaja barbera" />
+      <img src="{{ url_for('static', filename='img/rasurado.jpg') }}" alt="Rasurado con navaja" />
+      <img src="{{ url_for('static', filename='img/tijeras.jpg') }}" alt="Tijeras profesionales" />
+    </div>
+  </div>
+</section>
+
+<!-- ── Promociones activas ────────────────────────────────── -->
+{% if promociones %}
+<section class="section container" style="padding-top:0;">
+  <span class="tag">Ofertas activas</span>
+  <div class="divider"></div>
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;flex-wrap:wrap;gap:16px;">
+    <h2 style="font-family:var(--font-d);font-size:clamp(28px,4vw,42px);">Promociones</h2>
+    <a href="{{ url_for('promociones') }}" class="btn btn-outline">Ver todas</a>
+  </div>
+  <div class="promos-grid">
+    {% for p in promociones %}
+    <div class="promo-card">
+      <div class="promo-badge">{{ p['descuento'] }}</div>
+      <div class="promo-title">{{ p['titulo'] }}</div>
+      <p class="promo-desc">{{ p['descripcion'] }}</p>
+      <a href="{{ url_for('agendar') }}" class="btn btn-primary" style="margin-top:auto;width:100%;justify-content:center;">
+        Aprovechar
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- ── CTA final ──────────────────────────────────────────── -->
+<section class="section container" style="padding-top:0;">
+  <div class="cta-banner">
+    <div class="cta-banner-bg">
+      <img src="{{ url_for('static', filename='img/rasurado2.jpg') }}" alt="" />
+      <div class="cta-banner-overlay"></div>
+    </div>
+    <div class="cta-banner-content">
+      <span class="tag">¿Listo?</span>
+      <h2>Agenda tu cita hoy</h2>
+      <p>Sin filas, sin esperas. Solo tú, un corte de calidad y la comodidad de tu hogar.</p>
+      <a href="{{ url_for('agendar') }}" class="btn btn-primary" style="padding:16px 40px;font-size:14px;">
+        Reservar ahora
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

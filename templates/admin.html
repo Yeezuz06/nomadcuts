@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+{% block title %}Admin — NomadCuts{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:96px;padding-bottom:80px;">
+
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;align-items:center;
+              margin-bottom:48px;flex-wrap:wrap;gap:16px;">
+    <div>
+      <span class="tag">Panel de administración</span>
+      <h1 style="font-family:var(--font-d);font-size:36px;margin-top:8px;">Dashboard</h1>
+    </div>
+    <a href="{{ url_for('admin_salir') }}" class="btn btn-outline" style="font-size:12px;">
+      Cerrar sesión
+    </a>
+  </div>
+
+  <!-- Resumen rápido -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+              gap:1px;border:1px solid var(--border);border-radius:var(--radius);
+              overflow:hidden;margin-bottom:56px;">
+    <div style="background:var(--bg-2);padding:24px 20px;">
+      <div style="font-size:32px;font-weight:700;color:#F5A623;">{{ pendientes|length }}</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px;">Pendientes de pago</div>
+    </div>
+    <div style="background:var(--bg-2);padding:24px 20px;">
+      <div style="font-size:32px;font-weight:700;color:#4CAF50;">{{ proximas|length }}</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px;">Próximas confirmadas</div>
+    </div>
+    <div style="background:var(--bg-2);padding:24px 20px;">
+      <div style="font-size:32px;font-weight:700;color:var(--gold);">{{ pasadas|length }}</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px;">Completadas</div>
+    </div>
+    <div style="background:var(--bg-2);padding:24px 20px;">
+      <div style="font-size:32px;font-weight:700;color:var(--muted);">{{ rechazadas|length }}</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px;">Rechazadas</div>
+    </div>
+  </div>
+
+  <!-- ══ PENDIENTES DE PAGO ══ -->
+  <div style="margin-bottom:56px;" id="pendientes">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <h2 style="font-family:var(--font-d);font-size:22px;">⏳ Pendientes de pago</h2>
+      {% if pendientes %}
+      <span style="background:rgba(245,166,35,.15);color:#F5A623;
+                   border:1px solid rgba(245,166,35,.3);border-radius:100px;
+                   padding:3px 12px;font-size:12px;font-weight:700;">
+        {{ pendientes|length }}
+      </span>
+      {% endif %}
+    </div>
+
+    {% if pendientes %}
+    <div style="display:flex;flex-direction:column;gap:1px;border:1px solid var(--border);
+                border-radius:var(--radius);overflow:hidden;">
+      {% for c in pendientes %}
+      <div style="background:var(--bg-2);padding:20px 24px;display:flex;
+                  align-items:center;gap:20px;flex-wrap:wrap;">
+        <!-- Info cliente -->
+        <div style="flex:1;min-width:160px;">
+          <div style="font-weight:600;font-size:15px;">{{ c.nombre }}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px;">
+            {{ c.telefono }} · {{ c.email }}
+          </div>
+        </div>
+        <!-- Servicio -->
+        <div style="min-width:140px;">
+          <div style="font-size:12px;color:var(--muted);">Servicio</div>
+          <div style="font-size:13px;margin-top:2px;">{{ c.servicio.split('—')[0].strip() }}</div>
+        </div>
+        <!-- Fecha / Hora -->
+        <div style="text-align:center;min-width:90px;">
+          <div style="font-size:12px;color:var(--muted);">Fecha</div>
+          <div style="font-weight:600;font-size:14px;color:var(--gold);">{{ c.fecha }}</div>
+          <div style="font-size:13px;">{{ c.hora }}</div>
+        </div>
+        <!-- Cita ID -->
+        <div style="text-align:center;">
+          <div style="font-size:11px;color:var(--muted);">Cita</div>
+          <div style="font-size:13px;color:var(--gold);font-weight:700;">#{{ c.id }}</div>
+        </div>
+        <!-- Acciones -->
+        <div style="display:flex;gap:8px;flex-shrink:0;">
+          <form method="POST"
+                action="{{ url_for('confirmar_cita', cita_id=c.id) }}"
+                onsubmit="return confirm('¿Confirmar cita de {{ c.nombre }}?\nSe enviará email de confirmación.')">
+            <button type="submit" class="btn btn-primary"
+                    style="padding:9px 16px;font-size:12px;gap:6px;">
+              ✓ Confirmar
+            </button>
+          </form>
+          <form method="POST"
+                action="{{ url_for('rechazar_cita', cita_id=c.id) }}"
+                onsubmit="return confirm('¿Rechazar cita de {{ c.nombre }}?')">
+            <button type="submit" class="btn btn-dark"
+                    style="padding:9px 16px;font-size:12px;">
+              ✕ Rechazar
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="background:var(--bg-2);border:1px solid var(--border);
+                border-radius:var(--radius);padding:32px;text-align:center;
+                color:var(--muted);">
+      Sin citas pendientes. 🎉
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ══ PRÓXIMAS CITAS CONFIRMADAS ══ -->
+  <div style="margin-bottom:56px;" id="agenda">
+    <h2 style="font-family:var(--font-d);font-size:22px;margin-bottom:20px;">
+      📅 Próximas citas confirmadas
+    </h2>
+    {% if proximas %}
+    <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+      <!-- Encabezado tabla -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 120px 120px;
+                  padding:12px 24px;background:var(--bg-3);
+                  font-size:11px;font-weight:600;letter-spacing:.08em;
+                  text-transform:uppercase;color:var(--muted);">
+        <span>Cliente</span>
+        <span>Servicio</span>
+        <span>Fecha</span>
+        <span>Hora</span>
+      </div>
+      {% for c in proximas %}
+      <div style="display:grid;grid-template-columns:1fr 1fr 120px 120px;
+                  padding:14px 24px;border-top:1px solid var(--border);
+                  background:var(--bg-2);font-size:14px;
+                  {% if c.fecha == hoy %}border-left:3px solid var(--gold);{% endif %}">
+        <div>
+          <span style="font-weight:500;">{{ c.nombre }}</span>
+          {% if c.fecha == hoy %}
+          <span style="background:rgba(201,168,76,.15);color:var(--gold);
+                       font-size:10px;font-weight:700;padding:2px 8px;
+                       border-radius:100px;margin-left:8px;">HOY</span>
+          {% endif %}
+          <div style="font-size:12px;color:var(--muted);">{{ c.telefono }}</div>
+        </div>
+        <div style="color:var(--muted);font-size:13px;align-self:center;">
+          {{ c.servicio.split('—')[0].strip() }}
+        </div>
+        <div style="font-weight:600;color:var(--gold);align-self:center;">{{ c.fecha }}</div>
+        <div style="align-self:center;">{{ c.hora }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="background:var(--bg-2);border:1px solid var(--border);
+                border-radius:var(--radius);padding:32px;text-align:center;
+                color:var(--muted);">
+      No hay citas confirmadas próximas.
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ══ HORARIO PERSONALIZADO ══ -->
+  <div style="margin-bottom:56px;" id="horario">
+    <h2 style="font-family:var(--font-d);font-size:22px;margin-bottom:8px;">
+      🗓 Mi horario de trabajo
+    </h2>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:24px;">
+      Activa los días que trabajas y define tus horas disponibles.
+      Los clientes solo verán estas horas al agendar.
+    </p>
+
+    <form method="POST" action="{{ url_for('guardar_horario') }}">
+      <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;
+                  margin-bottom:20px;">
+
+        <!-- Encabezado -->
+        <div style="display:grid;grid-template-columns:160px 80px 1fr 1fr;
+                    padding:12px 24px;background:var(--bg-3);
+                    font-size:11px;font-weight:600;letter-spacing:.08em;
+                    text-transform:uppercase;color:var(--muted);">
+          <span>Día</span>
+          <span>Abierto</span>
+          <span>Hora inicio</span>
+          <span>Hora fin</span>
+        </div>
+
+        {% for dia in dias %}
+        {% set h = horario.get(dia) %}
+        <div style="display:grid;grid-template-columns:160px 80px 1fr 1fr;
+                    padding:16px 24px;border-top:1px solid var(--border);
+                    background:var(--bg-2);align-items:center;gap:12px;">
+
+          <!-- Nombre del día -->
+          <label for="activo_{{ dia }}"
+                 style="font-weight:500;text-transform:capitalize;cursor:pointer;">
+            {{ dia }}
+          </label>
+
+          <!-- Toggle activo -->
+          <div>
+            <label class="toggle">
+              <input type="checkbox" name="activo_{{ dia }}" id="activo_{{ dia }}"
+                     {% if h and h.activo %}checked{% endif %}
+                     onchange="toggleDia('{{ dia }}', this.checked)">
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+
+          <!-- Hora inicio -->
+          <select name="inicio_{{ dia }}" id="inicio_{{ dia }}"
+                  {% if h and not h.activo %}disabled{% endif %}
+                  style="background:var(--bg-3);border:1px solid var(--border);
+                         color:var(--text);padding:8px 12px;border-radius:var(--radius);
+                         font-family:var(--font);font-size:13px;">
+            {% for hh in range(6,20) %}
+            <option value="{{ '%02d:00'|format(hh) }}"
+              {% if h and h.hora_inicio == '%02d:00'|format(hh) %}selected{% endif %}>
+              {{ '%02d:00'|format(hh) }}
+            </option>
+            {% endfor %}
+          </select>
+
+          <!-- Hora fin -->
+          <select name="fin_{{ dia }}" id="fin_{{ dia }}"
+                  {% if h and not h.activo %}disabled{% endif %}
+                  style="background:var(--bg-3);border:1px solid var(--border);
+                         color:var(--text);padding:8px 12px;border-radius:var(--radius);
+                         font-family:var(--font);font-size:13px;">
+            {% for hh in range(7,22) %}
+            <option value="{{ '%02d:00'|format(hh) }}"
+              {% if h and h.hora_fin == '%02d:00'|format(hh) %}selected{% endif %}>
+              {{ '%02d:00'|format(hh) }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endfor %}
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="padding:13px 32px;">
+        💾 Guardar horario
+      </button>
+    </form>
+  </div>
+
+  <!-- ══ HISTORIAL ══ -->
+  {% if pasadas %}
+  <div style="margin-bottom:40px;">
+    <h2 style="font-family:var(--font-d);font-size:22px;margin-bottom:20px;color:var(--muted);">
+      Historial
+    </h2>
+    <div style="border:1px solid var(--border);border-radius:var(--radius);
+                overflow:hidden;opacity:.55;">
+      {% for c in pasadas %}
+      <div style="display:flex;gap:20px;padding:12px 24px;border-top:1px solid var(--border);
+                  background:var(--bg-2);font-size:13px;flex-wrap:wrap;">
+        <span style="color:var(--muted);">{{ c.fecha }}</span>
+        <span style="font-weight:500;">{{ c.nombre }}</span>
+        <span style="color:var(--muted);">{{ c.servicio.split('—')[0].strip() }}</span>
+        <span style="color:var(--muted);">{{ c.hora }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+<style>
+/* Toggle switch */
+.toggle { position:relative; display:inline-block; width:44px; height:24px; }
+.toggle input { opacity:0; width:0; height:0; }
+.toggle-track {
+  position:absolute; inset:0;
+  background:var(--bg-3); border:1px solid var(--border);
+  border-radius:100px; cursor:pointer; transition:.2s;
+}
+.toggle-track::before {
+  content:''; position:absolute;
+  width:16px; height:16px; border-radius:50%;
+  background:var(--muted); bottom:3px; left:3px; transition:.2s;
+}
+.toggle input:checked + .toggle-track { background:var(--gold); border-color:var(--gold); }
+.toggle input:checked + .toggle-track::before { background:#000; transform:translateX(20px); }
+</style>
+
+<script>
+function toggleDia(dia, activo) {
+  document.getElementById('inicio_' + dia).disabled = !activo;
+  document.getElementById('fin_'    + dia).disabled = !activo;
+}
+</script>
+{% endblock %}
