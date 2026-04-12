@@ -299,30 +299,41 @@ def agendar():
         cita_id = cursor.lastrowid
         db.commit()
 
+        # Guarda datos en sesión para mostrarlos en la página de confirmación
+        session['cita_confirmada'] = {
+            'cita_id': cita_id,
+            'nombre':  nombre,
+            'servicio': servicio,
+            'fecha':   fecha,
+            'hora':    hora,
+        }
+
         email_pendiente_pago(nombre, email, servicio, fecha, hora, cita_id)
         enviar_email(config.GMAIL_USER,
-            f'[NUEVA CITA #{cita_id}] {nombre} · {fecha} {hora}',
-            _base_email(f'<p>Nueva solicitud: <b>#{cita_id}</b> · {nombre}<br>'
-                        f'{servicio} · {fecha} {hora}<br>'
-                        f'Tel: {telefono} · {email}</p>'
-                        f'<p><a href="http://localhost:5001/admin" style="color:#C9A84C;">'
-                        f'→ Ver en el panel admin</a></p>'))
+            f'[NUEVA CITA #{cita_id}] {nombre} - {fecha} {hora}',
+            _base_email(f'<p>Nueva solicitud: <b>#{cita_id}</b><br>'
+                        f'Cliente: {nombre}<br>'
+                        f'Servicio: {servicio}<br>'
+                        f'Fecha: {fecha} a las {hora}<br>'
+                        f'Tel: {telefono}<br>'
+                        f'Email: {email}</p>'
+                        f'<p><a href="https://nomadcuts.online/admin" style="color:#C9A84C;">'
+                        f'Ver en panel admin</a></p>'))
 
-        return redirect(url_for('cita_pendiente',
-            cita_id=cita_id, nombre=nombre,
-            servicio=servicio, fecha=fecha, hora=hora))
+        return redirect(url_for('cita_pendiente'))
 
     return render_template('agendar.html', error=None)
 
 
 @app.route('/agendar/pendiente')
 def cita_pendiente():
+    datos = session.pop('cita_confirmada', {})
     return render_template('cita_confirmada.html',
-        cita_id=request.args.get('cita_id',''),
-        nombre=request.args.get('nombre',''),
-        servicio=request.args.get('servicio',''),
-        fecha=request.args.get('fecha',''),
-        hora=request.args.get('hora',''),
+        cita_id=datos.get('cita_id', ''),
+        nombre=datos.get('nombre', ''),
+        servicio=datos.get('servicio', ''),
+        fecha=datos.get('fecha', ''),
+        hora=datos.get('hora', ''),
         yappy=config.YAPPY_NUMERO,
         deposito=config.YAPPY_DEPOSITO)
 
