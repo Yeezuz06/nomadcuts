@@ -7,7 +7,7 @@ from flask import (
     Flask, render_template, request,
     redirect, url_for, session, jsonify
 )
-import sqlite3, smtplib
+import sqlite3, smtplib, threading
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime, date, timedelta
@@ -120,19 +120,31 @@ def generar_horas(hora_inicio, hora_fin):
 
 # ── Emails ────────────────────────────────────────────────────
 
-def enviar_email(destinatario, asunto, html):
+def _enviar_email_sync(destinatario, asunto, html):
+    """Envía el email — se llama en un hilo para no bloquear la respuesta."""
     try:
         msg = MIMEMultipart('alternative')
         msg['Subject'] = asunto
         msg['From']    = f"{config.NOMBRE_NEGOCIO} <{config.GMAIL_USER}>"
         msg['To']      = destinatario
         msg.attach(MIMEText(html, 'html'))
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+        # Puerto 587 + STARTTLS (funciona en Render, el 465 está bloqueado)
+        with smtplib.SMTP('smtp.gmail.com', 587, timeout=15) as smtp:
+            smtp.ehlo()
+            smtp.starttls()
             smtp.login(config.GMAIL_USER, config.GMAIL_PASSWORD)
             smtp.send_message(msg)
         print(f'✉  Correo → {destinatario}')
     except Exception as e:
         print(f'⚠  Email error: {e}')
+
+
+def enviar_email(destinatario, asunto, html):
+    """Lanza el envío en un hilo para no bloquear la petición HTTP."""
+    t = threading.Thread(target=_enviar_email_sync,
+                         args=(destinatario, asunto, html),
+                         daemon=True)
+    t.start()
 
 
 def _base_email(contenido):
