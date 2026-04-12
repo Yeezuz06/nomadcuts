@@ -18,7 +18,6 @@ import config
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'nomadcuts_clave_secreta_2024')
 DATABASE = 'nomadcuts.db'
-init_db_done = False
 
 
 DIAS_SEMANA = ['lunes','martes','miércoles','jueves','viernes','sábado','domingo']
@@ -217,14 +216,6 @@ def email_rechazo(nombre, email, cita_id):
 
 
 # ── Rutas públicas ────────────────────────────────────────────
-
-@app.before_request
-def antes_de_cada_peticion():
-    global init_db_done
-    if not init_db_done:
-        init_db()
-        init_db_done = True
-
 
 @app.route('/')
 def inicio():
@@ -433,6 +424,9 @@ def guardar_horario():
 
 
 # ── Arranque ──────────────────────────────────────────────────
+
+# Se ejecuta al importar el módulo (tanto python app.py como gunicorn)
+init_db()
 
 if __name__ == '__main__':
     init_db()
