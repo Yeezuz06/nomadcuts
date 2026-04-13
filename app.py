@@ -128,7 +128,7 @@ def _enviar_email_sync(destinatario, asunto, html):
                 'Content-Type': 'application/json',
             },
             json={
-                'from': f'{config.NOMBRE_NEGOCIO} <onboarding@resend.dev>',
+                'from': f'{config.NOMBRE_NEGOCIO} <citas@nomadcuts.online>',
                 'to': [destinatario],
                 'subject': asunto,
                 'html': html,
