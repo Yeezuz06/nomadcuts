@@ -7,9 +7,7 @@ from flask import (
     Flask, render_template, request,
     redirect, url_for, session, jsonify
 )
-import sqlite3, smtplib, threading
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import sqlite3, threading, requests
 from datetime import datetime, date, timedelta
 
 import os
@@ -121,20 +119,26 @@ def generar_horas(hora_inicio, hora_fin):
 # ── Emails ────────────────────────────────────────────────────
 
 def _enviar_email_sync(destinatario, asunto, html):
-    """Envía el email — se llama en un hilo para no bloquear la respuesta."""
+    """Envía el email via Resend API (HTTP — funciona en Render free tier)."""
     try:
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = asunto
-        msg['From']    = f"{config.NOMBRE_NEGOCIO} <{config.GMAIL_USER}>"
-        msg['To']      = destinatario
-        msg.attach(MIMEText(html, 'html'))
-        # Puerto 587 + STARTTLS (funciona en Render, el 465 está bloqueado)
-        with smtplib.SMTP('smtp.gmail.com', 587, timeout=15) as smtp:
-            smtp.ehlo()
-            smtp.starttls()
-            smtp.login(config.GMAIL_USER, config.GMAIL_PASSWORD)
-            smtp.send_message(msg)
-        print(f'✉  Correo → {destinatario}')
+        resp = requests.post(
+            'https://api.resend.com/emails',
+            headers={
+                'Authorization': f'Bearer {config.RESEND_API_KEY}',
+                'Content-Type': 'application/json',
+            },
+            json={
+                'from': f'{config.NOMBRE_NEGOCIO} <onboarding@resend.dev>',
+                'to': [destinatario],
+                'subject': asunto,
+                'html': html,
+            },
+            timeout=15
+        )
+        if resp.status_code == 200 or resp.status_code == 201:
+            print(f'✉  Correo → {destinatario}')
+        else:
+            print(f'⚠  Email error {resp.status_code}: {resp.text}')
     except Exception as e:
         print(f'⚠  Email error: {e}')
 

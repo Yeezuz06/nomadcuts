@@ -1,10 +1,10 @@
 import os
 
-# ── Gmail ────────────────────────────────────────────────────
-# En producción (Render) estas vienen de variables de entorno.
-# En local las lees directo aquí.
-GMAIL_USER     = os.environ.get('GMAIL_USER',     'hypestbasiclatam@gmail.com')
-GMAIL_PASSWORD = os.environ.get('GMAIL_PASSWORD', 'cery grpn yimx vvns')
+# ── Resend (email via HTTP — funciona en Render free tier) ───
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+
+# ── Gmail (ya no se usa para envío, solo como dirección de contacto) ─
+GMAIL_USER     = os.environ.get('GMAIL_USER', 'hypestbasiclatam@gmail.com')
 
 # ── Yappy ────────────────────────────────────────────────────
 YAPPY_NUMERO   = os.environ.get('YAPPY_NUMERO',   '6328-6461')
