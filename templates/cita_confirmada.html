@@ -55,6 +55,16 @@
       </p>
     </div>
 
+    <!-- Aviso correo spam -->
+    <div style="background:#0A0A14;border:1px solid #1E1E3A;border-radius:var(--radius);padding:14px 18px;margin-bottom:28px;text-align:left;display:flex;gap:12px;align-items:flex-start;">
+      <span style="font-size:18px;flex-shrink:0;">📬</span>
+      <p style="color:var(--muted);font-size:12px;margin:0;line-height:1.6;">
+        Te enviamos un correo a tu dirección con los detalles.<br>
+        <strong style="color:var(--text);">Si no lo ves en 5 minutos, revisa tu carpeta de Spam</strong>
+        y márcalo como <em>"No es spam"</em> para recibir futuros correos directo en tu bandeja.
+      </p>
+    </div>
+
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
       <a href="{{ url_for('inicio') }}" class="btn btn-outline">Volver al inicio</a>
       <a href="{{ url_for('agendar') }}" class="btn btn-primary">Nueva cita</a>
