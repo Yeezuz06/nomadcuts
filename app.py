@@ -7,7 +7,7 @@ from flask import (
     Flask, render_template, request,
     redirect, url_for, session, jsonify
 )
-import sqlite3, threading, requests
+import sqlite3, requests
 from datetime import datetime, date, timedelta
 
 import os
@@ -144,11 +144,8 @@ def _enviar_email_sync(destinatario, asunto, html):
 
 
 def enviar_email(destinatario, asunto, html):
-    """Lanza el envío en un hilo para no bloquear la petición HTTP."""
-    t = threading.Thread(target=_enviar_email_sync,
-                         args=(destinatario, asunto, html),
-                         daemon=True)
-    t.start()
+    """Envía el correo directo (Resend HTTP es rápido, no necesita hilo)."""
+    _enviar_email_sync(destinatario, asunto, html)
 
 
 def _base_email(contenido):
