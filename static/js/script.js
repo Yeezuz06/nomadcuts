@@ -79,9 +79,42 @@ const observer = new IntersectionObserver(
   { threshold: 0.1 }
 );
 
-document.querySelectorAll('.product-card, .service-card, .stat').forEach(el => {
+document.querySelectorAll('.product-card, .service-card').forEach(el => {
   el.style.opacity = '0';
   el.style.transform = 'translateY(18px)';
   el.style.transition = 'opacity .45s ease, transform .45s ease';
   observer.observe(el);
 });
+
+// ── Selector de estrellas ────────────────────────────────────
+const starBtns = document.querySelectorAll('.star-btn');
+const estrellasInput = document.getElementById('estrellas-val');
+
+if (starBtns.length && estrellasInput) {
+  // Inicializar con 5 estrellas activas
+  starBtns.forEach(btn => btn.classList.add('active'));
+
+  starBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = parseInt(btn.dataset.val);
+      estrellasInput.value = val;
+      starBtns.forEach(b => {
+        b.classList.toggle('active', parseInt(b.dataset.val) <= val);
+      });
+    });
+
+    btn.addEventListener('mouseenter', () => {
+      const val = parseInt(btn.dataset.val);
+      starBtns.forEach(b => {
+        b.classList.toggle('active', parseInt(b.dataset.val) <= val);
+      });
+    });
+  });
+
+  document.getElementById('star-picker')?.addEventListener('mouseleave', () => {
+    const current = parseInt(estrellasInput.value);
+    starBtns.forEach(b => {
+      b.classList.toggle('active', parseInt(b.dataset.val) <= current);
+    });
+  });
+}

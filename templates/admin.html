@@ -264,6 +264,50 @@
   </div>
   {% endif %}
 
+  <!-- ══ RESEÑAS ══ -->
+  <div style="margin-bottom:56px;" id="resenas">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <h2 style="font-family:var(--font-d);font-size:22px;">⭐ Reseñas de clientes</h2>
+      <span style="background:rgba(201,168,76,.12);color:var(--gold);
+                   border:1px solid rgba(201,168,76,.3);border-radius:100px;
+                   padding:3px 12px;font-size:12px;font-weight:700;">
+        {{ resenas|length }}
+      </span>
+    </div>
+    {% if resenas %}
+    <div style="display:flex;flex-direction:column;gap:1px;border:1px solid var(--border);
+                border-radius:var(--radius);overflow:hidden;">
+      {% for r in resenas %}
+      <div style="background:var(--bg-2);padding:16px 24px;display:flex;
+                  align-items:center;gap:16px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:220px;">
+          <div style="font-weight:600;font-size:14px;">{{ r.nombre }}
+            <span style="color:var(--gold);font-size:13px;margin-left:8px;">
+              {% for i in range(r.estrellas) %}★{% endfor %}
+            </span>
+          </div>
+          <div style="color:var(--muted);font-size:13px;margin-top:4px;font-style:italic;">
+            "{{ r.comentario }}"
+          </div>
+        </div>
+        <div style="color:var(--muted);font-size:12px;white-space:nowrap;">
+          {{ r.creado_en[:10] if r.creado_en else '' }}
+        </div>
+        <form action="{{ url_for('borrar_resena', resena_id=r.id) }}" method="POST"
+              onsubmit="return confirm('¿Borrar esta reseña?')">
+          <button class="btn btn-outline" style="font-size:11px;padding:7px 14px;
+                  border-color:#3A1A1A;color:#E05252;">
+            Borrar
+          </button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p style="color:var(--muted);">Aún no hay reseñas.</p>
+    {% endif %}
+  </div>
+
 </div>
 
 <style>

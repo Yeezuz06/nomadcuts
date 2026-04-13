@@ -60,6 +60,15 @@ def init_db():
                 hora_inicio TEXT DEFAULT "08:00",
                 hora_fin    TEXT DEFAULT "18:00"
             );
+
+            CREATE TABLE IF NOT EXISTS resenas (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre     TEXT NOT NULL,
+                comentario TEXT NOT NULL,
+                estrellas  INTEGER NOT NULL DEFAULT 5,
+                aprobada   INTEGER DEFAULT 1,
+                creado_en  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
         ''')
 
         # Promociones de ejemplo
@@ -234,7 +243,21 @@ def email_rechazo(nombre, email, cita_id):
 def inicio():
     db = get_db()
     return render_template('index.html',
-        promociones=db.execute('SELECT * FROM promociones WHERE activa=1').fetchall())
+        promociones=db.execute('SELECT * FROM promociones WHERE activa=1').fetchall(),
+        resenas=db.execute('SELECT * FROM resenas WHERE aprobada=1 ORDER BY creado_en DESC').fetchall())
+
+
+@app.route('/resenas', methods=['POST'])
+def nueva_resena():
+    nombre     = request.form.get('nombre', '').strip()
+    comentario = request.form.get('comentario', '').strip()
+    estrellas  = int(request.form.get('estrellas', 5))
+    if nombre and comentario and 1 <= estrellas <= 5:
+        db = get_db()
+        db.execute('INSERT INTO resenas (nombre, comentario, estrellas) VALUES (?,?,?)',
+                   (nombre, comentario, estrellas))
+        db.commit()
+    return redirect(url_for('inicio') + '#resenas')
 
 
 @app.route('/servicios')
@@ -401,10 +424,13 @@ def admin():
     # Horario semanal
     horario = {r['dia']: r for r in db.execute('SELECT * FROM horario').fetchall()}
 
+    resenas = db.execute('SELECT * FROM resenas ORDER BY creado_en DESC').fetchall()
+
     return render_template('admin.html',
         pendientes=pendientes, proximas=proximas,
         pasadas=pasadas, rechazadas=rechazadas,
-        horario=horario, dias=DIAS_SEMANA, hoy=hoy)
+        horario=horario, dias=DIAS_SEMANA, hoy=hoy,
+        resenas=resenas)
 
 
 @app.route('/admin/confirmar/<int:cita_id>', methods=['POST'])
@@ -430,6 +456,15 @@ def rechazar_cita(cita_id):
         db.commit()
         email_rechazo(cita['nombre'], cita['email'], cita_id)
     return redirect(url_for('admin'))
+
+
+@app.route('/admin/resena/borrar/<int:resena_id>', methods=['POST'])
+@admin_requerido
+def borrar_resena(resena_id):
+    db = get_db()
+    db.execute('DELETE FROM resenas WHERE id=?', (resena_id,))
+    db.commit()
+    return redirect(url_for('admin') + '#resenas')
 
 
 @app.route('/admin/horario', methods=['POST'])

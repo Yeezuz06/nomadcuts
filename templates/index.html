@@ -29,23 +29,6 @@
   <div class="hero-scroll">Scroll</div>
 </section>
 
-<!-- ── Stats ─────────────────────────────────────────────── -->
-<div class="stats">
-  <div class="stats-grid">
-    <div class="stat">
-      <div class="stat-num">500+</div>
-      <div class="stat-label">Clientes satisfechos</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">4.9</div>
-      <div class="stat-label">Calificación promedio</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">5★</div>
-      <div class="stat-label">Servicio garantizado</div>
-    </div>
-  </div>
-</div>
 
 <!-- ── Servicios ──────────────────────────────────────────── -->
 <section class="section container">
@@ -124,6 +107,62 @@
   </div>
 </section>
 {% endif %}
+
+<!-- ── Reseñas ────────────────────────────────────────────── -->
+<section class="section container" id="resenas" style="padding-top:0;">
+  <span class="tag">Lo que dicen</span>
+  <div class="divider"></div>
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;flex-wrap:wrap;gap:16px;">
+    <h2 style="font-family:var(--font-d);font-size:clamp(28px,4vw,42px);">Opiniones de clientes</h2>
+  </div>
+
+  <!-- Listado de reseñas -->
+  {% if resenas %}
+  <div class="resenas-grid">
+    {% for r in resenas %}
+    <div class="resena-card">
+      <div class="resena-stars">
+        {% for i in range(r['estrellas']) %}★{% endfor %}{% for i in range(5 - r['estrellas']) %}<span style="color:var(--border);">★</span>{% endfor %}
+      </div>
+      <p class="resena-texto">"{{ r['comentario'] }}"</p>
+      <div class="resena-autor">— {{ r['nombre'] }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:40px 0;color:var(--muted);">
+    <p>Sé el primero en dejar una reseña ✂️</p>
+  </div>
+  {% endif %}
+
+  <!-- Formulario para dejar reseña -->
+  <div class="resena-form-wrap" style="margin-top:56px;">
+    <h3 style="font-family:var(--font-d);font-size:22px;margin-bottom:6px;">¿Ya usaste el servicio?</h3>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:28px;">Déjanos tu opinión — ayuda a otros clientes.</p>
+    <form action="{{ url_for('nueva_resena') }}" method="POST" class="resena-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="r-nombre">Tu nombre</label>
+          <input type="text" id="r-nombre" name="nombre" placeholder="Ej: Carlos M." required maxlength="60">
+        </div>
+        <div class="form-group">
+          <label>Calificación</label>
+          <div class="star-picker" id="star-picker">
+            {% for i in range(1,6) %}
+            <button type="button" class="star-btn" data-val="{{ i }}">★</button>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="estrellas" id="estrellas-val" value="5">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="r-comentario">Comentario</label>
+        <textarea id="r-comentario" name="comentario" rows="3" placeholder="¿Cómo fue tu experiencia?" required maxlength="400"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Publicar reseña</button>
+    </form>
+  </div>
+</section>
 
 <!-- ── CTA final ──────────────────────────────────────────── -->
 <section class="section container" style="padding-top:0;">
