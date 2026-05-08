@@ -791,18 +791,21 @@ input::placeholder, textarea::placeholder { color: var(--muted); }
   transform: translateX(-50%) translateY(0);
 }
 
-/* ── Hero con foto ── */
+/* ── Hero con foto/video ── */
 .hero-bg {
   position: absolute;
   inset: 0;
   z-index: 0;
 }
-.hero-bg img {
+.hero-bg img,
+.hero-bg video {
   width: 100%; height: 100%;
   object-fit: cover;
   object-position: center 30%;
   filter: brightness(.45);
 }
+.hero-video { display: block; }
+.hero-img-fallback { display: none; }
 .hero-overlay {
   position: absolute;
   inset: 0;
@@ -1191,12 +1194,12 @@ body.has-custom-cursor * { cursor: none !important; }
   opacity: 0;
 }
 
-/* ── Ken Burns on hero image ── */
+/* ── Ken Burns on hero fallback image only ── */
 @keyframes kenBurns {
   from { transform: scale(1); }
   to   { transform: scale(1.07); }
 }
-.hero-bg img { animation: kenBurns 14s ease-in-out infinite alternate; }
+.hero-img-fallback { animation: kenBurns 14s ease-in-out infinite alternate; }
 
 /* ── Hero scroll indicator bounce ── */
 @keyframes scrollBounce {
@@ -1462,3 +1465,23 @@ body.has-custom-cursor * { cursor: none !important; }
   .wizard-step-label { display: none; }
   .wizard-steps { margin-bottom: 32px; }
 }
+
+/* ── 3D Tilt on cards ── */
+.service-card,
+.promo-card {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.service-card .tilt-shine,
+.promo-card .tilt-shine {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(226,181,90,.12) 0%, transparent 60%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .25s ease;
+  z-index: 2;
+}
+.service-card:hover .tilt-shine,
+.promo-card:hover .tilt-shine { opacity: 1; }

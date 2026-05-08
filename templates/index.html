@@ -6,7 +6,10 @@
 <!-- ── Hero ─────────────────────────────────────────────────── -->
 <section class="hero">
   <div class="hero-bg">
-    <img src="{{ url_for('static', filename='img/hero.jpg') }}" alt="NomadCuts" />
+    <video class="hero-video" autoplay muted loop playsinline poster="{{ url_for('static', filename='img/hero.jpg') }}">
+      <source src="{{ url_for('static', filename='img/hero.mp4') }}" type="video/mp4" />
+    </video>
+    <img class="hero-img-fallback" src="{{ url_for('static', filename='img/hero.jpg') }}" alt="NomadCuts" />
     <div class="hero-overlay"></div>
   </div>
   <div class="hero-inner">

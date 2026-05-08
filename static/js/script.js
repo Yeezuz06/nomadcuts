@@ -497,6 +497,45 @@ function scrambleText(el, finalText, duration) {
   }
 })();
 
+// ── 3D Card Tilt ──────────────────────────────────────────────
+(function initCardTilt() {
+  if (isMobile() || !hasPointer() || typeof gsap === 'undefined') return;
+
+  var TILT  = 10;   // max degrees
+  var SCALE = 1.03;
+
+  document.querySelectorAll('.service-card, .promo-card').forEach(function(card) {
+    var shine = document.createElement('div');
+    shine.className = 'tilt-shine';
+    card.appendChild(shine);
+
+    card.addEventListener('mousemove', function(e) {
+      var r  = card.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width;
+      var py = (e.clientY - r.top)  / r.height;
+      var rx =  (0.5 - py) * TILT * 2;
+      var ry = -(0.5 - px) * TILT * 2;
+
+      gsap.to(card, {
+        rotateX: rx, rotateY: ry, scale: SCALE,
+        duration: 0.25, ease: 'power2.out',
+        transformPerspective: 900
+      });
+
+      shine.style.setProperty('--mx', (px * 100) + '%');
+      shine.style.setProperty('--my', (py * 100) + '%');
+    });
+
+    card.addEventListener('mouseleave', function() {
+      gsap.to(card, {
+        rotateX: 0, rotateY: 0, scale: 1,
+        duration: 0.6, ease: 'elastic.out(1, 0.45)',
+        transformPerspective: 900
+      });
+    });
+  });
+})();
+
 // ── Cart badge ────────────────────────────────────────────────
 function agregarAlCarrito(productoId, btn) {
   fetch('/carrito/agregar/' + productoId, { method: 'POST' })
