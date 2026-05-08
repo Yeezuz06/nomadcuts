@@ -2,66 +2,84 @@
 {% block title %}Solicitud Recibida — NomadCuts{% endblock %}
 
 {% block content %}
-<div class="success-page">
-  <div style="max-width:500px;width:100%;">
-    <div class="success-icon">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
-        <path d="M12 8v4l3 3"/>
+<div class="success-page" style="position:relative;overflow:hidden;">
+  <div class="particles-container" id="particles"></div>
+  <div style="max-width:500px;width:100%;position:relative;z-index:1;">
+
+    <!-- SVG Checkmark animado -->
+    <div class="checkmark-wrap">
+      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle class="checkmark-circle" cx="40" cy="40" r="36"/>
+        <path class="checkmark-check" d="M24 40l12 12 20-22"/>
       </svg>
     </div>
+
     <span class="tag">Solicitud recibida · Cita #{{ cita_id }}</span>
     <h2 style="margin-bottom:8px;">¡Casi listo, {{ nombre }}!</h2>
     <p style="color:var(--muted);margin-bottom:28px;">
-      Tu solicitud está pendiente de confirmación. Para reservar tu cita
-      definitivamente, realiza el depósito de ${{ "%.2f"|format(deposito) }} por Yappy.
+      Tu solicitud está pendiente. Realiza el depósito de ${{ "%.2f"|format(deposito) }} por Yappy para confirmar.
     </p>
 
     <!-- Resumen -->
-    <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:16px;text-align:left;">
-      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+    <div class="wizard-summary" style="text-align:left;">
+      <table>
         <tr>
-          <td style="color:var(--muted);padding:8px 0;border-bottom:1px solid var(--border);">Servicio</td>
-          <td style="text-align:right;padding:8px 0;border-bottom:1px solid var(--border);">{{ servicio }}</td>
+          <td>Servicio</td>
+          <td>{{ servicio }}</td>
         </tr>
         <tr>
-          <td style="color:var(--muted);padding:8px 0;border-bottom:1px solid var(--border);">Fecha</td>
-          <td style="text-align:right;padding:8px 0;border-bottom:1px solid var(--border);">{{ fecha }}</td>
+          <td>Fecha</td>
+          <td>{{ fecha }}</td>
         </tr>
         <tr>
-          <td style="color:var(--muted);padding:8px 0;">Hora</td>
-          <td style="text-align:right;padding:8px 0;">{{ hora }}</td>
+          <td>Hora</td>
+          <td>{{ hora }}</td>
         </tr>
       </table>
     </div>
 
-    <!-- Instrucciones Yappy -->
+    <!-- Instrucciones Yappy con pasos animados -->
     <div style="background:#110D00;border:1px solid #3A2800;border-radius:var(--radius);padding:24px;margin-bottom:28px;text-align:left;">
-      <p style="color:#C9A84C;font-weight:600;margin:0 0 14px;font-size:15px;">💳 Deposita ${{ "%.2f"|format(deposito) }} por Yappy</p>
+      <p style="color:var(--gold);font-weight:700;margin:0 0 18px;font-size:15px;">💳 Deposita ${{ "%.2f"|format(deposito) }} por Yappy</p>
 
-      <p style="color:var(--muted);font-size:13px;margin-bottom:10px;">Envía el monto al siguiente número:</p>
-      <div style="background:var(--bg-3);border:1px solid var(--border);border-radius:4px;padding:14px;text-align:center;margin-bottom:14px;">
-        <span style="font-size:26px;font-weight:700;color:var(--text);letter-spacing:.08em;">{{ yappy }}</span>
+      <div class="yappy-step" id="ys1">
+        <div class="yappy-step-num">1</div>
+        <div>
+          <p style="color:var(--text);font-size:13px;font-weight:600;margin:0 0 2px;">Abre Yappy</p>
+          <p style="color:var(--muted);font-size:12px;margin:0;">Ingresa a la app Yappy en tu teléfono.</p>
+        </div>
+      </div>
+      <div class="yappy-step" id="ys2">
+        <div class="yappy-step-num">2</div>
+        <div>
+          <p style="color:var(--text);font-size:13px;font-weight:600;margin:0 0 4px;">Envía al número</p>
+          <div style="background:var(--bg-3);border:1px solid var(--border);border-radius:4px;padding:10px;text-align:center;margin-top:6px;">
+            <span style="font-size:22px;font-weight:700;color:var(--text);letter-spacing:.06em;">{{ yappy }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="yappy-step" id="ys3">
+        <div class="yappy-step-num">3</div>
+        <div>
+          <p style="color:var(--text);font-size:13px;font-weight:600;margin:0 0 4px;">Escribe en el comentario:</p>
+          <div style="background:var(--bg-3);border:1px dashed var(--gold-dim);border-radius:4px;padding:10px;text-align:center;margin-top:6px;">
+            <span style="color:var(--gold);font-weight:700;font-size:14px;letter-spacing:.04em;">NomadCuts #{{ cita_id }}</span>
+          </div>
+        </div>
       </div>
 
-      <p style="color:var(--muted);font-size:13px;margin-bottom:6px;">En el comentario del pago escribe:</p>
-      <div style="background:var(--bg-3);border:1px dashed var(--gold-dim);border-radius:4px;padding:10px 14px;text-align:center;margin-bottom:14px;">
-        <span style="color:var(--gold);font-weight:600;font-size:14px;">NomadCuts #{{ cita_id }}</span>
-      </div>
-
-      <p style="color:var(--muted);font-size:12px;margin:0;">
-        Una vez verifiquemos tu pago recibirás un correo de confirmación final.
-        Tu horario queda reservado mientras procesas el pago.
+      <p style="color:var(--muted);font-size:12px;margin:16px 0 0;">
+        Recibirás un correo de confirmación una vez verifiquemos tu pago.
       </p>
     </div>
 
-    <!-- Aviso correo spam -->
-    <div style="background:#0A0A14;border:1px solid #1E1E3A;border-radius:var(--radius);padding:14px 18px;margin-bottom:28px;text-align:left;display:flex;gap:12px;align-items:flex-start;">
+    <!-- Aviso spam -->
+    <div style="background:#0A0A14;border:1px solid #1E1E3A;border-radius:var(--radius);padding:14px 18px;margin-bottom:28px;display:flex;gap:12px;align-items:flex-start;">
       <span style="font-size:18px;flex-shrink:0;">📬</span>
       <p style="color:var(--muted);font-size:12px;margin:0;line-height:1.6;">
-        Te enviamos un correo a tu dirección con los detalles.<br>
-        <strong style="color:var(--text);">Si no lo ves en 5 minutos, revisa tu carpeta de Spam</strong>
-        y márcalo como <em>"No es spam"</em> para recibir futuros correos directo en tu bandeja.
+        Te enviamos un correo con los detalles.<br>
+        <strong style="color:var(--text);">Si no lo ves en 5 minutos, revisa Spam</strong>
+        y márcalo como <em>"No es spam"</em>.
       </p>
     </div>
 
@@ -71,4 +89,44 @@
     </div>
   </div>
 </div>
+
+<script>
+(function() {
+  // Yappy steps stagger in
+  ['ys1','ys2','ys3'].forEach(function(id, i) {
+    setTimeout(function() {
+      var el = document.getElementById(id);
+      if (el) el.classList.add('visible');
+    }, 900 + i * 300);
+  });
+
+  // Particle burst
+  var container = document.getElementById('particles');
+  if (!container || typeof gsap === 'undefined') return;
+  var cx = window.innerWidth / 2;
+  var cy = window.innerHeight / 2;
+  for (var i = 0; i < 14; i++) {
+    (function(idx) {
+      var p = document.createElement('div');
+      p.className = 'particle';
+      container.appendChild(p);
+      var angle = (idx / 14) * Math.PI * 2;
+      var dist  = 80 + Math.random() * 120;
+      var tx    = Math.cos(angle) * dist;
+      var ty    = Math.sin(angle) * dist;
+      var size  = 4 + Math.random() * 5;
+      p.style.cssText = 'left:' + cx + 'px;top:' + cy + 'px;width:' + size + 'px;height:' + size + 'px;';
+      gsap.to(p, {
+        x: tx, y: ty, opacity: 1,
+        duration: 0.4,
+        delay: 0.7 + idx * 0.03,
+        ease: 'power2.out',
+        onComplete: function() {
+          gsap.to(p, { opacity: 0, y: ty + 40, duration: 0.5, ease: 'power1.in' });
+        }
+      });
+    })(i);
+  }
+})();
+</script>
 {% endblock %}

@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<!-- ── Hero con foto real ─────────────────────────────────── -->
+<!-- ── Hero ─────────────────────────────────────────────────── -->
 <section class="hero">
   <div class="hero-bg">
     <img src="{{ url_for('static', filename='img/hero.jpg') }}" alt="NomadCuts" />
@@ -11,7 +11,11 @@
   </div>
   <div class="hero-inner">
     <p class="hero-eyebrow">Barbería profesional a domicilio · Panamá</p>
-    <h1>El corte<br>que <em>mereces</em>,<br>donde estés.</h1>
+    <h1>
+      <span class="hero-line">El corte</span>
+      <span class="hero-line">que <em>mereces</em>,</span>
+      <span class="hero-line">donde estés.</span>
+    </h1>
     <p class="hero-sub">
       NomadCuts lleva la experiencia de una barbería de primer nivel
       directamente a tu hogar, oficina o donde nos necesites.
@@ -29,8 +33,25 @@
   <div class="hero-scroll">Scroll</div>
 </section>
 
+<!-- ── Stats ─────────────────────────────────────────────────── -->
+<div class="stats">
+  <div class="stats-grid">
+    <div class="stat">
+      <div class="stat-num" data-count="200" data-suffix="+">200+</div>
+      <div class="stat-label">Clientes atendidos</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" data-count="4.9" data-suffix="★">4.9★</div>
+      <div class="stat-label">Calificación promedio</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" data-count="3" data-suffix=" años">3 años</div>
+      <div class="stat-label">En Panamá</div>
+    </div>
+  </div>
+</div>
 
-<!-- ── Servicios ──────────────────────────────────────────── -->
+<!-- ── Servicios ──────────────────────────────────────────────── -->
 <section class="section container">
   <span class="tag">Lo que hacemos</span>
   <div class="divider"></div>
@@ -40,25 +61,45 @@
   </div>
   <div class="services-grid">
     <div class="service-card">
-      <div class="service-icon">✂️</div>
+      <span class="service-card-num">01</span>
+      <div class="service-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--gold)">
+          <path d="M6 2v6l2 2-2 2v6M18 2v6l-2 2 2 2v6M6 12h12"/>
+        </svg>
+      </div>
       <div class="service-name">Corte Clásico</div>
       <p class="service-desc">Tijeras, navaja y acabado perfecto. El clásico reinventado con precisión.</p>
       <div class="service-price">$15 <span>/ visita</span></div>
     </div>
     <div class="service-card">
-      <div class="service-icon">🪒</div>
+      <span class="service-card-num">02</span>
+      <div class="service-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--gold)">
+          <path d="M3 7h18M3 7c0 0 2-4 9-4s9 4 9 4M3 7l2 11h14l2-11M9 12v4M15 12v4"/>
+        </svg>
+      </div>
       <div class="service-name">Barba Premium</div>
       <p class="service-desc">Perfilado, rasurado con navaja caliente y tratamiento con aceites naturales.</p>
       <div class="service-price">$12 <span>/ visita</span></div>
     </div>
     <div class="service-card">
-      <div class="service-icon">💎</div>
+      <span class="service-card-num">03</span>
+      <div class="service-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--gold)">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      </div>
       <div class="service-name">Pack Completo</div>
       <p class="service-desc">Corte + Barba + Tratamiento capilar. La experiencia NomadCuts completa.</p>
       <div class="service-price">$24 <span>/ visita</span></div>
     </div>
     <div class="service-card">
-      <div class="service-icon">🎨</div>
+      <span class="service-card-num">04</span>
+      <div class="service-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--gold)">
+          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+      </div>
       <div class="service-name">Degradado / Fade</div>
       <p class="service-desc">Skin fade, low fade, mid fade o high fade. Transiciones perfectas.</p>
       <div class="service-price">$18 <span>/ visita</span></div>
@@ -66,25 +107,40 @@
   </div>
 </section>
 
-<!-- ── Galería de fotos ───────────────────────────────────── -->
+<!-- ── Galería ───────────────────────────────────────────────── -->
 <section class="section container" style="padding-top:0;">
   <span class="tag">El trabajo habla</span>
   <div class="divider"></div>
   <h2 style="font-family:var(--font-d);font-size:clamp(28px,4vw,42px);margin-bottom:40px;">Precisión en cada detalle.</h2>
   <div class="gallery">
     <div class="gallery-main">
-      <img src="{{ url_for('static', filename='img/corte.jpg') }}" alt="Corte de cabello" />
+      <div class="gallery-reveal">
+        <div class="gallery-wipe"></div>
+        <img src="{{ url_for('static', filename='img/corte.jpg') }}" alt="Corte de cabello" />
+      </div>
     </div>
     <div class="gallery-grid">
-      <img src="{{ url_for('static', filename='img/maquina.jpg') }}" alt="Máquina de corte" />
-      <img src="{{ url_for('static', filename='img/navaja.jpg') }}" alt="Navaja barbera" />
-      <img src="{{ url_for('static', filename='img/rasurado.jpg') }}" alt="Rasurado con navaja" />
-      <img src="{{ url_for('static', filename='img/tijeras.jpg') }}" alt="Tijeras profesionales" />
+      <div class="gallery-reveal">
+        <div class="gallery-wipe"></div>
+        <img src="{{ url_for('static', filename='img/maquina.jpg') }}" alt="Máquina de corte" />
+      </div>
+      <div class="gallery-reveal">
+        <div class="gallery-wipe"></div>
+        <img src="{{ url_for('static', filename='img/navaja.jpg') }}" alt="Navaja barbera" />
+      </div>
+      <div class="gallery-reveal">
+        <div class="gallery-wipe"></div>
+        <img src="{{ url_for('static', filename='img/rasurado.jpg') }}" alt="Rasurado con navaja" />
+      </div>
+      <div class="gallery-reveal">
+        <div class="gallery-wipe"></div>
+        <img src="{{ url_for('static', filename='img/tijeras.jpg') }}" alt="Tijeras profesionales" />
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ── Promociones activas ────────────────────────────────── -->
+<!-- ── Promociones ───────────────────────────────────────────── -->
 {% if promociones %}
 <section class="section container" style="padding-top:0;">
   <span class="tag">Ofertas activas</span>
@@ -108,7 +164,7 @@
 </section>
 {% endif %}
 
-<!-- ── Reseñas ────────────────────────────────────────────── -->
+<!-- ── Reseñas ──────────────────────────────────────────────── -->
 <section class="section container" id="resenas" style="padding-top:0;">
   <span class="tag">Lo que dicen</span>
   <div class="divider"></div>
@@ -116,13 +172,12 @@
     <h2 style="font-family:var(--font-d);font-size:clamp(28px,4vw,42px);">Opiniones de clientes</h2>
   </div>
 
-  <!-- Listado de reseñas -->
   {% if resenas %}
   <div class="resenas-grid">
     {% for r in resenas %}
     <div class="resena-card">
       <div class="resena-stars">
-        {% for i in range(r['estrellas']) %}★{% endfor %}{% for i in range(5 - r['estrellas']) %}<span style="color:var(--border);">★</span>{% endfor %}
+        {% for i in range(r['estrellas']) %}<span class="star-active">★</span>{% endfor %}{% for i in range(5 - r['estrellas']) %}<span class="star-inactive">★</span>{% endfor %}
       </div>
       <p class="resena-texto">"{{ r['comentario'] }}"</p>
       <div class="resena-autor">— {{ r['nombre'] }}</div>
@@ -135,7 +190,6 @@
   </div>
   {% endif %}
 
-  <!-- Formulario para dejar reseña -->
   <div class="resena-form-wrap" style="margin-top:56px;">
     <h3 style="font-family:var(--font-d);font-size:22px;margin-bottom:6px;">¿Ya usaste el servicio?</h3>
     <p style="color:var(--muted);font-size:14px;margin-bottom:28px;">Déjanos tu opinión — ayuda a otros clientes.</p>
@@ -164,7 +218,7 @@
   </div>
 </section>
 
-<!-- ── CTA final ──────────────────────────────────────────── -->
+<!-- ── CTA Final ─────────────────────────────────────────────── -->
 <section class="section container" style="padding-top:0;">
   <div class="cta-banner">
     <div class="cta-banner-bg">

@@ -6,7 +6,7 @@
   <div class="page-header">
     <span class="tag">Sin filas, sin esperas</span>
     <h1>Agenda tu cita</h1>
-    <p>Elige servicio, fecha y hora disponible. Llegamos a ti.</p>
+    <p>Tres pasos. Llegamos a ti.</p>
   </div>
 
   <div class="form-section">
@@ -18,136 +18,201 @@
     </div>
     {% endif %}
 
-    <form method="POST" action="{{ url_for('agendar') }}">
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="nombre">Nombre completo</label>
-          <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required />
-        </div>
-        <div class="form-group">
-          <label for="telefono">Teléfono</label>
-          <input type="tel" id="telefono" name="telefono" placeholder="6000-0000" required />
-        </div>
+    <!-- Step indicator -->
+    <div class="wizard-steps" id="wizard-steps">
+      <div class="wizard-step active" data-step="0">
+        <div class="wizard-step-node">1</div>
+        <span class="wizard-step-label">Servicio</span>
       </div>
-
-      <div class="form-group">
-        <label for="email">Correo electrónico</label>
-        <input type="email" id="email" name="email" placeholder="tu@correo.com" required />
+      <div class="wizard-connector" id="wc1"></div>
+      <div class="wizard-step" data-step="1">
+        <div class="wizard-step-node">2</div>
+        <span class="wizard-step-label">Tus datos</span>
       </div>
-
-      <div class="form-group">
-        <label for="servicio">Servicio</label>
-        <select id="servicio" name="servicio" required>
-          <option value="" disabled selected>Selecciona un servicio</option>
-          <option value="Corte Clásico — $15">✂️  Corte Clásico — $15</option>
-          <option value="Barba Premium — $12">🪒  Barba Premium — $12</option>
-          <option value="Pack Completo — $24">💎  Pack Completo — $24</option>
-          <option value="Corte Niños — $10">👦  Corte Niños — $10</option>
-          <option value="Degradado / Fade — $18">🎨  Degradado / Fade — $18</option>
-          <option value="Servicio Corporativo">🏢  Servicio Corporativo (cotizar)</option>
-        </select>
+      <div class="wizard-connector" id="wc2"></div>
+      <div class="wizard-step" data-step="2">
+        <div class="wizard-step-node">3</div>
+        <span class="wizard-step-label">Confirmación</span>
       </div>
+    </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="fecha">Fecha</label>
-          <input type="date" id="fecha" name="fecha" required />
-        </div>
-        <div class="form-group">
-          <label for="hora">
-            Hora disponible
-            <span id="cargando-horas" style="color:var(--muted);font-weight:400;text-transform:none;display:none;"> · cargando...</span>
+    <form method="POST" action="{{ url_for('agendar') }}" id="wizard-form">
+      <div class="wizard-panels" id="wizard">
+
+        <!-- ── Panel 0: Servicio + Fecha/Hora ── -->
+        <div class="wizard-panel active" id="panel-0">
+          <label style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:block;">
+            Elige tu servicio
           </label>
-          <select id="hora" name="hora" required>
-            <option value="" disabled selected>Primero selecciona una fecha</option>
-          </select>
+          <div class="service-selector">
+            <input type="radio" class="service-option" id="s1" name="servicio" value="Corte Clásico — $15" required />
+            <label for="s1">
+              <span class="service-option-name">Corte Clásico</span>
+              <span class="service-option-price">$15</span>
+            </label>
+            <input type="radio" class="service-option" id="s2" name="servicio" value="Barba Premium — $12" />
+            <label for="s2">
+              <span class="service-option-name">Barba Premium</span>
+              <span class="service-option-price">$12</span>
+            </label>
+            <input type="radio" class="service-option" id="s3" name="servicio" value="Pack Completo — $24" />
+            <label for="s3">
+              <span class="service-option-name">Pack Completo</span>
+              <span class="service-option-price">$24</span>
+            </label>
+            <input type="radio" class="service-option" id="s4" name="servicio" value="Corte Niños — $10" />
+            <label for="s4">
+              <span class="service-option-name">Corte Niños</span>
+              <span class="service-option-price">$10</span>
+            </label>
+            <input type="radio" class="service-option" id="s5" name="servicio" value="Degradado / Fade — $18" />
+            <label for="s5">
+              <span class="service-option-name">Degradado / Fade</span>
+              <span class="service-option-price">$18</span>
+            </label>
+            <input type="radio" class="service-option" id="s6" name="servicio" value="Servicio Corporativo" />
+            <label for="s6">
+              <span class="service-option-name">Corporativo</span>
+              <span class="service-option-price">Cotizar</span>
+            </label>
+          </div>
+
+          <div class="form-row" style="margin-top:24px;">
+            <div class="form-group">
+              <label for="fecha">Fecha</label>
+              <input type="date" id="fecha" name="fecha" required />
+            </div>
+            <div class="form-group">
+              <label for="hora">
+                Hora disponible
+                <span id="cargando-horas" style="color:var(--muted);font-weight:400;text-transform:none;display:none;"> · cargando...</span>
+              </label>
+              <select id="hora" name="hora" required>
+                <option value="" disabled selected>Primero selecciona una fecha</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="wizard-nav">
+            <span></span>
+            <button type="button" class="btn btn-primary" data-next="1">
+              Continuar
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="notas">Notas adicionales <span style="color:var(--muted);text-transform:none;font-weight:400;">(opcional)</span></label>
-        <textarea id="notas" name="notas" placeholder="Dirección, instrucciones especiales, estilo deseado..."></textarea>
-      </div>
+        <!-- ── Panel 1: Datos personales ── -->
+        <div class="wizard-panel" id="panel-1">
+          <div class="form-row">
+            <div class="form-floating">
+              <input type="text" id="nombre" name="nombre" placeholder=" " required />
+              <label for="nombre">Nombre completo</label>
+            </div>
+            <div class="form-floating">
+              <input type="tel" id="telefono" name="telefono" placeholder=" " required />
+              <label for="telefono">Teléfono</label>
+            </div>
+          </div>
+          <div class="form-floating">
+            <input type="email" id="email" name="email" placeholder=" " required />
+            <label for="email">Correo electrónico</label>
+          </div>
+          <div class="form-floating">
+            <textarea id="notas" name="notas" placeholder=" " rows="3"></textarea>
+            <label for="notas">Notas adicionales (opcional)</label>
+          </div>
 
-      <!-- Aviso depósito -->
-      <div style="background:#110D00;border:1px solid #3A2800;border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;display:flex;gap:12px;align-items:flex-start;">
-        <span style="font-size:20px;flex-shrink:0;">💳</span>
-        <div>
-          <p style="color:#C9A84C;font-weight:600;margin:0 0 4px;font-size:14px;">Se requiere depósito de $5 por Yappy</p>
-          <p style="color:#6B6760;font-size:13px;margin:0;">Para confirmar tu cita necesitas abonar $5 al número <strong style="color:#F0EDE8;">6328-6461</strong> por Yappy. Te enviaremos las instrucciones por correo.</p>
+          <div class="wizard-nav">
+            <button type="button" class="btn btn-outline" data-prev="0">← Atrás</button>
+            <button type="button" class="btn btn-primary" data-next="2">
+              Continuar
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
         </div>
-      </div>
 
-      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:16px;">
-        Solicitar cita
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M5 12h14M12 5l7 7-7 7"/>
-        </svg>
-      </button>
+        <!-- ── Panel 2: Confirmación ── -->
+        <div class="wizard-panel" id="panel-2">
+          <h3 style="font-family:var(--font-d);font-size:20px;margin-bottom:20px;">Confirma tu solicitud</h3>
 
+          <div class="wizard-summary">
+            <table>
+              <tr><td>Servicio</td><td id="summary-servicio">—</td></tr>
+              <tr><td>Fecha</td><td id="summary-fecha">—</td></tr>
+              <tr><td>Hora</td><td id="summary-hora">—</td></tr>
+              <tr><td>Nombre</td><td id="summary-nombre">—</td></tr>
+            </table>
+          </div>
+
+          <div style="background:#110D00;border:1px solid #3A2800;border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;display:flex;gap:12px;align-items:flex-start;">
+            <span style="font-size:20px;flex-shrink:0;">💳</span>
+            <div>
+              <p style="color:var(--gold);font-weight:600;margin:0 0 4px;font-size:14px;">Se requiere depósito de $5 por Yappy</p>
+              <p style="color:var(--muted);font-size:13px;margin:0;">Recibirás las instrucciones por correo al enviar la solicitud.</p>
+            </div>
+          </div>
+
+          <div class="wizard-nav">
+            <button type="button" class="btn btn-outline" data-prev="1">← Atrás</button>
+            <button type="submit" class="btn btn-primary" style="padding:14px 36px;">
+              Enviar solicitud
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /.wizard-panels -->
     </form>
   </div>
 </div>
 
 <script>
+// ── Hours fetcher ─────────────────────────────────────────────
 function fmt(h) {
-  const n = parseInt(h);
-  return n < 12 ? `${n}:00 AM` : n === 12 ? '12:00 PM' : `${n-12}:00 PM`;
+  var n = parseInt(h);
+  return n < 12 ? n + ':00 AM' : n === 12 ? '12:00 PM' : (n - 12) + ':00 PM';
 }
+var inputFecha = document.getElementById('fecha');
+var selectHora = document.getElementById('hora');
+var cargando   = document.getElementById('cargando-horas');
 
-const inputFecha = document.getElementById('fecha');
-const selectHora = document.getElementById('hora');
-const cargando   = document.getElementById('cargando-horas');
-
-// Fecha mínima: mañana
-const hoy = new Date();
+var hoy = new Date();
 hoy.setDate(hoy.getDate() + 1);
 inputFecha.min = hoy.toISOString().split('T')[0];
 
-inputFecha.addEventListener('change', async () => {
-  const fecha = inputFecha.value;
+inputFecha.addEventListener('change', async function() {
+  var fecha = inputFecha.value;
   if (!fecha) return;
-
   cargando.style.display = 'inline';
   selectHora.innerHTML = '<option value="" disabled selected>Cargando...</option>';
   selectHora.disabled = true;
-
-  const res  = await fetch(`/agendar/horas-tomadas?fecha=${fecha}`);
-  const data = await res.json();
-
+  var res  = await fetch('/agendar/horas-tomadas?fecha=' + fecha);
+  var data = await res.json();
   cargando.style.display = 'none';
   selectHora.innerHTML = '';
   selectHora.disabled = false;
-
-  // Día cerrado
   if (data.cerrado) {
-    selectHora.innerHTML =
-      '<option value="" disabled selected>❌ No trabajamos ese día</option>';
+    selectHora.innerHTML = '<option value="" disabled selected>❌ No trabajamos ese día</option>';
     selectHora.disabled = true;
     return;
   }
-
-  const disponibles = data.disponibles || [];
-  const tomadas     = data.tomadas || [];
-
-  if (disponibles.length === 0) {
-    selectHora.innerHTML =
-      '<option value="" disabled selected>Sin horas disponibles</option>';
+  var disponibles = data.disponibles || [];
+  var tomadas     = data.tomadas || [];
+  if (!disponibles.length) {
+    selectHora.innerHTML = '<option value="" disabled selected>Sin horas disponibles</option>';
     selectHora.disabled = true;
     return;
   }
-
-  const placeholder = document.createElement('option');
-  placeholder.value = ''; placeholder.disabled = true; placeholder.selected = true;
-  placeholder.textContent = 'Selecciona una hora';
-  selectHora.appendChild(placeholder);
-
-  disponibles.forEach(h => {
-    const opt = document.createElement('option');
+  var ph = document.createElement('option');
+  ph.value = ''; ph.disabled = true; ph.selected = true;
+  ph.textContent = 'Selecciona una hora';
+  selectHora.appendChild(ph);
+  disponibles.forEach(function(h) {
+    var opt = document.createElement('option');
     opt.value = h;
     if (tomadas.includes(h)) {
-      opt.textContent = `${fmt(h)} — Ocupado`;
+      opt.textContent = fmt(h) + ' — Ocupado';
       opt.disabled = true;
       opt.style.color = '#555';
     } else {

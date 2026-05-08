@@ -5,18 +5,20 @@
 
 /* ── Variables ── */
 :root {
-  --bg:       #0A0A0A;
-  --bg-2:     #131313;
-  --bg-3:     #1C1C1C;
-  --border:   #252525;
-  --gold:     #C9A84C;
-  --gold-dim: #8A6E2F;
-  --text:     #F0EDE8;
-  --muted:    #6B6760;
-  --radius:   6px;
-  --font:     'Inter', sans-serif;
-  --font-d:   'Playfair Display', serif;
-  --trans:    .22s ease;
+  --bg:         #0A0A0A;
+  --bg-2:       #131313;
+  --bg-3:       #1C1C1C;
+  --border:     #252525;
+  --gold:       #E2B55A;
+  --gold-light: #F0CC7A;
+  --gold-dim:   #A07B30;
+  --text:       #F0EDE8;
+  --muted:      #6B6760;
+  --radius:     6px;
+  --font:       'Inter', sans-serif;
+  --font-d:     'Space Grotesk', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+  --trans:      .22s ease;
 }
 
 /* ── Reset ── */
@@ -101,6 +103,7 @@ button { cursor: pointer; font-family: var(--font); }
   background: rgba(10,10,10,.92);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
+  transition: background .35s ease, border-color .35s ease, backdrop-filter .35s ease;
 }
 .nav-logo {
   display: flex;
@@ -233,6 +236,7 @@ button { cursor: pointer; font-family: var(--font); }
 }
 .hero h1 em {
   font-style: italic;
+  font-family: var(--font-serif);
   color: var(--gold);
 }
 .hero-sub {
@@ -1068,4 +1072,393 @@ input::placeholder, textarea::placeholder { color: var(--muted); }
   .form-row { grid-template-columns: 1fr; }
   .footer-inner { grid-template-columns: 1fr; gap: 32px; }
   .hero h1 { font-size: clamp(40px, 12vw, 64px); }
+}
+
+/* ============================================================
+   NomadCuts — Premium additions
+   ============================================================ */
+
+/* ── Star spans for review animation ── */
+.resena-stars .star-active  { color: var(--gold); }
+.resena-stars .star-inactive { color: var(--border); }
+
+/* ── Custom Cursor ── */
+.cursor-dot {
+  width: 8px; height: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+}
+.cursor-ring {
+  width: 36px; height: 36px;
+  border: 1.5px solid rgba(226,181,90,.6);
+  border-radius: 50%;
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: width .2s ease, height .2s ease, border-color .2s ease;
+}
+.cursor-ring.expand {
+  width: 52px; height: 52px;
+  border-color: var(--gold-light);
+}
+body.has-custom-cursor * { cursor: none !important; }
+
+/* ── Page Loader ── */
+.loader {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.loader.hidden { display: none; }
+.loader-text {
+  font-family: var(--font-d);
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 700;
+  letter-spacing: .2em;
+  color: var(--gold);
+}
+
+/* ── Scroll Progress Bar ── */
+.scroll-progress {
+  position: absolute;
+  bottom: -1px; left: 0;
+  height: 2px;
+  width: 0%;
+  background: linear-gradient(to right, var(--gold), var(--gold-light));
+  z-index: 101;
+  pointer-events: none;
+}
+
+/* ── Nav transparent state ── */
+.nav.transparent {
+  background: transparent !important;
+  border-bottom-color: transparent !important;
+  backdrop-filter: none !important;
+}
+
+/* ── Nav mobile full-screen overlay ── */
+.nav-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 200;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+}
+.nav-overlay.open { display: flex; }
+.nav-overlay a {
+  font-family: var(--font-d);
+  font-size: clamp(26px, 6vw, 46px);
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: .03em;
+  transition: color var(--trans);
+  opacity: 0;
+  transform: translateY(24px);
+}
+.nav-overlay a:hover { color: var(--gold); }
+.nav-overlay-close {
+  position: absolute;
+  top: 24px; right: 28px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 32px;
+  cursor: pointer;
+  line-height: 1;
+  transition: color var(--trans);
+}
+.nav-overlay-close:hover { color: var(--text); }
+
+/* ── Hero line split ── */
+.hero-line {
+  display: block;
+  clip-path: inset(0 0 100% 0);
+  opacity: 0;
+}
+
+/* ── Ken Burns on hero image ── */
+@keyframes kenBurns {
+  from { transform: scale(1); }
+  to   { transform: scale(1.07); }
+}
+.hero-bg img { animation: kenBurns 14s ease-in-out infinite alternate; }
+
+/* ── Hero scroll indicator bounce ── */
+@keyframes scrollBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(10px); }
+}
+.hero-scroll { animation: scrollBounce 2.2s ease-in-out infinite; }
+
+/* ── Gallery wipe reveal ── */
+.gallery-reveal { position: relative; overflow: hidden; }
+.gallery-wipe {
+  position: absolute;
+  inset: 0;
+  background: var(--gold);
+  z-index: 2;
+  transform-origin: right;
+  pointer-events: none;
+}
+
+/* ── Promo badge pulse ── */
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.06); }
+}
+.promo-badge { animation: badgePulse 2.2s ease-in-out infinite; }
+
+/* ── Service card numbered label ── */
+.service-card { position: relative; }
+.service-card-num {
+  position: absolute;
+  top: 12px; right: 16px;
+  font-family: var(--font-d);
+  font-size: 60px;
+  font-weight: 700;
+  color: rgba(226,181,90,.07);
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── Wizard Steps ── */
+.wizard-steps {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 48px;
+}
+.wizard-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+.wizard-connector {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  margin-top: 18px;
+  transition: background .4s ease;
+}
+.wizard-connector.done { background: var(--gold); }
+.wizard-step-node {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--bg);
+  transition: all .3s ease;
+  z-index: 1;
+  flex-shrink: 0;
+}
+.wizard-step.active .wizard-step-node {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(226,181,90,.1);
+}
+.wizard-step.done .wizard-step-node {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: #0A0A0A;
+}
+.wizard-step-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+  transition: color .3s ease;
+}
+.wizard-step.active .wizard-step-label { color: var(--gold); }
+.wizard-step.done .wizard-step-label   { color: var(--gold); }
+
+/* ── Wizard Panels ── */
+.wizard-panels { position: relative; overflow: hidden; }
+.wizard-panel  { display: none; opacity: 0; }
+.wizard-panel.active { display: block; opacity: 1; }
+
+/* ── Service Selector Cards ── */
+.service-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.service-option { display: none; }
+.service-option + label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 16px;
+  background: var(--bg-2);
+  cursor: pointer;
+  transition: background var(--trans);
+}
+.service-option + label:hover { background: var(--bg-3); }
+.service-option:checked + label {
+  background: rgba(226,181,90,.08);
+  box-shadow: inset 0 0 0 1.5px var(--gold);
+}
+.service-option-name {
+  font-family: var(--font-d);
+  font-size: 14px;
+  font-weight: 600;
+}
+.service-option-price { font-size: 13px; color: var(--gold); font-weight: 600; }
+
+/* ── Floating Labels ── */
+.form-floating { position: relative; margin-bottom: 20px; }
+.form-floating input,
+.form-floating textarea {
+  padding-top: 24px;
+  padding-bottom: 8px;
+}
+.form-floating > label {
+  position: absolute;
+  top: 14px; left: 16px;
+  font-size: 14px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--muted);
+  pointer-events: none;
+  transition: transform .18s ease, font-size .18s ease, color .18s ease, letter-spacing .18s ease;
+  transform-origin: left top;
+  margin: 0;
+}
+.form-floating input:focus ~ label,
+.form-floating input:not(:placeholder-shown) ~ label,
+.form-floating textarea:focus ~ label,
+.form-floating textarea:not(:placeholder-shown) ~ label {
+  transform: translateY(-9px) scale(0.78);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--gold);
+}
+
+/* ── Wizard navigation buttons ── */
+.wizard-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  gap: 12px;
+}
+.wizard-nav .btn { min-width: 130px; justify-content: center; }
+
+/* ── Wizard summary table ── */
+.wizard-summary {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  margin-bottom: 20px;
+}
+.wizard-summary table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.wizard-summary td { padding: 9px 0; border-bottom: 1px solid var(--border); }
+.wizard-summary tr:last-child td { border-bottom: none; }
+.wizard-summary td:first-child { color: var(--muted); }
+.wizard-summary td:last-child { text-align: right; font-weight: 500; }
+
+/* ── SVG Checkmark animation ── */
+.checkmark-wrap { width: 80px; height: 80px; margin: 0 auto 32px; }
+.checkmark-circle {
+  stroke: var(--gold);
+  stroke-width: 2;
+  fill: none;
+  stroke-dasharray: 283;
+  stroke-dashoffset: 283;
+  animation: drawCircle .65s ease forwards .15s;
+}
+.checkmark-check {
+  stroke: var(--gold);
+  stroke-width: 3;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: drawCheck .4s ease forwards .8s;
+}
+@keyframes drawCircle { to { stroke-dashoffset: 0; } }
+@keyframes drawCheck  { to { stroke-dashoffset: 0; } }
+
+/* ── Particles ── */
+.particles-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.particle {
+  position: absolute;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  opacity: 0;
+}
+
+/* ── Yappy steps ── */
+.yappy-step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(58,40,0,.6);
+  opacity: 0;
+  transform: translateY(12px);
+}
+.yappy-step:last-child { border-bottom: none; }
+.yappy-step.visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity .4s ease, transform .4s ease;
+}
+.yappy-step-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: rgba(226,181,90,.15);
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Responsive additions ── */
+@media (max-width: 680px) {
+  .service-selector { grid-template-columns: 1fr 1fr; }
+  .wizard-step-label { display: none; }
+  .wizard-steps { margin-bottom: 32px; }
 }
