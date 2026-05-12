@@ -8,13 +8,10 @@
 <!-- ── Hero ─────────────────────────────────────────────────── -->
 <section class="hero">
   <div class="hero-bg">
-    <!-- Imagen siempre visible como base -->
-    <img class="hero-img-fallback" src="{{ url_for('static', filename='img/hero.jpg') }}" alt="NomadCuts" />
-    <!-- Video encima, opacidad 0 hasta que empieza a reproducirse -->
     <video class="hero-video"
            src="{{ url_for('static', filename='img/hero.mp4') }}"
            autoplay muted loop playsinline webkit-playsinline
-           preload="metadata">
+           preload="auto">
     </video>
     <div class="hero-overlay"></div>
   </div>
