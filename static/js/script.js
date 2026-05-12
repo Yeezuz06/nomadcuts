@@ -27,15 +27,25 @@ function mostrarToast(msg) {
 
 // Custom cursor desactivado
 
-// ── Hero video autoplay fallback ──────────────────────────────
+// ── Hero video: se hace visible al empezar a reproducirse ─────
 (function initHeroVideo() {
   var video = document.querySelector('.hero-video');
   if (!video) return;
-  var fallback = document.querySelector('.hero-img-fallback');
-  video.play().catch(function() {
-    video.style.display = 'none';
-    if (fallback) fallback.style.display = 'block';
-  });
+
+  // Cuando el video empieza a reproducirse, lo hacemos visible
+  video.addEventListener('playing', function() {
+    video.classList.add('is-playing');
+  }, { once: true });
+
+  // Intentar play explícito (ayuda en algunos browsers móviles)
+  var tryPlay = function() {
+    video.play().catch(function() {});
+  };
+  if (video.readyState >= 2) {
+    tryPlay();
+  } else {
+    video.addEventListener('loadeddata', tryPlay, { once: true });
+  }
 })();
 
 // ── Page Loader ───────────────────────────────────────────────

@@ -830,8 +830,27 @@ input::placeholder, textarea::placeholder { color: var(--muted); }
   object-position: center 30%;
   filter: brightness(.45);
 }
-.hero-video { display: block; }
-.hero-img-fallback { display: none; }
+.hero-img-fallback {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  filter: brightness(.45);
+}
+.hero-video {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  filter: brightness(.45);
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.hero-video.is-playing { opacity: 1; }
 .hero-overlay {
   position: absolute;
   inset: 0;
@@ -1193,12 +1212,12 @@ input::placeholder, textarea::placeholder { color: var(--muted); }
   opacity: 0;
 }
 
-/* ── Ken Burns on hero fallback image only ── */
+/* ── Ken Burns on hero fallback image ── */
 @keyframes kenBurns {
   from { transform: scale(1); }
   to   { transform: scale(1.07); }
 }
-.hero-img-fallback { animation: kenBurns 14s ease-in-out infinite alternate; }
+.hero-bg .hero-img-fallback { animation: kenBurns 14s ease-in-out infinite alternate; }
 
 /* ── Hero scroll indicator bounce ── */
 @keyframes scrollBounce {
