@@ -17,5 +17,14 @@ ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'nomadcuts2024')
 TELEGRAM_TOKEN   = os.environ.get('TELEGRAM_TOKEN',   '')
 TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID', '')
 
+# ── WhatsApp (CallMeBot — gratis) ─────────────────────────────
+# Para activar: manda "I allow callmebot to send me messages"
+# al +34 644 59 78 19 en WhatsApp y recibirás tu apikey
+CALLMEBOT_PHONE  = os.environ.get('CALLMEBOT_PHONE',  '')   # ej: 50763286461
+CALLMEBOT_APIKEY = os.environ.get('CALLMEBOT_APIKEY', '')
+
+# ── HMAC secret para links de confirmar/rechazar ──────────────
+WA_SECRET = os.environ.get('WA_SECRET', 'nomadcuts_wa_secret_2024')
+
 # ── General ──────────────────────────────────────────────────
 NOMBRE_NEGOCIO = 'NomadCuts'

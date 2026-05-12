@@ -7,7 +7,7 @@ from flask import (
     Flask, render_template, request,
     redirect, url_for, session, jsonify
 )
-import sqlite3, requests, time
+import sqlite3, requests, time, hmac, hashlib
 from datetime import datetime, date, timedelta
 
 import os
@@ -174,6 +174,48 @@ def telegram_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion):
         ]]
     }
     telegram_send(texto, teclado)
+
+
+# ── WhatsApp (CallMeBot) ──────────────────────────────────────
+
+def _wa_token(accion: str, cita_id: int) -> str:
+    """Genera un token HMAC corto para confirmar/rechazar por link."""
+    msg = f'{accion}:{cita_id}'.encode()
+    return hmac.new(config.WA_SECRET.encode(), msg, hashlib.sha256).hexdigest()[:20]
+
+
+def whatsapp_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion):
+    """Envía notificación WhatsApp al admin con links para confirmar/rechazar."""
+    if not config.CALLMEBOT_PHONE or not config.CALLMEBOT_APIKEY:
+        return
+
+    tok_ok = _wa_token('ok', cita_id)
+    tok_no = _wa_token('no', cita_id)
+    base   = 'https://nomadcuts.online'
+
+    serv_corto = servicio.split('—')[0].strip()
+    texto = (
+        f'🔔 Nueva cita #{cita_id}\n'
+        f'👤 {nombre}\n'
+        f'✂️ {serv_corto}\n'
+        f'📅 {fecha}  🕐 {hora}\n'
+        f'📍 {direccion or "Sin dirección"}\n\n'
+        f'✅ Confirmar: {base}/cita/ok/{cita_id}/{tok_ok}\n'
+        f'❌ Rechazar: {base}/cita/no/{cita_id}/{tok_no}'
+    )
+
+    try:
+        requests.get(
+            'https://api.callmebot.com/whatsapp.php',
+            params={
+                'phone':  config.CALLMEBOT_PHONE,
+                'text':   texto,
+                'apikey': config.CALLMEBOT_APIKEY,
+            },
+            timeout=10
+        )
+    except Exception as e:
+        print(f'⚠  WhatsApp error: {e}')
 
 
 # ── Emails ────────────────────────────────────────────────────
@@ -441,6 +483,7 @@ def agendar():
 
         email_pendiente_pago(nombre, email, servicio, fecha, hora, cita_id)
         telegram_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion)
+        whatsapp_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion)
         enviar_email(config.GMAIL_USER,
             f'[NUEVA CITA #{cita_id}] {nombre} - {fecha} {hora}',
             _base_email(f'<p>Nueva solicitud: <b>#{cita_id}</b><br>'
@@ -481,6 +524,72 @@ def admin_requerido(f):
             return redirect(url_for('admin_login'))
         return f(*args, **kwargs)
     return wrapper
+
+
+@app.route('/cita/ok/<int:cita_id>/<token>')
+def cita_ok(cita_id, token):
+    """Confirma una cita desde el link de WhatsApp."""
+    if not hmac.compare_digest(token, _wa_token('ok', cita_id)):
+        return '<h2 style="font-family:sans-serif;color:#c00;">⚠️ Link inválido</h2>', 403
+    db = get_db()
+    cita = db.execute('SELECT * FROM citas WHERE id=?', (cita_id,)).fetchone()
+    if not cita:
+        return '<h2 style="font-family:sans-serif;">❌ Cita no encontrada</h2>', 404
+    if cita['estado'] not in ('pendiente_pago', 'pendiente'):
+        estado_txt = {'confirmada':'ya estaba confirmada','rechazada':'ya estaba rechazada'}.get(cita['estado'], cita['estado'])
+        return f'<h2 style="font-family:sans-serif;">ℹ️ Cita #{cita_id} {estado_txt}</h2>', 200
+    db.execute("UPDATE citas SET estado='confirmada' WHERE id=?", (cita_id,))
+    db.commit()
+    email_confirmacion_final(
+        cita['nombre'], cita['email'],
+        cita['servicio'], cita['fecha'], cita['hora'], cita_id)
+    return f'''<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cita confirmada</title>
+<style>body{{margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0A0A0A;font-family:sans-serif;color:#fff;text-align:center;padding:24px}}
+.card{{background:#111;border:1px solid #2a2a2a;border-radius:16px;padding:40px 32px;max-width:360px}}
+.icon{{font-size:48px;margin-bottom:16px}}
+h2{{margin:0 0 8px;font-size:22px;color:#E2B55A}}
+p{{margin:0;color:#888;font-size:14px}}
+</style></head><body>
+<div class="card">
+  <div class="icon">✅</div>
+  <h2>Cita #{cita_id} confirmada</h2>
+  <p>Se envió confirmación a {cita["nombre"]} por email.</p>
+</div></body></html>'''
+
+
+@app.route('/cita/no/<int:cita_id>/<token>')
+def cita_no(cita_id, token):
+    """Rechaza una cita desde el link de WhatsApp."""
+    if not hmac.compare_digest(token, _wa_token('no', cita_id)):
+        return '<h2 style="font-family:sans-serif;color:#c00;">⚠️ Link inválido</h2>', 403
+    db = get_db()
+    cita = db.execute('SELECT * FROM citas WHERE id=?', (cita_id,)).fetchone()
+    if not cita:
+        return '<h2 style="font-family:sans-serif;">❌ Cita no encontrada</h2>', 404
+    if cita['estado'] not in ('pendiente_pago', 'pendiente'):
+        estado_txt = {'confirmada':'ya estaba confirmada','rechazada':'ya estaba rechazada'}.get(cita['estado'], cita['estado'])
+        return f'<h2 style="font-family:sans-serif;">ℹ️ Cita #{cita_id} {estado_txt}</h2>', 200
+    db.execute("UPDATE citas SET estado='rechazada' WHERE id=?", (cita_id,))
+    db.commit()
+    email_rechazo(cita['nombre'], cita['email'], cita_id)
+    return f'''<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cita rechazada</title>
+<style>body{{margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0A0A0A;font-family:sans-serif;color:#fff;text-align:center;padding:24px}}
+.card{{background:#111;border:1px solid #2a2a2a;border-radius:16px;padding:40px 32px;max-width:360px}}
+.icon{{font-size:48px;margin-bottom:16px}}
+h2{{margin:0 0 8px;font-size:22px;color:#ff6b6b}}
+p{{margin:0;color:#888;font-size:14px}}
+</style></head><body>
+<div class="card">
+  <div class="icon">❌</div>
+  <h2>Cita #{cita_id} rechazada</h2>
+  <p>Se notificó a {cita["nombre"]} por email.</p>
+</div></body></html>'''
 
 
 @app.route('/tg-webhook', methods=['POST'])
