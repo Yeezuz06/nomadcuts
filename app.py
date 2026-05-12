@@ -189,23 +189,24 @@ def ntfy_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion):
     serv_corto = servicio.split('—')[0].strip()
 
     try:
-        body = (
-            f'Servicio: {serv_corto}\n'
-            f'Fecha: {fecha}  Hora: {hora}\n'
-            f'Direccion: {direccion or "Sin direccion"}'
-        ).encode('utf-8')
         requests.post(
-            f'https://ntfy.sh/{config.NTFY_TOPIC}',
-            data=body,
-            headers={
-                'Title':        f'Nueva cita #{cita_id} - {nombre}'.encode('utf-8'),
-                'Content-Type': 'text/plain; charset=utf-8',
-                'Priority':     'high',
-                'Tags':         'scissors,calendar',
-                'Actions':      (
-                    f'view, Confirmar, {base}/cita/ok/{cita_id}/{tok_ok}, clear=true; '
-                    f'view, Rechazar,  {base}/cita/no/{cita_id}/{tok_no}, clear=true'
+            'https://ntfy.sh',
+            json={
+                'topic':    config.NTFY_TOPIC,
+                'title':    f'Nueva cita #{cita_id} - {nombre}',
+                'message':  (
+                    f'Servicio: {serv_corto}\n'
+                    f'Fecha: {fecha}  Hora: {hora}\n'
+                    f'Direccion: {direccion or "Sin direccion"}'
                 ),
+                'priority': 4,
+                'tags':     ['scissors', 'calendar'],
+                'actions':  [
+                    {'action': 'view', 'label': 'Confirmar',
+                     'url': f'{base}/cita/ok/{cita_id}/{tok_ok}', 'clear': True},
+                    {'action': 'view', 'label': 'Rechazar',
+                     'url': f'{base}/cita/no/{cita_id}/{tok_no}', 'clear': True},
+                ],
             },
             timeout=8
         )
