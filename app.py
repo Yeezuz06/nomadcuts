@@ -176,6 +176,37 @@ def telegram_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion):
     telegram_send(texto, teclado)
 
 
+# ── ntfy.sh (push notifications) ─────────────────────────────
+
+def ntfy_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion):
+    """Envía notificación push al teléfono con botones confirmar/rechazar."""
+    if not config.NTFY_TOPIC:
+        return
+
+    tok_ok = _wa_token('ok', cita_id)
+    tok_no = _wa_token('no', cita_id)
+    base   = 'https://nomadcuts.online'
+    serv_corto = servicio.split('—')[0].strip()
+
+    try:
+        requests.post(
+            f'https://ntfy.sh/{config.NTFY_TOPIC}',
+            data=f'✂️ {serv_corto} · 📅 {fecha} {hora}\n📍 {direccion or "Sin dirección"}',
+            headers={
+                'Title':    f'Nueva cita #{cita_id} — {nombre}',
+                'Priority': 'high',
+                'Tags':     'scissors,calendar',
+                'Actions':  (
+                    f'view, ✅ Confirmar, {base}/cita/ok/{cita_id}/{tok_ok}, clear=true; '
+                    f'view, ❌ Rechazar,  {base}/cita/no/{cita_id}/{tok_no}, clear=true'
+                ),
+            },
+            timeout=8
+        )
+    except Exception as e:
+        print(f'⚠  ntfy error: {e}')
+
+
 # ── WhatsApp (CallMeBot) ──────────────────────────────────────
 
 def _wa_token(accion: str, cita_id: int) -> str:
@@ -484,6 +515,7 @@ def agendar():
         email_pendiente_pago(nombre, email, servicio, fecha, hora, cita_id)
         telegram_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion)
         whatsapp_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion)
+        ntfy_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion)
         enviar_email(config.GMAIL_USER,
             f'[NUEVA CITA #{cita_id}] {nombre} - {fecha} {hora}',
             _base_email(f'<p>Nueva solicitud: <b>#{cita_id}</b><br>'

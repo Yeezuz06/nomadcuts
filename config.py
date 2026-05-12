@@ -17,6 +17,9 @@ ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'nomadcuts2024')
 TELEGRAM_TOKEN   = os.environ.get('TELEGRAM_TOKEN',   '')
 TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID', '')
 
+# ── ntfy.sh (notificaciones push gratuitas) ──────────────────
+NTFY_TOPIC = os.environ.get('NTFY_TOPIC', '')   # ej: nomadcuts-jesus
+
 # ── WhatsApp (CallMeBot — gratis) ─────────────────────────────
 # Para activar: manda "I allow callmebot to send me messages"
 # al +34 644 59 78 19 en WhatsApp y recibirás tu apikey
