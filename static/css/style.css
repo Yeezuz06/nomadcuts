@@ -355,6 +355,32 @@ button { cursor: pointer; font-family: var(--font); }
   color: var(--muted);
   font-weight: 400;
 }
+.service-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  gap: 12px;
+}
+.service-card-footer .service-price { margin: 0; }
+.btn-service {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  background: var(--gold);
+  color: #0A0A0A;
+  border-radius: var(--radius);
+  border: none;
+  white-space: nowrap;
+  transition: var(--trans);
+  flex-shrink: 0;
+}
+.btn-service:hover { background: var(--gold-light); transform: translateY(-1px); }
 
 /* ── Productos ── */
 .products-header {
@@ -806,6 +832,10 @@ input::placeholder, textarea::placeholder { color: var(--muted); }
 }
 .hero-video { display: block; }
 .hero-img-fallback { display: none; }
+@media (max-width: 768px), (hover: none) {
+  .hero-video { display: none; }
+  .hero-img-fallback { display: block; }
+}
 .hero-overlay {
   position: absolute;
   inset: 0;
@@ -1085,33 +1115,6 @@ input::placeholder, textarea::placeholder { color: var(--muted); }
 .resena-stars .star-active  { color: var(--gold); }
 .resena-stars .star-inactive { color: var(--border); }
 
-/* ── Custom Cursor ── */
-.cursor-dot {
-  width: 8px; height: 8px;
-  background: var(--gold);
-  border-radius: 50%;
-  position: fixed;
-  top: 0; left: 0;
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%);
-}
-.cursor-ring {
-  width: 36px; height: 36px;
-  border: 1.5px solid rgba(226,181,90,.6);
-  border-radius: 50%;
-  position: fixed;
-  top: 0; left: 0;
-  pointer-events: none;
-  z-index: 9998;
-  transform: translate(-50%, -50%);
-  transition: width .2s ease, height .2s ease, border-color .2s ease;
-}
-.cursor-ring.expand {
-  width: 52px; height: 52px;
-  border-color: var(--gold-light);
-}
-body.has-custom-cursor * { cursor: none !important; }
 
 /* ── Page Loader ── */
 .loader {

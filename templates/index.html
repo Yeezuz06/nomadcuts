@@ -1,5 +1,7 @@
 {% extends "base.html" %}
-{% block title %}NomadCuts — Barbería a Domicilio · Panamá{% endblock %}
+{% block title %}NomadCuts — Barbería a Domicilio en Panamá | Corte, Fade y Barba{% endblock %}
+{% block meta_desc %}NomadCuts: la mejor barbería a domicilio en Panamá. Corte clásico, degradado/fade, barba premium. Llegamos a tu casa u oficina. Agenda en línea, sin filas.{% endblock %}
+{% block canonical %}https://nomadcuts.online{% endblock %}
 
 {% block content %}
 
@@ -197,6 +199,8 @@
     <h3 style="font-family:var(--font-d);font-size:22px;margin-bottom:6px;">¿Ya usaste el servicio?</h3>
     <p style="color:var(--muted);font-size:14px;margin-bottom:28px;">Déjanos tu opinión — ayuda a otros clientes.</p>
     <form action="{{ url_for('nueva_resena') }}" method="POST" class="resena-form">
+      <!-- honeypot anti-bot: oculto para humanos, visible para bots -->
+      <input type="text" name="website" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" />
       <div class="form-row">
         <div class="form-group">
           <label for="r-nombre">Tu nombre</label>

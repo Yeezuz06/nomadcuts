@@ -27,6 +27,17 @@ function mostrarToast(msg) {
 
 // Custom cursor desactivado
 
+// ── Hero video autoplay fallback ──────────────────────────────
+(function initHeroVideo() {
+  var video = document.querySelector('.hero-video');
+  if (!video) return;
+  var fallback = document.querySelector('.hero-img-fallback');
+  video.play().catch(function() {
+    video.style.display = 'none';
+    if (fallback) fallback.style.display = 'block';
+  });
+})();
+
 // ── Page Loader ───────────────────────────────────────────────
 (function initLoader() {
   var loader = document.getElementById('page-loader');
@@ -360,6 +371,14 @@ function scrambleText(el, finalText, duration) {
 (function initWizard() {
   var form   = document.getElementById('wizard-form');
   if (!form) return;
+
+  // Pre-selección desde URL param ?s=s1…s6
+  (function preSelectService() {
+    var s = new URLSearchParams(window.location.search).get('s');
+    if (!s) return;
+    var radio = document.getElementById(s);
+    if (radio) radio.checked = true;
+  })();
   var panels = form.querySelectorAll('.wizard-panel');
   var steps  = document.querySelectorAll('.wizard-step');
   var conns  = document.querySelectorAll('.wizard-connector');

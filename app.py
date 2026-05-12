@@ -7,7 +7,7 @@ from flask import (
     Flask, render_template, request,
     redirect, url_for, session, jsonify
 )
-import sqlite3, requests
+import sqlite3, requests, time
 from datetime import datetime, date, timedelta
 
 import os
@@ -16,6 +16,10 @@ import config
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'nomadcuts_clave_secreta_2024')
 DATABASE = 'nomadcuts.db'
+
+# ── Anti-spam: rate limit por IP ──────────────────────────────
+_resena_timestamps: dict[str, float] = {}   # ip → último envío
+RESENA_COOLDOWN = 3600  # 1 hora entre reseñas por IP
 
 
 DIAS_SEMANA = ['lunes','martes','miércoles','jueves','viernes','sábado','domingo']
@@ -249,14 +253,33 @@ def inicio():
 
 @app.route('/resenas', methods=['POST'])
 def nueva_resena():
+    # ── Honeypot: bots llenan el campo "website", humanos no ──
+    honeypot = request.form.get('website', '').strip()
+    if honeypot:
+        return redirect(url_for('inicio') + '#resenas')
+
     nombre     = request.form.get('nombre', '').strip()
     comentario = request.form.get('comentario', '').strip()
     estrellas  = int(request.form.get('estrellas', 5))
-    if nombre and comentario and 1 <= estrellas <= 5:
-        db = get_db()
-        db.execute('INSERT INTO resenas (nombre, comentario, estrellas) VALUES (?,?,?)',
-                   (nombre, comentario, estrellas))
-        db.commit()
+
+    # ── Validaciones básicas ──
+    if not nombre or len(comentario) < 20 or not (1 <= estrellas <= 5):
+        return redirect(url_for('inicio') + '#resenas')
+
+    # ── Rate limit: 1 reseña por IP por hora ──
+    ip  = request.remote_addr or 'unknown'
+    now = time.time()
+    if now - _resena_timestamps.get(ip, 0) < RESENA_COOLDOWN:
+        return redirect(url_for('inicio') + '#resenas')
+    _resena_timestamps[ip] = now
+
+    # ── Guardar con aprobación pendiente ──
+    db = get_db()
+    db.execute(
+        'INSERT INTO resenas (nombre, comentario, estrellas, aprobada) VALUES (?,?,?,?)',
+        (nombre, comentario, estrellas, 0)
+    )
+    db.commit()
     return redirect(url_for('inicio') + '#resenas')
 
 
@@ -456,6 +479,15 @@ def rechazar_cita(cita_id):
         db.commit()
         email_rechazo(cita['nombre'], cita['email'], cita_id)
     return redirect(url_for('admin'))
+
+
+@app.route('/admin/resena/aprobar/<int:resena_id>', methods=['POST'])
+@admin_requerido
+def aprobar_resena(resena_id):
+    db = get_db()
+    db.execute('UPDATE resenas SET aprobada=1 WHERE id=?', (resena_id,))
+    db.commit()
+    return redirect(url_for('admin') + '#resenas')
 
 
 @app.route('/admin/resena/borrar/<int:resena_id>', methods=['POST'])
