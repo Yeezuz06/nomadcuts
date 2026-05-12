@@ -283,6 +283,30 @@ def nueva_resena():
     return redirect(url_for('inicio') + '#resenas')
 
 
+@app.route('/sitemap.xml')
+def sitemap():
+    from flask import Response
+    pages = [
+        ('https://nomadcuts.online/',          '1.0',  'weekly'),
+        ('https://nomadcuts.online/servicios', '0.9',  'monthly'),
+        ('https://nomadcuts.online/agendar',   '0.9',  'weekly'),
+        ('https://nomadcuts.online/promociones','0.7', 'weekly'),
+    ]
+    xml = ['<?xml version="1.0" encoding="UTF-8"?>',
+           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for loc, pri, freq in pages:
+        xml.append(f'  <url><loc>{loc}</loc><priority>{pri}</priority><changefreq>{freq}</changefreq></url>')
+    xml.append('</urlset>')
+    return Response('\n'.join(xml), mimetype='application/xml')
+
+
+@app.route('/robots.txt')
+def robots():
+    from flask import Response
+    txt = 'User-agent: *\nAllow: /\nSitemap: https://nomadcuts.online/sitemap.xml\n'
+    return Response(txt, mimetype='text/plain')
+
+
 @app.route('/servicios')
 def servicios():
     return render_template('servicios.html')

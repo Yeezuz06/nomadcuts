@@ -122,25 +122,25 @@
     <div class="gallery-main">
       <div class="gallery-reveal">
         <div class="gallery-wipe"></div>
-        <img src="{{ url_for('static', filename='img/corte.jpg') }}" alt="Corte de cabello" />
+        <img src="{{ url_for('static', filename='img/hero.jpg') }}" alt="Barbería a domicilio en Panamá — NomadCuts" />
       </div>
     </div>
     <div class="gallery-grid">
       <div class="gallery-reveal">
         <div class="gallery-wipe"></div>
-        <img src="{{ url_for('static', filename='img/maquina.jpg') }}" alt="Máquina de corte" />
+        <img src="{{ url_for('static', filename='img/corte.jpg') }}" alt="Corte de cabello a domicilio en Panamá" />
       </div>
       <div class="gallery-reveal">
         <div class="gallery-wipe"></div>
-        <img src="{{ url_for('static', filename='img/navaja.jpg') }}" alt="Navaja barbera" />
+        <img src="{{ url_for('static', filename='img/navaja.jpg') }}" alt="Barbero profesional con navaja en Panamá" />
       </div>
       <div class="gallery-reveal">
         <div class="gallery-wipe"></div>
-        <img src="{{ url_for('static', filename='img/rasurado.jpg') }}" alt="Rasurado con navaja" />
+        <img src="{{ url_for('static', filename='img/rasurado.jpg') }}" alt="Rasurado con navaja caliente a domicilio" />
       </div>
       <div class="gallery-reveal">
         <div class="gallery-wipe"></div>
-        <img src="{{ url_for('static', filename='img/tijeras.jpg') }}" alt="Tijeras profesionales" />
+        <img src="{{ url_for('static', filename='img/tijeras.jpg') }}" alt="Tijeras profesionales barbería NomadCuts" />
       </div>
     </div>
   </div>
@@ -225,6 +225,83 @@
     </form>
   </div>
 </section>
+
+<!-- ── Cómo funciona ─────────────────────────────────────────── -->
+<section class="section container" id="como-funciona" style="padding-top:0;">
+  <span class="tag">Simple y rápido</span>
+  <div class="divider"></div>
+  <h2 style="font-family:var(--font-d);font-size:clamp(28px,4vw,42px);margin-bottom:48px;">¿Cómo funciona?</h2>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">01</div>
+      <h3 class="step-title">Elige tu servicio</h3>
+      <p class="step-desc">Corte clásico, fade, barba premium o pack completo. Precios claros, sin sorpresas.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">02</div>
+      <h3 class="step-title">Agenda en línea</h3>
+      <p class="step-desc">Selecciona fecha y hora. Confirma con un depósito de $5 por Yappy. Todo en 3 pasos.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">03</div>
+      <h3 class="step-title">Llegamos a ti</h3>
+      <p class="step-desc">Tu barbero llega puntual a tu hogar, oficina o donde estés en Panamá. Sin filas, sin esperas.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ───────────────────────────────────────────────────── -->
+<section class="section container" id="preguntas" style="padding-top:0;">
+  <span class="tag">Preguntas frecuentes</span>
+  <div class="divider"></div>
+  <h2 style="font-family:var(--font-d);font-size:clamp(28px,4vw,42px);margin-bottom:40px;">Resolvemos tus dudas</h2>
+  <div class="faq-list">
+    <details class="faq-item">
+      <summary class="faq-q">¿En qué zonas de Panamá trabajan?</summary>
+      <p class="faq-a">Atendemos toda la Ciudad de Panamá: San Francisco, Miraflores, Punta Pacífica, Costa del Este, Casco Viejo, Bella Vista, El Cangrejo, Obarrio, Paitilla, Albrook y más. Si tienes duda de tu zona, escríbenos por WhatsApp.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">¿Cuánto tiempo dura el servicio?</summary>
+      <p class="faq-a">Un corte clásico toma entre 30 y 45 minutos. El pack completo (corte + barba + tratamiento) puede durar hasta 75 minutos. Siempre llegamos puntuales a la hora que agendaste.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">¿Qué necesito tener en casa?</summary>
+      <p class="faq-a">Solo un espacio con buena luz (puede ser tu baño, sala o balcón). Nosotros llevamos todas las herramientas profesionales: máquinas, tijeras, navajas, productos y capa de corte.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">¿Cómo se paga el servicio?</summary>
+      <p class="faq-a">Se requiere un depósito de $5 por Yappy para confirmar la cita. El resto se paga en efectivo o Yappy el día del servicio. Sin pagos online complicados.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">¿Atienden empresas y eventos corporativos?</summary>
+      <p class="faq-a">Sí. Ofrecemos servicio corporativo para oficinas y eventos con grupos de 5 personas o más. Contáctanos por WhatsApp para una cotización especial.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">¿Cuál es la diferencia con ir a una barbería?</summary>
+      <p class="faq-a">Cero tiempo de espera, cero desplazamiento y máxima comodidad. El mismo nivel profesional de una barbería premium, en la comodidad de tu hogar u oficina en Panamá.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ── FAQ Schema ─────────────────────────────────────────────── -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "¿En qué zonas de Panamá trabajan?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Atendemos toda la Ciudad de Panamá: San Francisco, Miraflores, Punta Pacífica, Costa del Este, Casco Viejo, Bella Vista, El Cangrejo, Obarrio, Paitilla, Albrook y más." } },
+    { "@type": "Question", "name": "¿Cuánto tiempo dura el servicio?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Un corte clásico toma entre 30 y 45 minutos. El pack completo puede durar hasta 75 minutos." } },
+    { "@type": "Question", "name": "¿Qué necesito tener en casa?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Solo un espacio con buena luz. Nosotros llevamos todas las herramientas profesionales." } },
+    { "@type": "Question", "name": "¿Cómo se paga el servicio?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Se requiere un depósito de $5 por Yappy para confirmar. El resto se paga en efectivo o Yappy el día del servicio." } },
+    { "@type": "Question", "name": "¿Atienden empresas y eventos corporativos?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Sí. Ofrecemos servicio corporativo para oficinas y eventos con grupos de 5 personas o más." } }
+  ]
+}
+</script>
 
 <!-- ── CTA Final ─────────────────────────────────────────────── -->
 <section class="section container" style="padding-top:0;">
