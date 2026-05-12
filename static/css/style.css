@@ -832,10 +832,6 @@ input::placeholder, textarea::placeholder { color: var(--muted); }
 }
 .hero-video { display: block; }
 .hero-img-fallback { display: none; }
-@media (max-width: 768px), (hover: none) {
-  .hero-video { display: none; }
-  .hero-img-fallback { display: block; }
-}
 .hero-overlay {
   position: absolute;
   inset: 0;
