@@ -1105,6 +1105,12 @@ input::placeholder, textarea::placeholder { color: var(--muted); }
     gap: 18px;
   }
   .nav-toggle { display: flex; }
+  /* Logo centrado en móvil */
+  .nav-logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
   .form-row { grid-template-columns: 1fr; }
   .footer-inner { grid-template-columns: 1fr; gap: 32px; }
   .hero h1 { font-size: clamp(40px, 12vw, 64px); }

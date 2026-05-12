@@ -135,6 +135,47 @@ def generar_horas(hora_inicio, hora_fin):
     return horas
 
 
+# ── Telegram ─────────────────────────────────────────────────
+
+def telegram_send(text, reply_markup=None):
+    """Envía un mensaje de Telegram al admin."""
+    if not config.TELEGRAM_TOKEN or not config.TELEGRAM_CHAT_ID:
+        return
+    payload = {
+        'chat_id':    config.TELEGRAM_CHAT_ID,
+        'text':       text,
+        'parse_mode': 'HTML',
+    }
+    if reply_markup:
+        payload['reply_markup'] = reply_markup
+    try:
+        requests.post(
+            f'https://api.telegram.org/bot{config.TELEGRAM_TOKEN}/sendMessage',
+            json=payload, timeout=8
+        )
+    except Exception as e:
+        print(f'⚠  Telegram error: {e}')
+
+
+def telegram_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion):
+    """Notifica al admin sobre una nueva cita con botones confirmar/rechazar."""
+    servicio_corto = servicio.split('—')[0].strip()
+    texto = (
+        f'🔔 <b>Nueva cita #{cita_id}</b>\n\n'
+        f'👤 {nombre}\n'
+        f'✂️  {servicio_corto}\n'
+        f'📅 {fecha}  🕐 {hora}\n'
+        f'📍 {direccion or "Sin dirección"}'
+    )
+    teclado = {
+        'inline_keyboard': [[
+            {'text': '✅ Confirmar', 'callback_data': f'ok_{cita_id}'},
+            {'text': '❌ Rechazar',  'callback_data': f'no_{cita_id}'},
+        ]]
+    }
+    telegram_send(texto, teclado)
+
+
 # ── Emails ────────────────────────────────────────────────────
 
 def _enviar_email_sync(destinatario, asunto, html):
@@ -313,6 +354,73 @@ def robots():
     return Response(txt, mimetype='text/plain')
 
 
+@app.route('/tg-webhook', methods=['POST'])
+def telegram_webhook():
+    """Recibe callbacks de Telegram (botones inline confirmar/rechazar)."""
+    data = request.get_json(silent=True) or {}
+    cb   = data.get('callback_query')
+    if not cb:
+        return '', 200
+
+    cb_id    = cb['id']
+    raw      = cb.get('data', '')
+    chat_id  = cb['message']['chat']['id']
+    msg_id   = cb['message']['message_id']
+
+    respuesta = '⚠️ Acción no reconocida'
+
+    if raw.startswith('ok_') or raw.startswith('no_'):
+        accion   = 'ok' if raw.startswith('ok_') else 'no'
+        cita_id  = int(raw.split('_')[1])
+        db       = get_db()
+        cita     = db.execute('SELECT * FROM citas WHERE id=?', (cita_id,)).fetchone()
+
+        if not cita:
+            respuesta = f'⚠️ Cita #{cita_id} no encontrada'
+        elif accion == 'ok':
+            db.execute("UPDATE citas SET estado='confirmada' WHERE id=?", (cita_id,))
+            db.commit()
+            email_confirmacion_final(
+                cita['nombre'], cita['email'],
+                cita['servicio'], cita['fecha'], cita['hora'], cita_id
+            )
+            respuesta = f'✅ Cita #{cita_id} confirmada — se envió email a {cita["nombre"]}'
+        else:
+            db.execute("UPDATE citas SET estado='rechazada' WHERE id=?", (cita_id,))
+            db.commit()
+            email_rechazo(cita['nombre'], cita['email'], cita_id)
+            respuesta = f'❌ Cita #{cita_id} rechazada'
+
+    try:
+        requests.post(
+            f'https://api.telegram.org/bot{config.TELEGRAM_TOKEN}/answerCallbackQuery',
+            json={'callback_query_id': cb_id, 'text': respuesta}, timeout=5
+        )
+        requests.post(
+            f'https://api.telegram.org/bot{config.TELEGRAM_TOKEN}/editMessageText',
+            json={'chat_id': chat_id, 'message_id': msg_id,
+                  'text': respuesta, 'parse_mode': 'HTML'}, timeout=5
+        )
+    except Exception:
+        pass
+
+    return '', 200
+
+
+@app.route('/admin/setup-telegram')
+@admin_requerido
+def setup_telegram():
+    """Registra el webhook de Telegram. Visita esta URL una sola vez."""
+    if not config.TELEGRAM_TOKEN:
+        return 'Falta TELEGRAM_TOKEN en variables de entorno.', 400
+    url = 'https://nomadcuts.online/tg-webhook'
+    r   = requests.post(
+        f'https://api.telegram.org/bot{config.TELEGRAM_TOKEN}/setWebhook',
+        json={'url': url}, timeout=10
+    )
+    return jsonify(r.json())
+
+
 @app.route('/servicios')
 def servicios():
     return render_template('servicios.html')
@@ -399,6 +507,7 @@ def agendar():
         }
 
         email_pendiente_pago(nombre, email, servicio, fecha, hora, cita_id)
+        telegram_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion)
         enviar_email(config.GMAIL_USER,
             f'[NUEVA CITA #{cita_id}] {nombre} - {fecha} {hora}',
             _base_email(f'<p>Nueva solicitud: <b>#{cita_id}</b><br>'
