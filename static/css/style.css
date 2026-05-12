@@ -1570,3 +1570,31 @@ input::placeholder, textarea::placeholder { color: var(--muted); }
   color: var(--muted);
   line-height: 1.7;
 }
+
+/* ── Campo dirección con GPS ── */
+.addr-field-wrap {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  margin-bottom: 16px;
+}
+.gps-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 18px;
+  height: 54px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  white-space: nowrap;
+  transition: var(--trans);
+  flex-shrink: 0;
+}
+.gps-btn:hover { border-color: var(--gold); background: var(--bg-2); }
+.gps-btn:disabled { opacity: .5; cursor: not-allowed; }
+@keyframes spin { to { transform: rotate(360deg); } }

@@ -15,6 +15,7 @@ import config
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'nomadcuts_clave_secreta_2024')
+app.jinja_env.globals['enumerate'] = enumerate
 DATABASE = 'nomadcuts.db'
 
 # ── Anti-spam: rate limit por IP ──────────────────────────────
@@ -101,6 +102,11 @@ def init_db():
                 'INSERT INTO horario (dia, activo, hora_inicio, hora_fin) VALUES (?,?,?,?)',
                 defaults
             )
+        # Migración: columna direccion (segura si ya existe)
+        try:
+            conn.execute('ALTER TABLE citas ADD COLUMN direccion TEXT DEFAULT ""')
+        except Exception:
+            pass
         conn.commit()
 
 
@@ -346,13 +352,14 @@ def horas_tomadas():
 @app.route('/agendar', methods=['GET', 'POST'])
 def agendar():
     if request.method == 'POST':
-        nombre   = request.form['nombre']
-        email    = request.form['email']
-        telefono = request.form['telefono']
-        servicio = request.form['servicio']
-        fecha    = request.form['fecha']
-        hora     = request.form['hora']
-        notas    = request.form.get('notas', '')
+        nombre    = request.form['nombre']
+        email     = request.form['email']
+        telefono  = request.form['telefono']
+        servicio  = request.form['servicio']
+        fecha     = request.form['fecha']
+        hora      = request.form['hora']
+        notas     = request.form.get('notas', '')
+        direccion = request.form.get('direccion', '').strip()
 
         db = get_db()
 
@@ -376,9 +383,9 @@ def agendar():
                 error='Ese horario ya está reservado. Elige otra hora.')
 
         cursor = db.execute('''
-            INSERT INTO citas (nombre,email,telefono,servicio,fecha,hora,notas,estado)
-            VALUES (?,?,?,?,?,?,?,'pendiente_pago')
-        ''', (nombre, email, telefono, servicio, fecha, hora, notas))
+            INSERT INTO citas (nombre,email,telefono,servicio,fecha,hora,notas,direccion,estado)
+            VALUES (?,?,?,?,?,?,?,?,'pendiente_pago')
+        ''', (nombre, email, telefono, servicio, fecha, hora, notas, direccion))
         cita_id = cursor.lastrowid
         db.commit()
 
@@ -473,11 +480,17 @@ def admin():
 
     resenas = db.execute('SELECT * FROM resenas ORDER BY creado_en DESC').fetchall()
 
+    # Citas de hoy confirmadas para la ruta del día
+    citas_hoy = db.execute(
+        "SELECT * FROM citas WHERE estado='confirmada' AND fecha=? ORDER BY hora",
+        (hoy,)
+    ).fetchall()
+
     return render_template('admin.html',
         pendientes=pendientes, proximas=proximas,
         pasadas=pasadas, rechazadas=rechazadas,
         horario=horario, dias=DIAS_SEMANA, hoy=hoy,
-        resenas=resenas)
+        resenas=resenas, citas_hoy=citas_hoy)
 
 
 @app.route('/admin/confirmar/<int:cita_id>', methods=['POST'])

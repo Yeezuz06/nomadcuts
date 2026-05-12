@@ -440,10 +440,11 @@ function scrambleText(el, finalText, duration) {
       var el = document.getElementById(id);
       if (el) el.textContent = val || '—';
     }
-    setEl('summary-servicio', sel ? sel.textContent : null);
-    setEl('summary-fecha',    document.getElementById('fecha') ? document.getElementById('fecha').value : null);
-    setEl('summary-hora',     document.getElementById('hora') ? document.getElementById('hora').value : null);
-    setEl('summary-nombre',   document.getElementById('nombre') ? document.getElementById('nombre').value : null);
+    setEl('summary-servicio',  sel ? sel.textContent : null);
+    setEl('summary-fecha',     document.getElementById('fecha')     ? document.getElementById('fecha').value     : null);
+    setEl('summary-hora',      document.getElementById('hora')      ? document.getElementById('hora').value      : null);
+    setEl('summary-nombre',    document.getElementById('nombre')    ? document.getElementById('nombre').value    : null);
+    setEl('summary-direccion', document.getElementById('direccion') ? document.getElementById('direccion').value : null);
   }
 
   function validateStep(idx) {
@@ -458,9 +459,11 @@ function scrambleText(el, finalText, duration) {
       var n  = document.getElementById('nombre');
       var em = document.getElementById('email');
       var t  = document.getElementById('telefono');
-      if (!n  || !n.value.trim())  { mostrarToast('Ingresa tu nombre');    return false; }
-      if (!em || !em.value.trim()) { mostrarToast('Ingresa tu correo');    return false; }
-      if (!t  || !t.value.trim())  { mostrarToast('Ingresa tu teléfono'); return false; }
+      var d  = document.getElementById('direccion');
+      if (!n  || !n.value.trim())  { mostrarToast('Ingresa tu nombre');      return false; }
+      if (!em || !em.value.trim()) { mostrarToast('Ingresa tu correo');      return false; }
+      if (!t  || !t.value.trim())  { mostrarToast('Ingresa tu teléfono');   return false; }
+      if (!d  || !d.value.trim())  { mostrarToast('Ingresa tu dirección');  return false; }
     }
     return true;
   }
