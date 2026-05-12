@@ -188,8 +188,9 @@ def ntfy_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion):
     base   = 'https://nomadcuts.online'
     serv_corto = servicio.split('—')[0].strip()
 
+    print(f'[ntfy] enviando notificacion para cita #{cita_id}, topic={config.NTFY_TOPIC!r}')
     try:
-        requests.post(
+        r = requests.post(
             'https://ntfy.sh',
             json={
                 'topic':    config.NTFY_TOPIC,
@@ -210,8 +211,9 @@ def ntfy_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion):
             },
             timeout=8
         )
+        print(f'[ntfy] respuesta: {r.status_code} — {r.text[:200]}')
     except Exception as e:
-        print(f'⚠  ntfy error: {e}')
+        print(f'[ntfy] ERROR: {e}')
 
 
 # ── WhatsApp (CallMeBot) ──────────────────────────────────────
