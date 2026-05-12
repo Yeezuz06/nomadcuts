@@ -189,16 +189,22 @@ def ntfy_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion):
     serv_corto = servicio.split('—')[0].strip()
 
     try:
+        body = (
+            f'Servicio: {serv_corto}\n'
+            f'Fecha: {fecha}  Hora: {hora}\n'
+            f'Direccion: {direccion or "Sin direccion"}'
+        ).encode('utf-8')
         requests.post(
             f'https://ntfy.sh/{config.NTFY_TOPIC}',
-            data=f'✂️ {serv_corto} · 📅 {fecha} {hora}\n📍 {direccion or "Sin dirección"}',
+            data=body,
             headers={
-                'Title':    f'Nueva cita #{cita_id} — {nombre}',
-                'Priority': 'high',
-                'Tags':     'scissors,calendar',
-                'Actions':  (
-                    f'view, ✅ Confirmar, {base}/cita/ok/{cita_id}/{tok_ok}, clear=true; '
-                    f'view, ❌ Rechazar,  {base}/cita/no/{cita_id}/{tok_no}, clear=true'
+                'Title':        f'Nueva cita #{cita_id} - {nombre}'.encode('utf-8'),
+                'Content-Type': 'text/plain; charset=utf-8',
+                'Priority':     'high',
+                'Tags':         'scissors,calendar',
+                'Actions':      (
+                    f'view, Confirmar, {base}/cita/ok/{cita_id}/{tok_ok}, clear=true; '
+                    f'view, Rechazar,  {base}/cita/no/{cita_id}/{tok_no}, clear=true'
                 ),
             },
             timeout=8
