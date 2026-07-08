@@ -66,10 +66,14 @@ para el comportamiento de bloqueo.
    - ✅ **En zona** — aviso verde discreto, el botón "Agendar cita" queda
      habilitado.
    - ⚠️ **Fuera de zona** — aviso de que por ahora el servicio solo cubre
-     Distrito de Panamá y San Miguelito, con un botón **"Consultar por
-     WhatsApp"** (mismo patrón que el FAB existente: `wa.me` con mensaje
-     pre-llenado indicando la dirección). El botón "Agendar cita" queda
+     Distrito de Panamá y San Miguelito. El botón "Agendar cita" queda
      **deshabilitado**.
+     *Nota:* el diseño original incluía aquí un botón "Consultar por
+     WhatsApp" (mismo patrón que el FAB del sitio). Se omite por ahora
+     porque el FAB de WhatsApp fue quitado temporalmente de toda la página
+     ([base.html](../../../templates/base.html)) mientras se hacen otras
+     actualizaciones. Cuando WhatsApp se reactive en el sitio, agregar de
+     vuelta este botón usando el mismo patrón `wa.me`.
    - **Zona desconocida** (fallo de red, dirección no encontrada) — no se
      bloquea el envío; no queremos que una caída de Nominatim le impida
      reservar a un cliente que sí está en zona. No se muestra aviso de
