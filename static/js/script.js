@@ -9,6 +9,29 @@ if (typeof gsap !== 'undefined') {
 
 // Lenis desactivado — causa lag en scroll
 
+// ── Cursor glow (desktop) ─────────────────────────────────────
+(function initCursorGlow() {
+  if (isMobile() || !hasPointer() || typeof gsap === 'undefined') return;
+
+  var glow = document.createElement('div');
+  glow.className = 'cursor-glow';
+  document.body.appendChild(glow);
+
+  var xTo = gsap.quickTo(glow, 'x', { duration: 0.5, ease: 'power3.out' });
+  var yTo = gsap.quickTo(glow, 'y', { duration: 0.5, ease: 'power3.out' });
+  var visible = false;
+
+  window.addEventListener('mousemove', function(e) {
+    if (!visible) {
+      gsap.set(glow, { x: e.clientX, y: e.clientY });
+      gsap.to(glow, { opacity: 1, duration: 0.4 });
+      visible = true;
+    }
+    xTo(e.clientX);
+    yTo(e.clientY);
+  }, { passive: true });
+})();
+
 function isMobile()  { return window.innerWidth < 680; }
 function hasPointer() { return window.matchMedia('(pointer:fine)').matches; }
 

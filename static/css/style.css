@@ -1745,3 +1745,145 @@ input::placeholder, textarea::placeholder { color: var(--muted); }
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
+/* ============================================================
+   NomadCuts — Futuristic layer (resn.co.nz work style)
+   ============================================================ */
+
+/* ── Holographic grid over hero ── */
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(226,181,90,.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226,181,90,.055) 1px, transparent 1px);
+  background-size: 54px 54px;
+  -webkit-mask-image: radial-gradient(ellipse 90% 75% at 50% 55%, black 0%, transparent 78%);
+  mask-image: radial-gradient(ellipse 90% 75% at 50% 55%, black 0%, transparent 78%);
+  animation: grid-drift 14s linear infinite;
+}
+@keyframes grid-drift {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 0 54px, 54px 0; }
+}
+
+/* ── HUD corner labels in hero ── */
+.hero-hud {
+  position: absolute;
+  z-index: 2;
+  font-family: var(--font-d);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(240,237,232,.32);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hero-hud::before {
+  content: '';
+  width: 6px; height: 6px;
+  border: 1px solid var(--gold-dim);
+  transform: rotate(45deg);
+}
+.hero-hud--tl { top: 88px; left: 32px; }
+.hero-hud--br { bottom: 40px; right: 32px; }
+@media (max-width: 680px) {
+  .hero-hud--tl { left: 20px; }
+  .hero-hud--br { display: none; }
+}
+
+/* ── Cursor glow (desktop) ── */
+.cursor-glow {
+  position: fixed;
+  top: 0; left: 0;
+  width: 520px; height: 520px;
+  margin: -260px 0 0 -260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(226,181,90,.065) 0%, transparent 62%);
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+  will-change: transform;
+}
+
+/* ── Neon glow buttons ── */
+.btn-primary {
+  box-shadow: 0 0 22px rgba(226,181,90,.28);
+}
+.btn-primary:hover {
+  box-shadow: 0 0 44px rgba(226,181,90,.5), 0 0 12px rgba(226,181,90,.4);
+}
+.nav-cta { box-shadow: 0 0 16px rgba(226,181,90,.22); }
+
+/* ── HUD corner brackets on service cards ── */
+.service-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--gold), var(--gold)) top    left  / 20px 1px,
+    linear-gradient(var(--gold), var(--gold)) top    left  / 1px  20px,
+    linear-gradient(var(--gold), var(--gold)) bottom right / 20px 1px,
+    linear-gradient(var(--gold), var(--gold)) bottom right / 1px  20px;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.service-card:hover::before { opacity: 1; }
+
+/* ── RGB split (chromatic aberration) on display titles ── */
+.section-display-title .reveal-inner,
+.hero h1 .hero-line {
+  transition: text-shadow .25s ease;
+}
+.section-display-title:hover .reveal-inner {
+  text-shadow:
+    2px 0 0 rgba(255, 45, 85, .38),
+    -2px 0 0 rgba(0, 210, 255, .38);
+}
+
+/* ── Glitch flicker on hero em ── */
+@keyframes neon-flicker {
+  0%, 92%, 100% { opacity: 1; }
+  93% { opacity: .4; }
+  94% { opacity: 1; }
+  96% { opacity: .6; }
+  97% { opacity: 1; }
+}
+.hero h1 em {
+  animation: neon-flicker 6s linear infinite;
+  text-shadow: 0 0 24px rgba(226,181,90,.55);
+}
+
+/* ── Stat numbers glow ── */
+.stat-num { text-shadow: 0 0 30px rgba(226,181,90,.25); }
+
+/* ── Marquee gold glow dots ── */
+.marquee-track .m-dot { text-shadow: 0 0 12px rgba(226,181,90,.8); }
+
+/* ── Scanline sweep on gallery hover ── */
+.gallery-reveal { position: relative; }
+.gallery-reveal::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -30%;
+  width: 30%; height: 100%;
+  background: linear-gradient(105deg, transparent, rgba(226,181,90,.14), transparent);
+  transform: skewX(-12deg);
+  transition: left .6s ease;
+  pointer-events: none;
+}
+.gallery-reveal:hover::after { left: 130%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-grid, .hero h1 em { animation: none; }
+  .marquee-track { animation-duration: 60s; }
+  body::before { animation: none; }
+}
