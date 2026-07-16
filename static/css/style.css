@@ -29,7 +29,7 @@ body::before {
   inset: -100%;
   width: 300%;
   height: 300%;
-  opacity: 0.028;
+  opacity: 0.045;
   pointer-events: none;
   z-index: 9999;
   background-image: url("data:image/svg+xml,<svg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
@@ -260,19 +260,21 @@ button { cursor: pointer; font-family: var(--font); }
 }
 .hero h1 {
   font-family: var(--font-display);
-  font-size: clamp(80px, 15vw, 200px);
+  font-size: clamp(80px, 13vw, 190px);
   font-weight: 400;
   line-height: .88;
-  letter-spacing: .02em;
+  letter-spacing: .03em;
   text-transform: uppercase;
   margin-bottom: 36px;
+  text-shadow: 0 2px 40px rgba(0,0,0,.6);
 }
 .hero h1 em {
   font-style: italic;
   font-family: var(--font-serif);
   color: var(--gold);
-  font-size: .72em;
+  font-size: .65em;
   letter-spacing: -.01em;
+  text-transform: none;
   vertical-align: baseline;
 }
 .hero-sub {
@@ -1143,7 +1145,7 @@ input::placeholder, textarea::placeholder { color: var(--muted); }
   .nav-toggle { display: flex; }
   .form-row { grid-template-columns: 1fr; }
   .footer-inner { grid-template-columns: 1fr; gap: 32px; }
-  .hero h1 { font-size: clamp(40px, 12vw, 64px); }
+  .hero h1 { font-size: clamp(64px, 18vw, 96px); }
 }
 
 /* ============================================================
@@ -1245,8 +1247,8 @@ input::placeholder, textarea::placeholder { color: var(--muted); }
 
 /* ── Hero scroll indicator bounce ── */
 @keyframes scrollBounce {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50%       { transform: translateX(-50%) translateY(10px); }
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity:.5; }
+  50%       { transform: translateX(-50%) translateY(10px); opacity:1; }
 }
 .hero-scroll { animation: scrollBounce 2.2s ease-in-out infinite; }
 
@@ -1715,12 +1717,7 @@ input::placeholder, textarea::placeholder { color: var(--muted); }
 /* ── Magnetic button ── */
 .btn-primary, .btn-glass { will-change: transform; }
 
-/* ── Scroll indicator line grows ── */
-.hero-scroll { animation: scroll-pulse 2s ease-in-out infinite; }
-@keyframes scroll-pulse {
-  0%, 100% { opacity: .4; }
-  50% { opacity: 1; }
-}
+/* scroll-pulse removed — using scrollBounce */
 
 /* ── Section label large ── */
 .tag-xl {

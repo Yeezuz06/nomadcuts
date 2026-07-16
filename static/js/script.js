@@ -7,16 +7,7 @@ if (typeof gsap !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, TextPlugin);
 }
 
-// ── Lenis smooth scroll ───────────────────────────────────────
-(function initLenis() {
-  if (typeof Lenis === 'undefined' || typeof gsap === 'undefined') return;
-  var lenis = new Lenis({ lerp: 0.08, smoothWheel: true, syncTouch: false });
-  lenis.on('scroll', function() {
-    if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.update();
-  });
-  gsap.ticker.add(function(time) { lenis.raf(time * 1000); });
-  gsap.ticker.lagSmoothing(0);
-})();
+// Lenis desactivado — causa lag en scroll
 
 function isMobile()  { return window.innerWidth < 680; }
 function hasPointer() { return window.matchMedia('(pointer:fine)').matches; }
