@@ -42,45 +42,35 @@
   <div class="hero-scroll">Scroll</div>
 </section>
 
-<!-- ── Marquee ────────────────────────────────────────────────── -->
+<!-- ── Marquee gigante ────────────────────────────────────────── -->
 <div class="marquee-strip" aria-hidden="true">
   <div class="marquee-track">
-    <span>Barbería a domicilio</span><span class="m-dot">·</span>
-    <span>Panamá</span><span class="m-dot">·</span>
-    <span>NomadCuts</span><span class="m-dot">·</span>
-    <span>Fade</span><span class="m-dot">·</span>
-    <span>Corte Clásico</span><span class="m-dot">·</span>
-    <span>Barba Premium</span><span class="m-dot">·</span>
-    <span>Barbería a domicilio</span><span class="m-dot">·</span>
-    <span>Panamá</span><span class="m-dot">·</span>
-    <span>NomadCuts</span><span class="m-dot">·</span>
-    <span>Fade</span><span class="m-dot">·</span>
-    <span>Corte Clásico</span><span class="m-dot">·</span>
-    <span>Barba Premium</span><span class="m-dot">·</span>
+    <span class="m-outline">NomadCuts</span>
+    <span class="m-fill">Panamá</span>
+    <span class="m-outline">Fade</span>
+    <span class="m-fill">Corte</span>
+    <span class="m-outline">Barba</span>
+    <span class="m-fill">A domicilio</span>
+    <span class="m-outline">NomadCuts</span>
+    <span class="m-fill">Panamá</span>
+    <span class="m-outline">Fade</span>
+    <span class="m-fill">Corte</span>
+    <span class="m-outline">Barba</span>
+    <span class="m-fill">A domicilio</span>
   </div>
 </div>
 
-<!-- ── Stats ─────────────────────────────────────────────────── -->
-<div class="stats">
-  <div class="stats-grid">
-    <div class="stat">
-      <div class="stat-num" data-count="200" data-suffix="+">200+</div>
-      <div class="stat-label">Clientes atendidos</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num" data-count="4.9" data-suffix="★">4.9★</div>
-      <div class="stat-label">Calificación promedio</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num" data-count="3" data-suffix=" años">3 años</div>
-      <div class="stat-label">En Panamá</div>
-    </div>
-  </div>
-</div>
+<!-- ── Chapter nav lateral ────────────────────────────────────── -->
+<nav class="chapter-nav" aria-label="Secciones">
+  <a href="#servicios" data-target="servicios">01</a>
+  <a href="#galeria" data-target="galeria">02</a>
+  <a href="#resenas" data-target="resenas">03</a>
+</nav>
 
 <!-- ── Servicios ──────────────────────────────────────────────── -->
-<section class="section container">
-  <span class="tag-xl">Lo que hacemos</span>
+<section class="section container" id="servicios">
+  <span class="section-ghost" aria-hidden="true">Servicios</span>
+  <span class="tag-xl"><span class="chapter-num">01</span> Lo que hacemos</span>
   <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:48px;flex-wrap:wrap;gap:16px;">
     <h2 class="section-display-title reveal-wrap"><span class="reveal-inner">Nuestros<br>Servicios</span></h2>
     <a href="{{ url_for('servicios') }}" class="btn btn-outline">Ver todos</a>
@@ -134,8 +124,9 @@
 </section>
 
 <!-- ── Galería ───────────────────────────────────────────────── -->
-<section class="section container" style="padding-top:0;">
-  <span class="tag-xl">El trabajo habla</span>
+<section class="section container" id="galeria" style="padding-top:0;">
+  <span class="section-ghost" aria-hidden="true">Detalle</span>
+  <span class="tag-xl"><span class="chapter-num">02</span> El trabajo habla</span>
   <h2 class="section-display-title reveal-wrap"><span class="reveal-inner">Precisión en<br>cada <em>detalle</em>.</span></h2>
   <div class="gallery">
     <div class="gallery-main">
@@ -191,8 +182,8 @@
 
 <!-- ── Reseñas ──────────────────────────────────────────────── -->
 <section class="section container" id="resenas" style="padding-top:0;">
-  <span class="tag">Lo que dicen</span>
-  <div class="divider"></div>
+  <span class="section-ghost" aria-hidden="true">Opiniones</span>
+  <span class="tag-xl"><span class="chapter-num">03</span> Lo que dicen</span>
   <div style="margin-bottom:48px;">
     <h2 class="section-display-title reveal-wrap"><span class="reveal-inner">Opiniones</span></h2>
   </div>

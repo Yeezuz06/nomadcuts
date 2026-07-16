@@ -378,6 +378,68 @@ function scrambleText(el, finalText, duration) {
   });
 })();
 
+// ── Cinematic scroll (cornrevolution style) ───────────────────
+(function initCinematic() {
+  if (typeof ScrollTrigger === 'undefined') return;
+
+  // Hero: el contenido sube y se desvanece, el video hace zoom
+  var hero = document.querySelector('.hero');
+  if (hero) {
+    var heroInner = hero.querySelector('.hero-inner');
+    var heroVideo = hero.querySelector('.hero-video');
+    if (heroInner) {
+      gsap.to(heroInner, {
+        yPercent: -22,
+        opacity: 0,
+        ease: 'none',
+        scrollTrigger: { trigger: hero, start: 'top top', end: '85% top', scrub: true }
+      });
+    }
+    if (heroVideo) {
+      gsap.to(heroVideo, {
+        scale: 1.18,
+        ease: 'none',
+        scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true }
+      });
+    }
+  }
+
+  // Ghost words: parallax horizontal lento
+  gsap.utils.toArray('.section-ghost').forEach(function(ghost) {
+    gsap.fromTo(ghost,
+      { xPercent: 6 },
+      {
+        xPercent: -8,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: ghost.parentElement,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1
+        }
+      }
+    );
+  });
+
+  // Chapter nav: resalta la sección activa
+  var chapterLinks = document.querySelectorAll('.chapter-nav a');
+  chapterLinks.forEach(function(link) {
+    var target = document.getElementById(link.dataset.target);
+    if (!target) return;
+    ScrollTrigger.create({
+      trigger: target,
+      start: 'top 55%',
+      end: 'bottom 45%',
+      onToggle: function(self) {
+        if (self.isActive) {
+          chapterLinks.forEach(function(l) { l.classList.remove('active'); });
+          link.classList.add('active');
+        }
+      }
+    });
+  });
+})();
+
 // ── Magnetic Buttons ──────────────────────────────────────────
 (function initMagnetic() {
   if (isMobile() || !hasPointer() || typeof gsap === 'undefined') return;

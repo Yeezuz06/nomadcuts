@@ -22,31 +22,7 @@
   --trans:        .22s ease;
 }
 
-/* ── Grain overlay ── */
-body::before {
-  content: '';
-  position: fixed;
-  inset: -100%;
-  width: 300%;
-  height: 300%;
-  opacity: 0.045;
-  pointer-events: none;
-  z-index: 9999;
-  background-image: url("data:image/svg+xml,<svg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  animation: grain .4s steps(2) infinite;
-}
-@keyframes grain {
-  0%,100% { transform:translate(0,0) }
-  10% { transform:translate(-3%,-3%) }
-  20% { transform:translate(-5%,4%) }
-  30% { transform:translate(4%,-7%) }
-  40% { transform:translate(-3%,9%) }
-  50% { transform:translate(-6%,3%) }
-  60% { transform:translate(8%,0) }
-  70% { transform:translate(0,6%) }
-  80% { transform:translate(-9%,0) }
-  90% { transform:translate(5%,3%) }
-}
+/* grain eliminado */
 
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1641,32 +1617,36 @@ input::placeholder, textarea::placeholder { color: var(--muted); }
    NomadCuts — Resn-style premium additions
    ============================================================ */
 
-/* ── Marquee strip ── */
+/* ── Marquee gigante (cornrevolution style) ── */
 .marquee-strip {
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-  padding: 20px 0;
+  padding: 36px 0;
   overflow: hidden;
   background: var(--bg);
   user-select: none;
 }
 .marquee-track {
   display: flex;
-  align-items: center;
-  gap: 48px;
+  align-items: baseline;
+  gap: 56px;
   width: max-content;
-  animation: marquee-move 28s linear infinite;
+  animation: marquee-move 32s linear infinite;
 }
 .marquee-strip:hover .marquee-track { animation-play-state: paused; }
 .marquee-track span {
   font-family: var(--font-display);
-  font-size: 18px;
-  letter-spacing: .18em;
-  color: var(--muted);
+  font-size: clamp(56px, 8vw, 110px);
+  line-height: .9;
+  letter-spacing: .03em;
   white-space: nowrap;
   text-transform: uppercase;
 }
-.marquee-track .m-dot { color: var(--gold); font-size: 22px; line-height: 1; }
+.marquee-track .m-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(240,237,232,.4);
+}
+.marquee-track .m-fill { color: var(--gold); }
 @keyframes marquee-move {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
@@ -1887,3 +1867,72 @@ input::placeholder, textarea::placeholder { color: var(--muted); }
   .marquee-track { animation-duration: 60s; }
   body::before { animation: none; }
 }
+
+/* ============================================================
+   NomadCuts — Cornrevolution layer
+   ============================================================ */
+
+/* ── Ghost words de fondo por sección ── */
+.section { position: relative; }
+.section-ghost {
+  position: absolute;
+  top: -10px;
+  right: -4%;
+  z-index: 0;
+  font-family: var(--font-display);
+  font-size: clamp(120px, 24vw, 340px);
+  line-height: .85;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(226,181,90,.12);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  will-change: transform;
+}
+.section > *:not(.section-ghost) { position: relative; z-index: 1; }
+
+/* ── Número de capítulo ── */
+.chapter-num {
+  font-family: var(--font-display);
+  font-size: 15px;
+  letter-spacing: .3em;
+  color: var(--gold);
+}
+.tag-xl .chapter-num { margin-right: 4px; }
+
+/* ── Chapter nav lateral (derecha) ── */
+.chapter-nav {
+  position: fixed;
+  right: 28px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.chapter-nav a {
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: .18em;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color .3s ease;
+}
+.chapter-nav a::before {
+  content: '';
+  display: block;
+  width: 16px;
+  height: 1px;
+  background: var(--muted);
+  transition: width .3s ease, background .3s ease;
+}
+.chapter-nav a.active { color: var(--gold); }
+.chapter-nav a.active::before { width: 30px; background: var(--gold); }
+@media (max-width: 1100px) { .chapter-nav { display: none; } }
+
+/* ── Hero cinematográfico (scrub targets) ── */
+.hero-inner, .hero-video { will-change: transform; }
