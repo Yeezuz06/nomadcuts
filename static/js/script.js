@@ -7,6 +7,17 @@ if (typeof gsap !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, TextPlugin);
 }
 
+// ── Lenis smooth scroll ───────────────────────────────────────
+(function initLenis() {
+  if (typeof Lenis === 'undefined' || typeof gsap === 'undefined') return;
+  var lenis = new Lenis({ lerp: 0.08, smoothWheel: true, syncTouch: false });
+  lenis.on('scroll', function() {
+    if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.update();
+  });
+  gsap.ticker.add(function(time) { lenis.raf(time * 1000); });
+  gsap.ticker.lagSmoothing(0);
+})();
+
 function isMobile()  { return window.innerWidth < 680; }
 function hasPointer() { return window.matchMedia('(pointer:fine)').matches; }
 
@@ -246,6 +257,19 @@ function scrambleText(el, finalText, duration) {
         '-=0.2'
       );
     }
+  });
+
+  // Display heading reveals (clip from bottom)
+  gsap.utils.toArray('.reveal-wrap').forEach(function(wrap) {
+    var inner = wrap.querySelector('.reveal-inner');
+    if (!inner) return;
+    gsap.to(inner, {
+      y: 0,
+      opacity: 1,
+      duration: 0.9,
+      ease: 'power3.out',
+      scrollTrigger: { trigger: wrap, start: 'top 88%', once: true }
+    });
   });
 
   // Service cards stagger

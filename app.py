@@ -135,47 +135,6 @@ def generar_horas(hora_inicio, hora_fin):
     return horas
 
 
-# ── Telegram ─────────────────────────────────────────────────
-
-def telegram_send(text, reply_markup=None):
-    """Envía un mensaje de Telegram al admin."""
-    if not config.TELEGRAM_TOKEN or not config.TELEGRAM_CHAT_ID:
-        return
-    payload = {
-        'chat_id':    config.TELEGRAM_CHAT_ID,
-        'text':       text,
-        'parse_mode': 'HTML',
-    }
-    if reply_markup:
-        payload['reply_markup'] = reply_markup
-    try:
-        requests.post(
-            f'https://api.telegram.org/bot{config.TELEGRAM_TOKEN}/sendMessage',
-            json=payload, timeout=8
-        )
-    except Exception as e:
-        print(f'⚠  Telegram error: {e}')
-
-
-def telegram_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion):
-    """Notifica al admin sobre una nueva cita con botones confirmar/rechazar."""
-    servicio_corto = servicio.split('—')[0].strip()
-    texto = (
-        f'🔔 <b>Nueva cita #{cita_id}</b>\n\n'
-        f'👤 {nombre}\n'
-        f'✂️  {servicio_corto}\n'
-        f'📅 {fecha}  🕐 {hora}\n'
-        f'📍 {direccion or "Sin dirección"}'
-    )
-    teclado = {
-        'inline_keyboard': [[
-            {'text': '✅ Confirmar', 'callback_data': f'ok_{cita_id}'},
-            {'text': '❌ Rechazar',  'callback_data': f'no_{cita_id}'},
-        ]]
-    }
-    telegram_send(texto, teclado)
-
-
 # ── ntfy.sh (push notifications) ─────────────────────────────
 
 def ntfy_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion):
@@ -522,7 +481,6 @@ def agendar():
         }
 
         email_pendiente_pago(nombre, email, servicio, fecha, hora, cita_id)
-        telegram_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion)
         whatsapp_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion)
         ntfy_nueva_cita(cita_id, nombre, servicio, fecha, hora, direccion)
         enviar_email(config.GMAIL_USER,
@@ -551,7 +509,9 @@ def cita_pendiente():
         fecha=datos.get('fecha', ''),
         hora=datos.get('hora', ''),
         yappy=config.YAPPY_NUMERO,
-        deposito=config.YAPPY_DEPOSITO)
+        deposito=config.YAPPY_DEPOSITO,
+        yappy_boton_activo=config.YAPPY_BOTON_ACTIVO,
+        yappy_merchant_id=config.YAPPY_MERCHANT_ID)
 
 
 # ── Panel Admin ───────────────────────────────────────────────
@@ -631,64 +591,6 @@ p{{margin:0;color:#888;font-size:14px}}
   <h2>Cita #{cita_id} rechazada</h2>
   <p>Se notificó a {cita["nombre"]} por email.</p>
 </div></body></html>'''
-
-
-@app.route('/tg-webhook', methods=['POST'])
-def telegram_webhook():
-    data = request.get_json(silent=True) or {}
-    cb   = data.get('callback_query')
-    if not cb:
-        return '', 200
-
-    cb_id   = cb['id']
-    raw     = cb.get('data', '')
-    chat_id = cb['message']['chat']['id']
-    msg_id  = cb['message']['message_id']
-    respuesta = '⚠️ Acción no reconocida'
-
-    if raw.startswith('ok_') or raw.startswith('no_'):
-        accion  = 'ok' if raw.startswith('ok_') else 'no'
-        cita_id = int(raw.split('_')[1])
-        db      = get_db()
-        cita    = db.execute('SELECT * FROM citas WHERE id=?', (cita_id,)).fetchone()
-
-        if not cita:
-            respuesta = f'⚠️ Cita #{cita_id} no encontrada'
-        elif accion == 'ok':
-            db.execute("UPDATE citas SET estado='confirmada' WHERE id=?", (cita_id,))
-            db.commit()
-            email_confirmacion_final(
-                cita['nombre'], cita['email'],
-                cita['servicio'], cita['fecha'], cita['hora'], cita_id)
-            respuesta = f'✅ Cita #{cita_id} confirmada — email enviado a {cita["nombre"]}'
-        else:
-            db.execute("UPDATE citas SET estado='rechazada' WHERE id=?", (cita_id,))
-            db.commit()
-            email_rechazo(cita['nombre'], cita['email'], cita_id)
-            respuesta = f'❌ Cita #{cita_id} rechazada'
-
-    try:
-        requests.post(
-            f'https://api.telegram.org/bot{config.TELEGRAM_TOKEN}/answerCallbackQuery',
-            json={'callback_query_id': cb_id, 'text': respuesta}, timeout=5)
-        requests.post(
-            f'https://api.telegram.org/bot{config.TELEGRAM_TOKEN}/editMessageText',
-            json={'chat_id': chat_id, 'message_id': msg_id,
-                  'text': respuesta, 'parse_mode': 'HTML'}, timeout=5)
-    except Exception:
-        pass
-    return '', 200
-
-
-@app.route('/admin/setup-telegram')
-@admin_requerido
-def setup_telegram():
-    if not config.TELEGRAM_TOKEN:
-        return 'Falta TELEGRAM_TOKEN en variables de entorno.', 400
-    r = requests.post(
-        f'https://api.telegram.org/bot{config.TELEGRAM_TOKEN}/setWebhook',
-        json={'url': 'https://nomadcuts.online/tg-webhook'}, timeout=10)
-    return jsonify(r.json())
 
 
 @app.route('/admin/login', methods=['GET','POST'])
@@ -799,6 +701,20 @@ def guardar_horario():
             (activo, hora_inicio, hora_fin, dia))
     db.commit()
     return redirect(url_for('admin') + '#horario')
+
+
+# ── Ruta de demo (temporal) ───────────────────────────────────
+
+@app.route('/demo/pago')
+def demo_pago():
+    session['cita_confirmada'] = {
+        'cita_id': 42,
+        'nombre':  'Jesus Vasquez',
+        'servicio': 'Corte + Barba — $25',
+        'fecha':   '2026-06-28',
+        'hora':    '10:00',
+    }
+    return redirect(url_for('cita_pendiente'))
 
 
 # ── Arranque ──────────────────────────────────────────────────

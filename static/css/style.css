@@ -5,20 +5,47 @@
 
 /* ── Variables ── */
 :root {
-  --bg:         #0A0A0A;
-  --bg-2:       #131313;
-  --bg-3:       #1C1C1C;
-  --border:     #252525;
-  --gold:       #E2B55A;
-  --gold-light: #F0CC7A;
-  --gold-dim:   #A07B30;
-  --text:       #F0EDE8;
-  --muted:      #6B6760;
-  --radius:     6px;
-  --font:       'Inter', sans-serif;
-  --font-d:     'Space Grotesk', sans-serif;
-  --font-serif: 'Playfair Display', serif;
-  --trans:      .22s ease;
+  --bg:           #0A0A0A;
+  --bg-2:         #131313;
+  --bg-3:         #1C1C1C;
+  --border:       #252525;
+  --gold:         #E2B55A;
+  --gold-light:   #F0CC7A;
+  --gold-dim:     #A07B30;
+  --text:         #F0EDE8;
+  --muted:        #6B6760;
+  --radius:       6px;
+  --font:         'Inter', sans-serif;
+  --font-d:       'Space Grotesk', sans-serif;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-serif:   'Playfair Display', serif;
+  --trans:        .22s ease;
+}
+
+/* ── Grain overlay ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -100%;
+  width: 300%;
+  height: 300%;
+  opacity: 0.028;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,<svg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  animation: grain .4s steps(2) infinite;
+}
+@keyframes grain {
+  0%,100% { transform:translate(0,0) }
+  10% { transform:translate(-3%,-3%) }
+  20% { transform:translate(-5%,4%) }
+  30% { transform:translate(4%,-7%) }
+  40% { transform:translate(-3%,9%) }
+  50% { transform:translate(-6%,3%) }
+  60% { transform:translate(8%,0) }
+  70% { transform:translate(0,6%) }
+  80% { transform:translate(-9%,0) }
+  90% { transform:translate(5%,3%) }
 }
 
 /* ── Reset ── */
@@ -232,17 +259,21 @@ button { cursor: pointer; font-family: var(--font); }
   background: var(--gold);
 }
 .hero h1 {
-  font-family: var(--font-d);
-  font-size: clamp(52px, 8vw, 96px);
-  font-weight: 700;
-  line-height: .95;
-  letter-spacing: -.02em;
-  margin-bottom: 28px;
+  font-family: var(--font-display);
+  font-size: clamp(80px, 15vw, 200px);
+  font-weight: 400;
+  line-height: .88;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  margin-bottom: 36px;
 }
 .hero h1 em {
   font-style: italic;
   font-family: var(--font-serif);
   color: var(--gold);
+  font-size: .72em;
+  letter-spacing: -.01em;
+  vertical-align: baseline;
 }
 .hero-sub {
   font-size: 17px;
@@ -1603,3 +1634,117 @@ input::placeholder, textarea::placeholder { color: var(--muted); }
 .gps-btn:hover { border-color: var(--gold); background: var(--bg-2); }
 .gps-btn:disabled { opacity: .5; cursor: not-allowed; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   NomadCuts — Resn-style premium additions
+   ============================================================ */
+
+/* ── Marquee strip ── */
+.marquee-strip {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 0;
+  overflow: hidden;
+  background: var(--bg);
+  user-select: none;
+}
+.marquee-track {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  width: max-content;
+  animation: marquee-move 28s linear infinite;
+}
+.marquee-strip:hover .marquee-track { animation-play-state: paused; }
+.marquee-track span {
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: .18em;
+  color: var(--muted);
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+.marquee-track .m-dot { color: var(--gold); font-size: 22px; line-height: 1; }
+@keyframes marquee-move {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── Section heading display style ── */
+.section-display-title {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 8vw, 100px);
+  line-height: .9;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  margin-bottom: 48px;
+}
+.section-display-title em {
+  font-style: italic;
+  font-family: var(--font-serif);
+  color: var(--gold);
+  font-size: .65em;
+}
+
+/* ── Text reveal (clip from bottom) ── */
+.reveal-wrap { overflow: hidden; display: block; }
+.reveal-inner {
+  display: block;
+  transform: translateY(105%);
+  opacity: 0;
+}
+
+/* ── Service card upgraded num ── */
+.service-card-num {
+  font-family: var(--font-display);
+  font-size: 56px;
+  letter-spacing: .02em;
+  color: var(--border);
+  line-height: 1;
+  transition: color .3s ease;
+}
+.service-card:hover .service-card-num { color: var(--gold-dim); }
+
+/* ── Stat numbers display font ── */
+.stat-num {
+  font-family: var(--font-display);
+  font-size: clamp(44px, 6vw, 72px) !important;
+  letter-spacing: .03em;
+}
+
+/* ── Magnetic button ── */
+.btn-primary, .btn-glass { will-change: transform; }
+
+/* ── Scroll indicator line grows ── */
+.hero-scroll { animation: scroll-pulse 2s ease-in-out infinite; }
+@keyframes scroll-pulse {
+  0%, 100% { opacity: .4; }
+  50% { opacity: 1; }
+}
+
+/* ── Section label large ── */
+.tag-xl {
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.tag-xl::before {
+  content: '';
+  display: block;
+  width: 40px; height: 1px;
+  background: var(--gold);
+}
+
+/* ── Horizontal service strip (desktop) ── */
+@media (min-width: 1024px) {
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

@@ -6,16 +6,19 @@ RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
 # ── Gmail (ya no se usa para envío, solo como dirección de contacto) ─
 GMAIL_USER     = os.environ.get('GMAIL_USER', 'hypestbasiclatam@gmail.com')
 
-# ── Yappy ────────────────────────────────────────────────────
+# ── Yappy (transferencia manual) ─────────────────────────────
 YAPPY_NUMERO   = os.environ.get('YAPPY_NUMERO',   '6328-6461')
 YAPPY_DEPOSITO = float(os.environ.get('YAPPY_DEPOSITO', '5.00'))
 
+# ── Yappy Botón de Pago (integración comercial) ───────────────
+# Requiere aviso de operación aprobado por Yappy / Banco General
+# Solicitar en: https://www.yappy.com.pa/comercial/
+YAPPY_MERCHANT_ID  = os.environ.get('YAPPY_MERCHANT_ID',  '')   # ID de comercio
+YAPPY_SECRET_KEY   = os.environ.get('YAPPY_SECRET_KEY',   '')   # Llave secreta
+YAPPY_BOTON_ACTIVO = os.environ.get('YAPPY_BOTON_ACTIVO', 'true').lower() == 'true'
+
 # ── Admin ────────────────────────────────────────────────────
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'nomadcuts2024')
-
-# ── Telegram ─────────────────────────────────────────────────
-TELEGRAM_TOKEN   = os.environ.get('TELEGRAM_TOKEN',   '')
-TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID', '')
 
 # ── ntfy.sh (notificaciones push gratuitas) ──────────────────
 NTFY_TOPIC = os.environ.get('NTFY_TOPIC', '')   # ej: nomadcuts-jesus

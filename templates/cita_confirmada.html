@@ -38,7 +38,36 @@
       </table>
     </div>
 
-    <!-- Instrucciones Yappy con pasos animados -->
+    <!-- ══ Botón de Pago Yappy (integración comercial) ══ -->
+    {% if yappy_boton_activo %}
+    <div style="background:#110D00;border:1px solid #C9A84C;border-radius:var(--radius);padding:24px;margin-bottom:20px;text-align:center;">
+      <p style="color:var(--gold);font-weight:700;margin:0 0 6px;font-size:15px;">💳 Paga de forma segura con Yappy</p>
+      <p style="color:var(--muted);font-size:12px;margin:0 0 16px;">Haz clic en el botón — el monto y la referencia ya están cargados.</p>
+      <button onclick="alert('Redirigiendo a Yappy para pagar ${{ '%.2f'|format(deposito) }}...\n\nReferencia: NomadCuts #{{ cita_id }}')"
+              style="display:inline-flex;align-items:center;gap:10px;background:#00C4FF;
+                     border:none;border-radius:50px;padding:14px 32px;cursor:pointer;
+                     font-size:16px;font-weight:700;color:#003A52;
+                     box-shadow:0 4px 18px rgba(0,196,255,0.35);
+                     transition:transform .15s,box-shadow .15s;"
+              onmouseover="this.style.transform='scale(1.04)';this.style.boxShadow='0 6px 24px rgba(0,196,255,0.5)'"
+              onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 18px rgba(0,196,255,0.35)'">
+        <svg width="28" height="28" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="20" fill="#003A52"/>
+          <path d="M12 20c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8-8-3.6-8-8z" fill="#00C4FF"/>
+          <path d="M17 20l2.5 2.5L24 17" stroke="#003A52" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Pagar ${{ "%.2f"|format(deposito) }} con Yappy
+      </button>
+      <p style="color:var(--muted);font-size:11px;margin:14px 0 0;">
+        Procesado de forma segura por Yappy / Banco General
+      </p>
+    </div>
+
+    <div style="text-align:center;margin-bottom:16px;">
+      <p style="color:var(--muted);font-size:12px;">¿Prefieres pagar manualmente? Sigue los pasos a continuación.</p>
+    </div>
+    {% endif %}
+    <!-- ══ Instrucciones Yappy con pasos animados (pago manual) ══ -->
     <div style="background:#110D00;border:1px solid #3A2800;border-radius:var(--radius);padding:24px;margin-bottom:28px;text-align:left;">
       <p style="color:var(--gold);font-weight:700;margin:0 0 18px;font-size:15px;">💳 Deposita ${{ "%.2f"|format(deposito) }} por Yappy</p>
 

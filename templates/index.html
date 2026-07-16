@@ -39,6 +39,24 @@
   <div class="hero-scroll">Scroll</div>
 </section>
 
+<!-- ── Marquee ────────────────────────────────────────────────── -->
+<div class="marquee-strip" aria-hidden="true">
+  <div class="marquee-track">
+    <span>Barbería a domicilio</span><span class="m-dot">·</span>
+    <span>Panamá</span><span class="m-dot">·</span>
+    <span>NomadCuts</span><span class="m-dot">·</span>
+    <span>Fade</span><span class="m-dot">·</span>
+    <span>Corte Clásico</span><span class="m-dot">·</span>
+    <span>Barba Premium</span><span class="m-dot">·</span>
+    <span>Barbería a domicilio</span><span class="m-dot">·</span>
+    <span>Panamá</span><span class="m-dot">·</span>
+    <span>NomadCuts</span><span class="m-dot">·</span>
+    <span>Fade</span><span class="m-dot">·</span>
+    <span>Corte Clásico</span><span class="m-dot">·</span>
+    <span>Barba Premium</span><span class="m-dot">·</span>
+  </div>
+</div>
+
 <!-- ── Stats ─────────────────────────────────────────────────── -->
 <div class="stats">
   <div class="stats-grid">
@@ -59,10 +77,9 @@
 
 <!-- ── Servicios ──────────────────────────────────────────────── -->
 <section class="section container">
-  <span class="tag">Lo que hacemos</span>
-  <div class="divider"></div>
-  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;flex-wrap:wrap;gap:16px;">
-    <h2 style="font-family:var(--font-d);font-size:clamp(28px,4vw,42px);">Servicios</h2>
+  <span class="tag-xl">Lo que hacemos</span>
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:48px;flex-wrap:wrap;gap:16px;">
+    <h2 class="section-display-title reveal-wrap"><span class="reveal-inner">Nuestros<br>Servicios</span></h2>
     <a href="{{ url_for('servicios') }}" class="btn btn-outline">Ver todos</a>
   </div>
   <div class="services-grid">
@@ -115,9 +132,8 @@
 
 <!-- ── Galería ───────────────────────────────────────────────── -->
 <section class="section container" style="padding-top:0;">
-  <span class="tag">El trabajo habla</span>
-  <div class="divider"></div>
-  <h2 style="font-family:var(--font-d);font-size:clamp(28px,4vw,42px);margin-bottom:40px;">Precisión en cada detalle.</h2>
+  <span class="tag-xl">El trabajo habla</span>
+  <h2 class="section-display-title reveal-wrap"><span class="reveal-inner">Precisión en<br>cada <em>detalle</em>.</span></h2>
   <div class="gallery">
     <div class="gallery-main">
       <div class="gallery-reveal">
@@ -151,8 +167,8 @@
 <section class="section container" style="padding-top:0;">
   <span class="tag">Ofertas activas</span>
   <div class="divider"></div>
-  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;flex-wrap:wrap;gap:16px;">
-    <h2 style="font-family:var(--font-d);font-size:clamp(28px,4vw,42px);">Promociones</h2>
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:48px;flex-wrap:wrap;gap:16px;">
+    <h2 class="section-display-title reveal-wrap"><span class="reveal-inner">Promociones</span></h2>
     <a href="{{ url_for('promociones') }}" class="btn btn-outline">Ver todas</a>
   </div>
   <div class="promos-grid">
@@ -174,8 +190,8 @@
 <section class="section container" id="resenas" style="padding-top:0;">
   <span class="tag">Lo que dicen</span>
   <div class="divider"></div>
-  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;flex-wrap:wrap;gap:16px;">
-    <h2 style="font-family:var(--font-d);font-size:clamp(28px,4vw,42px);">Opiniones de clientes</h2>
+  <div style="margin-bottom:48px;">
+    <h2 class="section-display-title reveal-wrap"><span class="reveal-inner">Opiniones</span></h2>
   </div>
 
   {% if resenas %}
