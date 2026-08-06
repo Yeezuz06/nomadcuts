@@ -20,6 +20,9 @@ YAPPY_BOTON_ACTIVO = os.environ.get('YAPPY_BOTON_ACTIVO', 'true').lower() == 'tr
 # ── Admin ────────────────────────────────────────────────────
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'nomadcuts2024')
 
+# ── Chief of Staff (agente personal, solo lectura de /api/citas) ─
+CHIEF_OF_STAFF_TOKEN = os.environ.get('CHIEF_OF_STAFF_TOKEN', '')
+
 # ── ntfy.sh (notificaciones push gratuitas) ──────────────────
 NTFY_TOPIC = os.environ.get('NTFY_TOPIC', '')   # ej: nomadcuts-jesus
 

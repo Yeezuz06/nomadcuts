@@ -593,6 +593,20 @@ p{{margin:0;color:#888;font-size:14px}}
 </div></body></html>'''
 
 
+@app.route('/api/citas')
+def api_citas():
+    '''Solo lectura, para el Chief of Staff (agente personal). Protegido por token.'''
+    token = request.headers.get('X-API-Token', '') or request.args.get('token', '')
+    if not config.CHIEF_OF_STAFF_TOKEN or token != config.CHIEF_OF_STAFF_TOKEN:
+        return jsonify({'error': 'unauthorized'}), 401
+    db = get_db()
+    citas = db.execute(
+        'SELECT id, nombre, telefono, servicio, fecha, hora, estado, creado_en '
+        'FROM citas ORDER BY creado_en DESC LIMIT 30'
+    ).fetchall()
+    return jsonify([dict(c) for c in citas])
+
+
 @app.route('/admin/login', methods=['GET','POST'])
 def admin_login():
     if request.method == 'POST':
