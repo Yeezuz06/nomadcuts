@@ -4,7 +4,7 @@ import os
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
 
 # ── Gmail (ya no se usa para envío, solo como dirección de contacto) ─
-GMAIL_USER     = os.environ.get('GMAIL_USER', 'hypestbasiclatam@gmail.com')
+GMAIL_USER     = os.environ.get('GMAIL_USER', 'nomadcutspty@gmail.com')
 
 # ── Yappy (transferencia manual) ─────────────────────────────
 YAPPY_NUMERO   = os.environ.get('YAPPY_NUMERO',   '6328-6461')
@@ -29,7 +29,7 @@ NTFY_TOPIC = os.environ.get('NTFY_TOPIC', '')   # ej: nomadcuts-jesus
 # ── WhatsApp (CallMeBot — gratis) ─────────────────────────────
 # Para activar: manda "I allow callmebot to send me messages"
 # al +34 644 59 78 19 en WhatsApp y recibirás tu apikey
-CALLMEBOT_PHONE  = os.environ.get('CALLMEBOT_PHONE',  '')   # ej: 50763286461
+CALLMEBOT_PHONE  = os.environ.get('CALLMEBOT_PHONE',  '')   # ej: 50769061127
 CALLMEBOT_APIKEY = os.environ.get('CALLMEBOT_APIKEY', '')
 
 # ── HMAC secret para links de confirmar/rechazar ──────────────
