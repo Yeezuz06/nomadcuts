@@ -1,7 +1,7 @@
 // ============================================================
 //  NomadCuts — Objetos 3D interactivos (Three.js)
-//  · Tijeras: avanzan y cortan siguiendo el scroll
-//  · Poste de barbería: gira con el scroll
+//  · Tijeras: avanzan y cortan con el scroll, siguen al cursor, se arrastran y cortan al tocar
+//  · Poste de barbería: gira con el scroll, sigue al cursor, se arrastra
 //  Todo se construye con geometría (sin modelos externos) y solo se
 //  renderiza mientras está en pantalla.
 // ============================================================
@@ -59,6 +59,65 @@ function createStage(container, { fov = 32, z = 9 } = {}) {
   resize();
 
   return { renderer, scene, camera };
+}
+
+// ── Interacción con el cursor (sin mensajes en pantalla) ──────
+//  · Seguir al cursor: el objeto se inclina hacia donde está el mouse en su sección
+//  · Arrastrar: gira con inercia y luego vuelve solo a su posición
+//  · Tocar/clic: acción propia de cada objeto
+function makeInteractive(el, area, { onTap } = {}) {
+  const s = { rx: 0, ry: 0, vx: 0, vy: 0, px: 0, py: 0, tx: 0, ty: 0, dragging: false, lastX: 0, lastY: 0, moved: 0 };
+  const fine = window.matchMedia('(pointer: fine)').matches;
+
+  // Seguir al cursor dentro de la sección (solo con mouse)
+  if (fine && area) {
+    area.addEventListener('pointermove', (e) => {
+      const r = el.getBoundingClientRect();
+      s.tx = THREE.MathUtils.clamp((e.clientX - (r.left + r.width / 2)) / (r.width * 0.9), -1, 1);
+      s.ty = THREE.MathUtils.clamp((e.clientY - (r.top + r.height / 2)) / (r.height * 0.9), -1, 1);
+    });
+    area.addEventListener('pointerleave', () => { s.tx = 0; s.ty = 0; });
+  }
+
+  el.addEventListener('pointerdown', (e) => {
+    s.dragging = true; s.moved = 0;
+    s.lastX = e.clientX; s.lastY = e.clientY;
+    el.setPointerCapture(e.pointerId);
+    el.classList.add('is-grabbing');
+  });
+  el.addEventListener('pointermove', (e) => {
+    if (!s.dragging) return;
+    const dx = e.clientX - s.lastX, dy = e.clientY - s.lastY;
+    s.lastX = e.clientX; s.lastY = e.clientY;
+    s.moved += Math.abs(dx) + Math.abs(dy);
+    s.vy = dx * 0.01;
+    s.vx = dy * 0.007;
+    s.ry += s.vy;
+    s.rx = THREE.MathUtils.clamp(s.rx + s.vx, -0.9, 0.9);
+  });
+  const end = () => {
+    if (!s.dragging) return;
+    s.dragging = false;
+    el.classList.remove('is-grabbing');
+    if (s.moved < 6 && onTap) onTap();
+  };
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', end);
+
+  // Cada frame: inercia, vuelta suave a la posición y seguimiento del cursor
+  s.step = (dt) => {
+    if (!s.dragging) {
+      s.ry += s.vy;
+      s.vy *= 0.92;
+      const k = Math.min(1, dt * 2.2);          // resorte de regreso
+      s.ry += (0 - s.ry) * k;
+      s.rx += (0 - s.rx) * k;
+    }
+    const f = Math.min(1, dt * 4);
+    s.px += (s.tx - s.px) * f;
+    s.py += (s.ty - s.py) * f;
+  };
+  return s;
 }
 
 // ── Bucle que solo corre si el objeto está en pantalla ───────
@@ -147,12 +206,22 @@ function initScissors(container) {
   const { root, a, b } = buildScissors();
   scene.add(root);
 
+  const snip = { v: 0 };
+  const input = makeInteractive(container, container.closest('section'), {
+    onTap() {
+      if (typeof gsap === 'undefined') return;
+      gsap.killTweensOf(snip);
+      gsap.fromTo(snip, { v: 0 }, { v: 1, duration: 0.12, ease: 'power2.out', yoyo: true, repeat: 3 });
+    },
+  });
+
   const CUTS = 3;          // cortes completos mientras la sección cruza la pantalla
   const OPEN_MAX = 0.46;   // apertura máxima (rad) en cada mitad
   let p = 0;               // progreso suavizado 0..1
 
   runWhenVisible(container, (dt, t) => {
     // Suavizado tipo resorte: el movimiento sigue al scroll sin saltos
+    input.step(dt);
     p += (NC3D.scissors - p) * Math.min(1, dt * 5);
 
     // Ciclo de corte: abre rápido, cierra con decisión (como un corte real)
@@ -160,14 +229,15 @@ function initScissors(container) {
     const cut = phase < 0.55
       ? Math.sin((phase / 0.55) * Math.PI / 2)                 // abriendo
       : Math.cos(((phase - 0.55) / 0.45) * Math.PI / 2) ** 2;  // cerrando
-    const open = 0.03 + OPEN_MAX * cut;
+    // Al tocar: tijeretazo rápido (abre de golpe aunque estén cerradas)
+    const open = 0.03 + OPEN_MAX * Math.max(cut, snip.v);
     a.rotation.z = open;
     b.rotation.z = -open;
 
     // Avanza en diagonal hacia donde apuntan las puntas, sin girar de canto
-    root.rotation.z = 0.18 - 0.1 * p;
-    root.rotation.y = -0.28 + 0.2 * Math.sin(p * Math.PI);
-    root.rotation.x = 0.12;
+    root.rotation.z = 0.18 - 0.1 * p - input.py * 0.18;
+    root.rotation.y = -0.28 + 0.2 * Math.sin(p * Math.PI) + input.ry + input.px * 0.45;
+    root.rotation.x = 0.12 + input.rx + input.py * 0.25;
     root.position.x = -0.6 + 1.2 * p;
     root.position.y = -0.25 + 0.5 * p + (REDUCED ? 0 : Math.sin(t * 0.8) * 0.05);
 
@@ -241,13 +311,23 @@ function initPole(container) {
   const { root, tex } = buildPole();
   scene.add(root);
 
+  const burst = { v: 0 };
+  const input = makeInteractive(container, container.closest('section'), {
+    onTap() {
+      if (typeof gsap === 'undefined') return;
+      gsap.fromTo(burst, { v: 1 }, { v: 0, duration: 1.6, ease: 'power3.out' });
+    },
+  });
+
   let p = 0;
   runWhenVisible(container, (dt, t) => {
+    input.step(dt);
     p += (NC3D.pole - p) * Math.min(1, dt * 5);
-    // Las franjas suben como en un poste real
-    if (!REDUCED) tex.offset.y -= dt * 0.16;
-    root.rotation.y = p * Math.PI * 1.5;
-    root.rotation.z = 0.06;
+    // Las franjas suben como en un poste real; más rápido al arrastrar o tocar
+    if (!REDUCED) tex.offset.y -= dt * (0.16 + Math.abs(input.vy) * 4 + burst.v * 1.6);
+    root.rotation.y = p * Math.PI * 1.5 + input.ry + input.px * 0.5;
+    root.rotation.x = input.rx * 0.6 + input.py * 0.18;
+    root.rotation.z = 0.06 - input.px * 0.08;
     root.position.y = REDUCED ? 0 : Math.sin(t * 1.1) * 0.05;
     renderer.render(scene, camera);
   });
