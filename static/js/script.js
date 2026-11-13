@@ -87,16 +87,191 @@ function mostrarToast(msg) {
   els.forEach(function(el) { io.observe(el); });
 })();
 
-// ── Hero: leve zoom-out del video al bajar ────────────────────
-(function initHeroScroll() {
-  if (REDUCED_MOTION || typeof ScrollTrigger === 'undefined') return;
-  var hero  = document.querySelector('.ed-hero');
-  var media = hero && hero.querySelector('.ed-hero-media video, .ed-hero-media img');
-  if (!media) return;
-  gsap.fromTo(media, { scale: 1.04, yPercent: 0 }, {
-    scale: 1.14, yPercent: 6, ease: 'none',
-    scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true }
+// ── Pantalla de carga (primera visita de la sesión) ──────────
+(function initLoader() {
+  var root = document.documentElement;
+  var el = document.getElementById('nc-loader');
+  if (!el) return;
+  if (!root.classList.contains('is-loading')) { el.remove(); return; }
+
+  function done() {
+    root.classList.remove('is-loading');
+    try { sessionStorage.setItem('nc_loaded', '1'); } catch (e) {}
+    el.remove();
+    if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
+  }
+  if (typeof gsap === 'undefined') { setTimeout(done, 900); return; }
+
+  var letters = el.querySelectorAll('.nc-loader-word span');
+  var bar = el.querySelector('.nc-loader-bar i');
+  var meta = el.querySelector('.nc-loader-meta');
+
+  var intro = gsap.timeline();
+  intro.to(letters, { y: 0, yPercent: 0, duration: 0.9, ease: 'expo.out', stagger: 0.05 })
+       .to(bar, { scaleX: 1, duration: 1.2, ease: 'power2.inOut' }, 0.15)
+       .to(meta, { opacity: 1, duration: 0.6 }, 0.45);
+  gsap.set(letters, { yPercent: 110 });
+
+  // Sale cuando la página cargó y la intro terminó (máximo ~2.6 s)
+  var pageReady = new Promise(function(res) {
+    if (document.readyState === 'complete') res();
+    else window.addEventListener('load', res, { once: true });
+    setTimeout(res, 2600);
   });
+  Promise.all([pageReady, intro.then()]).then(function() {
+    gsap.timeline({ onComplete: done })
+      .to(letters, { yPercent: -110, duration: 0.5, ease: 'power2.in', stagger: 0.025 })
+      .to(meta, { opacity: 0, duration: 0.3 }, 0)
+      .to(el, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.85, ease: 'expo.inOut' }, '-=0.2');
+  });
+})();
+
+// ── Partir texto en palabras (para animarlas una a una) ──────
+function splitWords(el) {
+  if (el.dataset.split) return [];
+  el.dataset.split = '1';
+  var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  var nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(function(node) {
+    var frag = document.createDocumentFragment();
+    node.textContent.split(/(\s+)/).forEach(function(part) {
+      if (!part) return;
+      if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(' ')); return; }
+      var outer = document.createElement('span');
+      outer.className = 'sw';
+      var inner = document.createElement('span');
+      inner.className = 'sw-i';
+      inner.textContent = part;
+      outer.appendChild(inner);
+      frag.appendChild(outer);
+    });
+    node.parentNode.replaceChild(frag, node);
+  });
+  return el.querySelectorAll('.sw-i');
+}
+
+// ── Efectos de scroll con GSAP (de arriba hacia abajo en la página) ──
+(function initScrollFX() {
+  if (REDUCED_MOTION || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  var NC3D = (window.NC3D = window.NC3D || {});
+
+  // 1. Hero: el video se acerca y el texto se va hacia arriba
+  var hero = document.querySelector('.ed-hero');
+  if (hero) {
+    var media = hero.querySelector('.ed-hero-media video, .ed-hero-media img');
+    if (media) {
+      gsap.fromTo(media, { scale: 1.04 }, {
+        scale: 1.18, yPercent: 8, ease: 'none',
+        scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true }
+      });
+    }
+    gsap.to(hero.querySelector('.ed-hero-inner'), {
+      yPercent: -18, opacity: 0, ease: 'none',
+      scrollTrigger: { trigger: hero, start: 'top top', end: '80% top', scrub: true }
+    });
+  }
+
+  // 2. Títulos palabra por palabra
+  gsap.utils.toArray('.js-split').forEach(function(el) {
+    var words = splitWords(el);
+    if (!words.length) return;
+    gsap.from(words, {
+      yPercent: 115, rotate: 4, duration: 1.15, ease: 'expo.out', stagger: 0.04,
+      scrollTrigger: { trigger: el, start: 'top 86%', once: true }
+    });
+  });
+
+  // 3. "El oficio": se fija en escritorio mientras las tijeras se abren/cierran
+  var story = document.getElementById('oficio');
+  if (story) {
+    var facts = story.querySelectorAll('.ed-fact');
+    var mm = gsap.matchMedia();
+    mm.add('(min-width: 900px)', function() {
+      gsap.set(facts, { opacity: 0.22 });
+      var tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: story.querySelector('.ed-story-pin'), start: 'top top', end: '+=140%', pin: true,
+          scrub: 0.6, onUpdate: function(self) { NC3D.scissors = self.progress; }
+        }
+      });
+      facts.forEach(function(f, i) {
+        tl.to(f, { opacity: 1, duration: 1 }, i * 1.1)
+          .fromTo(f.querySelector('h3'), { x: -14 }, { x: 0, duration: 1 }, i * 1.1);
+      });
+      tl.to({}, { duration: 0.6 });
+    });
+    mm.add('(max-width: 899px)', function() {
+      ScrollTrigger.create({
+        trigger: story, start: 'top bottom', end: 'bottom top',
+        onUpdate: function(self) { NC3D.scissors = self.progress; }
+      });
+      gsap.from(facts, {
+        y: 30, opacity: 0, duration: 1, ease: 'expo.out', stagger: 0.12,
+        scrollTrigger: { trigger: story.querySelector('.ed-facts'), start: 'top 85%', once: true }
+      });
+    });
+  }
+
+  // 4. Carta de servicios: entran en cascada
+  var items = gsap.utils.toArray('.ed-menu-item');
+  if (items.length) {
+    gsap.set(items, { y: 46, opacity: 0 });
+    ScrollTrigger.batch(items, {
+      start: 'top 92%', once: true,
+      onEnter: function(batch) {
+        gsap.to(batch, { y: 0, opacity: 1, duration: 1.1, ease: 'expo.out', stagger: 0.09, overwrite: true });
+      }
+    });
+  }
+
+  // 5. Galería: la foto se descubre como cortina y luego tiene parallax
+  gsap.utils.toArray('.ed-gallery figure').forEach(function(fig, i) {
+    var img = fig.querySelector('img');
+    gsap.fromTo(fig, { clipPath: 'inset(100% 0% 0% 0%)' }, {
+      clipPath: 'inset(0% 0% 0% 0%)', duration: 1.5, ease: 'expo.inOut', delay: (i % 3) * 0.12,
+      scrollTrigger: { trigger: fig, start: 'top 88%', once: true }
+    });
+    if (img) {
+      gsap.fromTo(img, { scale: 1.28, yPercent: -6 }, {
+        scale: 1.08, yPercent: 6, ease: 'none',
+        scrollTrigger: { trigger: fig, start: 'top bottom', end: 'bottom top', scrub: true }
+      });
+    }
+  });
+
+  // 6. Pasos: los números giran y entran
+  var steps = gsap.utils.toArray('.ed-step');
+  if (steps.length) {
+    gsap.from(steps, {
+      y: 60, opacity: 0, duration: 1.2, ease: 'expo.out', stagger: 0.14,
+      scrollTrigger: { trigger: steps[0].parentNode, start: 'top 82%', once: true }
+    });
+    gsap.from('.ed-step-num', {
+      rotate: -25, xPercent: -30, duration: 1.4, ease: 'expo.out', stagger: 0.14,
+      scrollTrigger: { trigger: steps[0].parentNode, start: 'top 82%', once: true }
+    });
+  }
+
+  // 7. Cierre: parallax del fondo y el poste gira con el scroll
+  var cta = document.querySelector('.ed-cta');
+  if (cta) {
+    var bg = cta.querySelector(':scope > img');
+    if (bg) {
+      gsap.fromTo(bg, { yPercent: -8 }, {
+        yPercent: 8, ease: 'none',
+        scrollTrigger: { trigger: cta, start: 'top bottom', end: 'bottom top', scrub: true }
+      });
+    }
+    ScrollTrigger.create({
+      trigger: cta, start: 'top bottom', end: 'bottom top',
+      onUpdate: function(self) { NC3D.pole = self.progress; }
+    });
+  }
+
+  // Recalcular cuando cargan fuentes e imágenes (cambian las alturas)
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function() { ScrollTrigger.refresh(); });
+  window.addEventListener('load', function() { ScrollTrigger.refresh(); });
 })();
 
 // ── Booking Wizard ────────────────────────────────────────────

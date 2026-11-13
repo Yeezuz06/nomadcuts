@@ -41,28 +41,34 @@
   </div>
 </section>
 
-<!-- ── Manifiesto ─────────────────────────────────────────────── -->
-<section class="ed-section">
-  <div class="container">
-    <div class="ed-lede-grid">
-      <span class="ed-label" data-reveal>NomadCuts</span>
-      <p class="ed-lede" data-reveal style="--d:.08s">
-        Sin filas ni traslados: el <em>oficio</em> del barbero, con la calma
-        de tu propio espacio.
-      </p>
-    </div>
-    <div class="ed-facts">
-      <div class="ed-fact" data-reveal>
-        <h3>A domicilio</h3>
-        <p>Llegamos puntuales a tu hogar u oficina. Solo necesitas un espacio con buena luz.</p>
+<!-- ── Manifiesto + tijeras 3D ──────────────────────────────── -->
+<section class="ed-section ed-story-section" id="oficio">
+  <div class="ed-story-pin">
+    <div class="container ed-story">
+      <div>
+        <span class="ed-label" data-reveal>El oficio</span>
+        <p class="ed-lede js-split">
+          Sin filas ni traslados: el <em>oficio</em> del barbero, con la calma
+          de tu propio espacio.
+        </p>
+        <div class="ed-facts">
+          <div class="ed-fact">
+            <h3>A domicilio</h3>
+            <p>Llegamos puntuales a tu hogar u oficina. Solo necesitas un espacio con buena luz.</p>
+          </div>
+          <div class="ed-fact">
+            <h3>Equipo profesional</h3>
+            <p>Máquinas, tijeras, navajas, toallas calientes y productos. Todo viene con nosotros.</p>
+          </div>
+          <div class="ed-fact">
+            <h3>Pago simple</h3>
+            <p>Confirmas con $5 por Yappy y el resto lo pagas el día del servicio.</p>
+          </div>
+        </div>
       </div>
-      <div class="ed-fact" data-reveal style="--d:.1s">
-        <h3>Equipo profesional</h3>
-        <p>Máquinas, tijeras, navajas, toallas calientes y productos. Todo viene con nosotros.</p>
-      </div>
-      <div class="ed-fact" data-reveal style="--d:.2s">
-        <h3>Pago simple</h3>
-        <p>Confirmas con $5 por Yappy y el resto lo pagas el día del servicio.</p>
+      <div class="ed-3d" id="scissors-3d" role="img" aria-label="Tijeras de barbero en 3D. Arrástralas para girarlas y tócalas para cortar.">
+        <img class="ed-3d-fallback" src="{{ url_for('static', filename='img/tijeras.jpg') }}" alt="" />
+        <span class="ed-3d-hint">Arrastra para girar · Toca para cortar</span>
       </div>
     </div>
   </div>
@@ -72,9 +78,9 @@
 <section class="ed-section" id="servicios">
   <div class="container">
     <div class="ed-head">
-      <div data-reveal>
-        <span class="ed-label">La carta</span>
-        <h2 class="ed-title" style="margin-top:16px;">Servicios</h2>
+      <div>
+        <span class="ed-label" data-reveal>La carta</span>
+        <h2 class="ed-title js-split" style="margin-top:16px;">Servicios</h2>
       </div>
       <p class="ed-intro" data-reveal style="--d:.1s">
         Precios claros, sin sorpresas. Elige el servicio y reserva la hora que mejor te quede.
@@ -82,7 +88,7 @@
     </div>
     <div class="ed-menu">
       {% for code, nombre, desc, precio in SERVICIOS %}
-      <a class="ed-menu-item" href="{{ url_for('agendar') }}?s={{ code }}" data-reveal style="--d:{{ loop.index0 * 0.05 }}s">
+      <a class="ed-menu-item" href="{{ url_for('agendar') }}?s={{ code }}">
         <div>
           <div class="ed-menu-name"><span class="ed-menu-num">{{ '%02d'|format(loop.index) }}</span>{{ nombre }}</div>
           <p class="ed-menu-desc">{{ desc }}</p>
@@ -101,24 +107,24 @@
 <section class="ed-section" id="galeria">
   <div class="container">
     <div class="ed-head">
-      <div data-reveal>
-        <span class="ed-label">El trabajo</span>
-        <h2 class="ed-title" style="margin-top:16px;">Precisión en cada <em>detalle</em></h2>
+      <div>
+        <span class="ed-label" data-reveal>El trabajo</span>
+        <h2 class="ed-title js-split" style="margin-top:16px;">Precisión en cada <em>detalle</em></h2>
       </div>
     </div>
     <div class="ed-gallery">
-      <figure data-reveal>
+      <figure>
         <img src="{{ url_for('static', filename='img/hero.jpg') }}" alt="Barbero de NomadCuts trabajando a domicilio en Panamá" loading="lazy" />
       </figure>
-      <figure data-reveal style="--d:.08s">
+      <figure>
         <img src="{{ url_for('static', filename='img/corte.jpg') }}" alt="Corte de cabello a domicilio en Panamá" loading="lazy" />
         <figcaption>Corte</figcaption>
       </figure>
-      <figure data-reveal style="--d:.16s">
+      <figure>
         <img src="{{ url_for('static', filename='img/navaja.jpg') }}" alt="Afeitado con navaja a domicilio" loading="lazy" />
         <figcaption>Navaja</figcaption>
       </figure>
-      <figure data-reveal style="--d:.08s">
+      <figure>
         <img src="{{ url_for('static', filename='img/rasurado.jpg') }}" alt="Rasurado con toalla caliente a domicilio" loading="lazy" />
         <figcaption>Barba</figcaption>
       </figure>
@@ -130,23 +136,23 @@
 <section class="ed-section" id="como-funciona">
   <div class="container">
     <div class="ed-head">
-      <div data-reveal>
-        <span class="ed-label">Cómo funciona</span>
-        <h2 class="ed-title" style="margin-top:16px;">Tres pasos</h2>
+      <div>
+        <span class="ed-label" data-reveal>Cómo funciona</span>
+        <h2 class="ed-title js-split" style="margin-top:16px;">Tres pasos</h2>
       </div>
     </div>
     <div class="ed-steps">
-      <div class="ed-step" data-reveal>
+      <div class="ed-step">
         <div class="ed-step-num">i.</div>
         <h3>Elige tu servicio</h3>
         <p>Corte clásico, fade, barba o el pack completo. Todo con precio fijo.</p>
       </div>
-      <div class="ed-step" data-reveal style="--d:.1s">
+      <div class="ed-step">
         <div class="ed-step-num">ii.</div>
         <h3>Reserva en línea</h3>
         <p>Escoge fecha y hora, deja tu dirección y confirma con un depósito de $5 por Yappy.</p>
       </div>
-      <div class="ed-step" data-reveal style="--d:.2s">
+      <div class="ed-step">
         <div class="ed-step-num">iii.</div>
         <h3>Llegamos a ti</h3>
         <p>Tu barbero llega a la hora acordada con todo lo necesario. Tú solo te sientas.</p>
@@ -160,9 +166,9 @@
   <div class="container">
     {% if resenas %}
     <div class="ed-head">
-      <div data-reveal>
-        <span class="ed-label">Opiniones</span>
-        <h2 class="ed-title" style="margin-top:16px;">Lo que dicen</h2>
+      <div>
+        <span class="ed-label" data-reveal>Opiniones</span>
+        <h2 class="ed-title js-split" style="margin-top:16px;">Lo que dicen</h2>
       </div>
     </div>
     <div class="ed-quotes">
@@ -177,9 +183,9 @@
     {% endif %}
 
     <div class="ed-review">
-      <div data-reveal>
-        <span class="ed-label">{% if resenas %}Tu opinión{% else %}Opiniones{% endif %}</span>
-        <h2 class="ed-title" style="margin-top:16px;font-size:clamp(34px,4.4vw,56px);">¿Ya te atendimos?</h2>
+      <div>
+        <span class="ed-label" data-reveal>{% if resenas %}Tu opinión{% else %}Opiniones{% endif %}</span>
+        <h2 class="ed-title js-split" style="margin-top:16px;font-size:clamp(34px,4.4vw,56px);">¿Ya te atendimos?</h2>
         <p class="ed-intro" style="margin-top:16px;">Cuéntanos cómo te fue. Tu opinión ayuda a otros clientes a decidir.</p>
       </div>
       <div class="resena-form-wrap" data-reveal style="--d:.1s">
@@ -215,9 +221,9 @@
 <!-- ── Preguntas ─────────────────────────────────────────────── -->
 <section class="ed-section" id="preguntas">
   <div class="container ed-faq">
-    <div data-reveal>
-      <span class="ed-label">Preguntas</span>
-      <h2 class="ed-title" style="margin-top:16px;">Antes de reservar</h2>
+    <div>
+      <span class="ed-label" data-reveal>Preguntas</span>
+      <h2 class="ed-title js-split" style="margin-top:16px;">Antes de reservar</h2>
     </div>
     <div class="faq-list" data-reveal style="--d:.1s">
       <details class="faq-item">
@@ -264,14 +270,31 @@
 }
 </script>
 
-<!-- ── Cierre ─────────────────────────────────────────────────── -->
-<section class="ed-cta">
+<!-- ── Cierre + poste 3D ──────────────────────────────────────── -->
+<section class="ed-cta" id="reservar">
   <img src="{{ url_for('static', filename='img/rasurado2.jpg') }}" alt="" loading="lazy" />
-  <div class="container" data-reveal>
-    <span class="ed-label">Reserva</span>
-    <h2>Tu próximo corte, <em>sin salir</em> de casa.</h2>
-    <a href="{{ url_for('agendar') }}" class="btn btn-primary">Reservar cita</a>
+  <div class="container ed-cta-grid">
+    <div>
+      <span class="ed-label" data-reveal>Reserva</span>
+      <h2 class="js-split">Tu próximo corte, <em>sin salir</em> de casa.</h2>
+      <a href="{{ url_for('agendar') }}" class="btn btn-primary" data-reveal>Reservar cita</a>
+    </div>
+    <div class="ed-3d" id="pole-3d" role="img" aria-label="Poste de barbería en 3D. Arrástralo para girarlo.">
+      <span class="ed-3d-hint">Arrastra para girar</span>
+    </div>
   </div>
 </section>
 
+{% endblock %}
+
+{% block extra_scripts %}
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="{{ url_for('static', filename='js/scene3d.js') }}"></script>
 {% endblock %}
