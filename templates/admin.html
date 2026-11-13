@@ -53,7 +53,7 @@
 
     {% if citas_hoy %}
     <div style="display:flex;flex-direction:column;gap:2px;">
-      {% for i, c in citas_hoy|enumerate %}
+      {% for i, c in enumerate(citas_hoy) %}
       <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius);
                   padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
         <!-- Número de parada -->
