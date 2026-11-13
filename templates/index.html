@@ -1,295 +1,246 @@
 {% extends "base.html" %}
 {% block title %}NomadCuts — Barbería a Domicilio en Panamá | Corte, Fade y Barba{% endblock %}
-{% block meta_desc %}NomadCuts: la mejor barbería a domicilio en Panamá. Corte clásico, degradado/fade, barba premium. Llegamos a tu casa u oficina. Agenda en línea, sin filas.{% endblock %}
+{% block meta_desc %}NomadCuts: barbería profesional a domicilio en Panamá. Corte clásico, degradado/fade y barba con navaja caliente. Llegamos a tu casa u oficina. Agenda en línea, sin filas.{% endblock %}
 {% block canonical %}https://nomadcuts.online{% endblock %}
+
+{% set SERVICIOS = [
+  ('s1', 'Corte Clásico', 'Tijera y máquina, acabado con navaja. Adaptado a tu tipo de cabello y a tu estilo.', '$15'),
+  ('s5', 'Degradado / Fade', 'Skin, low, mid o high fade. Transiciones limpias y simétricas.', '$18'),
+  ('s2', 'Barba Premium', 'Perfilado con navaja, toalla caliente y aceites naturales.', '$12'),
+  ('s3', 'Pack Completo', 'Corte, barba y tratamiento capilar. La experiencia completa.', '$24'),
+  ('s4', 'Corte Niños', 'Para menores de 12 años, con paciencia y herramientas suaves.', '$10'),
+  ('s6', 'Servicio Corporativo', 'Oficinas y eventos, grupos de 5 personas o más.', 'Cotizar'),
+] %}
 
 {% block content %}
 
 <!-- ── Hero ─────────────────────────────────────────────────── -->
-<section class="hero">
-  <div class="hero-bg">
+<section class="ed-hero">
+  <div class="ed-hero-media" aria-hidden="true">
     <video class="hero-video"
            src="{{ url_for('static', filename='img/hero.mp4') }}"
-           autoplay muted loop playsinline webkit-playsinline
-           preload="auto">
-    </video>
-    <div class="hero-overlay"></div>
+           poster="{{ url_for('static', filename='img/hero.jpg') }}"
+           autoplay muted loop playsinline webkit-playsinline preload="metadata"></video>
   </div>
-  <div class="hero-grid" aria-hidden="true"></div>
-  <span class="hero-hud hero-hud--tl" aria-hidden="true">PTY · 8.98°N 79.52°W</span>
-  <span class="hero-hud hero-hud--br" aria-hidden="true">Est. 2023 · A domicilio</span>
-  <div class="hero-inner">
-    <p class="hero-eyebrow">Barbería profesional a domicilio · Panamá</p>
-    <h1>
-      <span class="hero-line">El corte</span>
-      <span class="hero-line">que <em>mereces</em>,</span>
-      <span class="hero-line">donde estés.</span>
-    </h1>
-    <p class="hero-sub">
-      NomadCuts lleva la experiencia de una barbería de primer nivel
-      directamente a tu hogar, oficina o donde nos necesites.
+  <div class="ed-hero-inner">
+    <span class="ed-label">Barbería a domicilio · Panamá</span>
+    <h1>El corte que <em>mereces</em>, donde estés.</h1>
+    <p class="ed-hero-sub">
+      Una barbería de primer nivel que llega a tu casa u oficina,
+      con todo el equipo y el cuidado de un salón.
     </p>
-    <div class="hero-actions">
-      <a href="{{ url_for('agendar') }}" class="btn btn-primary">
-        Agendar cita
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M5 12h14M12 5l7 7-7 7"/>
-        </svg>
-      </a>
-      <a href="{{ url_for('servicios') }}" class="btn btn-glass">Ver servicios</a>
+    <div class="ed-hero-actions">
+      <a href="{{ url_for('agendar') }}" class="btn btn-primary">Reservar cita</a>
+      <a href="#servicios" class="ed-link">Ver la carta</a>
+    </div>
+    <div class="ed-hero-meta">
+      {% if dias_abiertos %}<span>Agenda · <strong>{{ dias_abiertos }}</strong></span>{% endif %}
+      <span>Depósito <strong>$5</strong> por Yappy</span>
+      <span>Llevamos <strong>todo el equipo</strong></span>
     </div>
   </div>
-  <div class="hero-scroll">Scroll</div>
 </section>
 
-<!-- ── Marquee gigante ────────────────────────────────────────── -->
-<div class="marquee-strip" aria-hidden="true">
-  <div class="marquee-track">
-    <span class="m-outline">NomadCuts</span>
-    <span class="m-fill">Panamá</span>
-    <span class="m-outline">Fade</span>
-    <span class="m-fill">Corte</span>
-    <span class="m-outline">Barba</span>
-    <span class="m-fill">A domicilio</span>
-    <span class="m-outline">NomadCuts</span>
-    <span class="m-fill">Panamá</span>
-    <span class="m-outline">Fade</span>
-    <span class="m-fill">Corte</span>
-    <span class="m-outline">Barba</span>
-    <span class="m-fill">A domicilio</span>
+<!-- ── Manifiesto ─────────────────────────────────────────────── -->
+<section class="ed-section">
+  <div class="container">
+    <div class="ed-lede-grid">
+      <span class="ed-label" data-reveal>NomadCuts</span>
+      <p class="ed-lede" data-reveal style="--d:.08s">
+        Sin filas ni traslados: el <em>oficio</em> del barbero, con la calma
+        de tu propio espacio.
+      </p>
+    </div>
+    <div class="ed-facts">
+      <div class="ed-fact" data-reveal>
+        <h3>A domicilio</h3>
+        <p>Llegamos puntuales a tu hogar u oficina. Solo necesitas un espacio con buena luz.</p>
+      </div>
+      <div class="ed-fact" data-reveal style="--d:.1s">
+        <h3>Equipo profesional</h3>
+        <p>Máquinas, tijeras, navajas, toallas calientes y productos. Todo viene con nosotros.</p>
+      </div>
+      <div class="ed-fact" data-reveal style="--d:.2s">
+        <h3>Pago simple</h3>
+        <p>Confirmas con $5 por Yappy y el resto lo pagas el día del servicio.</p>
+      </div>
+    </div>
   </div>
-</div>
-
-<!-- ── Chapter nav lateral ────────────────────────────────────── -->
-<nav class="chapter-nav" aria-label="Secciones">
-  <a href="#servicios" data-target="servicios">01</a>
-  <a href="#galeria" data-target="galeria">02</a>
-  <a href="#resenas" data-target="resenas">03</a>
-</nav>
+</section>
 
 <!-- ── Servicios ──────────────────────────────────────────────── -->
-<section class="section container" id="servicios">
-  <span class="section-ghost" aria-hidden="true">Servicios</span>
-  <span class="tag-xl"><span class="chapter-num">01</span> Lo que hacemos</span>
-  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:48px;flex-wrap:wrap;gap:16px;">
-    <h2 class="section-display-title reveal-wrap"><span class="reveal-inner">Nuestros<br>Servicios</span></h2>
-    <a href="{{ url_for('servicios') }}" class="btn btn-outline">Ver todos</a>
-  </div>
-  <div class="services-grid">
-    <div class="service-card">
-      <span class="service-card-num">01</span>
-      <div class="service-icon">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--gold)">
-          <path d="M6 2v6l2 2-2 2v6M18 2v6l-2 2 2 2v6M6 12h12"/>
-        </svg>
+<section class="ed-section" id="servicios">
+  <div class="container">
+    <div class="ed-head">
+      <div data-reveal>
+        <span class="ed-label">La carta</span>
+        <h2 class="ed-title" style="margin-top:16px;">Servicios</h2>
       </div>
-      <div class="service-name">Corte Clásico</div>
-      <p class="service-desc">Tijeras, navaja y acabado perfecto. El clásico reinventado con precisión.</p>
-      <div class="service-price">$15 <span>/ visita</span></div>
+      <p class="ed-intro" data-reveal style="--d:.1s">
+        Precios claros, sin sorpresas. Elige el servicio y reserva la hora que mejor te quede.
+      </p>
     </div>
-    <div class="service-card">
-      <span class="service-card-num">02</span>
-      <div class="service-icon">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--gold)">
-          <path d="M3 7h18M3 7c0 0 2-4 9-4s9 4 9 4M3 7l2 11h14l2-11M9 12v4M15 12v4"/>
-        </svg>
-      </div>
-      <div class="service-name">Barba Premium</div>
-      <p class="service-desc">Perfilado, rasurado con navaja caliente y tratamiento con aceites naturales.</p>
-      <div class="service-price">$12 <span>/ visita</span></div>
-    </div>
-    <div class="service-card">
-      <span class="service-card-num">03</span>
-      <div class="service-icon">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--gold)">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-        </svg>
-      </div>
-      <div class="service-name">Pack Completo</div>
-      <p class="service-desc">Corte + Barba + Tratamiento capilar. La experiencia NomadCuts completa.</p>
-      <div class="service-price">$24 <span>/ visita</span></div>
-    </div>
-    <div class="service-card">
-      <span class="service-card-num">04</span>
-      <div class="service-icon">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--gold)">
-          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-        </svg>
-      </div>
-      <div class="service-name">Degradado / Fade</div>
-      <p class="service-desc">Skin fade, low fade, mid fade o high fade. Transiciones perfectas.</p>
-      <div class="service-price">$18 <span>/ visita</span></div>
+    <div class="ed-menu">
+      {% for code, nombre, desc, precio in SERVICIOS %}
+      <a class="ed-menu-item" href="{{ url_for('agendar') }}?s={{ code }}" data-reveal style="--d:{{ loop.index0 * 0.05 }}s">
+        <div>
+          <div class="ed-menu-name"><span class="ed-menu-num">{{ '%02d'|format(loop.index) }}</span>{{ nombre }}</div>
+          <p class="ed-menu-desc">{{ desc }}</p>
+        </div>
+        <div class="ed-menu-price">
+          {{ precio }}
+          {% if precio != 'Cotizar' %}<small>por visita</small>{% else %}<small>por grupo</small>{% endif %}
+        </div>
+      </a>
+      {% endfor %}
     </div>
   </div>
 </section>
 
 <!-- ── Galería ───────────────────────────────────────────────── -->
-<section class="section container" id="galeria" style="padding-top:0;">
-  <span class="section-ghost" aria-hidden="true">Detalle</span>
-  <span class="tag-xl"><span class="chapter-num">02</span> El trabajo habla</span>
-  <h2 class="section-display-title reveal-wrap"><span class="reveal-inner">Precisión en<br>cada <em>detalle</em>.</span></h2>
-  <div class="gallery">
-    <div class="gallery-main">
-      <div class="gallery-reveal">
-        <div class="gallery-wipe"></div>
-        <img src="{{ url_for('static', filename='img/hero.jpg') }}" alt="Barbería a domicilio en Panamá — NomadCuts" />
+<section class="ed-section" id="galeria">
+  <div class="container">
+    <div class="ed-head">
+      <div data-reveal>
+        <span class="ed-label">El trabajo</span>
+        <h2 class="ed-title" style="margin-top:16px;">Precisión en cada <em>detalle</em></h2>
       </div>
     </div>
-    <div class="gallery-grid">
-      <div class="gallery-reveal">
-        <div class="gallery-wipe"></div>
-        <img src="{{ url_for('static', filename='img/corte.jpg') }}" alt="Corte de cabello a domicilio en Panamá" />
-      </div>
-      <div class="gallery-reveal">
-        <div class="gallery-wipe"></div>
-        <img src="{{ url_for('static', filename='img/navaja.jpg') }}" alt="Barbero profesional con navaja en Panamá" />
-      </div>
-      <div class="gallery-reveal">
-        <div class="gallery-wipe"></div>
-        <img src="{{ url_for('static', filename='img/rasurado.jpg') }}" alt="Rasurado con navaja caliente a domicilio" />
-      </div>
-      <div class="gallery-reveal">
-        <div class="gallery-wipe"></div>
-        <img src="{{ url_for('static', filename='img/tijeras.jpg') }}" alt="Tijeras profesionales barbería NomadCuts" />
-      </div>
+    <div class="ed-gallery">
+      <figure data-reveal>
+        <img src="{{ url_for('static', filename='img/hero.jpg') }}" alt="Barbero de NomadCuts trabajando a domicilio en Panamá" loading="lazy" />
+      </figure>
+      <figure data-reveal style="--d:.08s">
+        <img src="{{ url_for('static', filename='img/corte.jpg') }}" alt="Corte de cabello a domicilio en Panamá" loading="lazy" />
+        <figcaption>Corte</figcaption>
+      </figure>
+      <figure data-reveal style="--d:.16s">
+        <img src="{{ url_for('static', filename='img/navaja.jpg') }}" alt="Afeitado con navaja a domicilio" loading="lazy" />
+        <figcaption>Navaja</figcaption>
+      </figure>
+      <figure data-reveal style="--d:.08s">
+        <img src="{{ url_for('static', filename='img/rasurado.jpg') }}" alt="Rasurado con toalla caliente a domicilio" loading="lazy" />
+        <figcaption>Barba</figcaption>
+      </figure>
     </div>
-  </div>
-</section>
-
-<!-- ── Promociones ───────────────────────────────────────────── -->
-{% if promociones %}
-<section class="section container" style="padding-top:0;">
-  <span class="tag">Ofertas activas</span>
-  <div class="divider"></div>
-  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:48px;flex-wrap:wrap;gap:16px;">
-    <h2 class="section-display-title reveal-wrap"><span class="reveal-inner">Promociones</span></h2>
-    <a href="{{ url_for('promociones') }}" class="btn btn-outline">Ver todas</a>
-  </div>
-  <div class="promos-grid">
-    {% for p in promociones %}
-    <div class="promo-card">
-      <div class="promo-badge">{{ p['descuento'] }}</div>
-      <div class="promo-title">{{ p['titulo'] }}</div>
-      <p class="promo-desc">{{ p['descripcion'] }}</p>
-      <a href="{{ url_for('agendar') }}" class="btn btn-primary" style="margin-top:auto;width:100%;justify-content:center;">
-        Aprovechar
-      </a>
-    </div>
-    {% endfor %}
-  </div>
-</section>
-{% endif %}
-
-<!-- ── Reseñas ──────────────────────────────────────────────── -->
-<section class="section container" id="resenas" style="padding-top:0;">
-  <span class="section-ghost" aria-hidden="true">Opiniones</span>
-  <span class="tag-xl"><span class="chapter-num">03</span> Lo que dicen</span>
-  <div style="margin-bottom:48px;">
-    <h2 class="section-display-title reveal-wrap"><span class="reveal-inner">Opiniones</span></h2>
-  </div>
-
-  {% if resenas %}
-  <div class="resenas-grid">
-    {% for r in resenas %}
-    <div class="resena-card">
-      <div class="resena-stars">
-        {% for i in range(r['estrellas']) %}<span class="star-active">★</span>{% endfor %}{% for i in range(5 - r['estrellas']) %}<span class="star-inactive">★</span>{% endfor %}
-      </div>
-      <p class="resena-texto">"{{ r['comentario'] }}"</p>
-      <div class="resena-autor">— {{ r['nombre'] }}</div>
-    </div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <div style="text-align:center;padding:40px 0;color:var(--muted);">
-    <p>Sé el primero en dejar una reseña ✂️</p>
-  </div>
-  {% endif %}
-
-  <div class="resena-form-wrap" style="margin-top:56px;">
-    <h3 style="font-family:var(--font-d);font-size:22px;margin-bottom:6px;">¿Ya usaste el servicio?</h3>
-    <p style="color:var(--muted);font-size:14px;margin-bottom:28px;">Déjanos tu opinión — ayuda a otros clientes.</p>
-    <form action="{{ url_for('nueva_resena') }}" method="POST" class="resena-form">
-      <!-- honeypot anti-bot: oculto para humanos, visible para bots -->
-      <input type="text" name="website" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" />
-      <div class="form-row">
-        <div class="form-group">
-          <label for="r-nombre">Tu nombre</label>
-          <input type="text" id="r-nombre" name="nombre" placeholder="Ej: Carlos M." required maxlength="60">
-        </div>
-        <div class="form-group">
-          <label>Calificación</label>
-          <div class="star-picker" id="star-picker">
-            {% for i in range(1,6) %}
-            <button type="button" class="star-btn" data-val="{{ i }}">★</button>
-            {% endfor %}
-          </div>
-          <input type="hidden" name="estrellas" id="estrellas-val" value="5">
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="r-comentario">Comentario</label>
-        <textarea id="r-comentario" name="comentario" rows="3" placeholder="¿Cómo fue tu experiencia?" required maxlength="400"></textarea>
-      </div>
-      <button type="submit" class="btn btn-primary">Publicar reseña</button>
-    </form>
   </div>
 </section>
 
 <!-- ── Cómo funciona ─────────────────────────────────────────── -->
-<section class="section container" id="como-funciona" style="padding-top:0;">
-  <span class="tag">Simple y rápido</span>
-  <div class="divider"></div>
-  <h2 style="font-family:var(--font-d);font-size:clamp(28px,4vw,42px);margin-bottom:48px;">¿Cómo funciona?</h2>
-  <div class="steps-grid">
-    <div class="step-card">
-      <div class="step-num">01</div>
-      <h3 class="step-title">Elige tu servicio</h3>
-      <p class="step-desc">Corte clásico, fade, barba premium o pack completo. Precios claros, sin sorpresas.</p>
+<section class="ed-section" id="como-funciona">
+  <div class="container">
+    <div class="ed-head">
+      <div data-reveal>
+        <span class="ed-label">Cómo funciona</span>
+        <h2 class="ed-title" style="margin-top:16px;">Tres pasos</h2>
+      </div>
     </div>
-    <div class="step-card">
-      <div class="step-num">02</div>
-      <h3 class="step-title">Agenda en línea</h3>
-      <p class="step-desc">Selecciona fecha y hora. Confirma con un depósito de $5 por Yappy. Todo en 3 pasos.</p>
-    </div>
-    <div class="step-card">
-      <div class="step-num">03</div>
-      <h3 class="step-title">Llegamos a ti</h3>
-      <p class="step-desc">Tu barbero llega puntual a tu hogar, oficina o donde estés en Panamá. Sin filas, sin esperas.</p>
+    <div class="ed-steps">
+      <div class="ed-step" data-reveal>
+        <div class="ed-step-num">i.</div>
+        <h3>Elige tu servicio</h3>
+        <p>Corte clásico, fade, barba o el pack completo. Todo con precio fijo.</p>
+      </div>
+      <div class="ed-step" data-reveal style="--d:.1s">
+        <div class="ed-step-num">ii.</div>
+        <h3>Reserva en línea</h3>
+        <p>Escoge fecha y hora, deja tu dirección y confirma con un depósito de $5 por Yappy.</p>
+      </div>
+      <div class="ed-step" data-reveal style="--d:.2s">
+        <div class="ed-step-num">iii.</div>
+        <h3>Llegamos a ti</h3>
+        <p>Tu barbero llega a la hora acordada con todo lo necesario. Tú solo te sientas.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ── FAQ ───────────────────────────────────────────────────── -->
-<section class="section container" id="preguntas" style="padding-top:0;">
-  <span class="tag">Preguntas frecuentes</span>
-  <div class="divider"></div>
-  <h2 style="font-family:var(--font-d);font-size:clamp(28px,4vw,42px);margin-bottom:40px;">Resolvemos tus dudas</h2>
-  <div class="faq-list">
-    <details class="faq-item">
-      <summary class="faq-q">¿En qué zonas de Panamá trabajan?</summary>
-      <p class="faq-a">Atendemos toda la Ciudad de Panamá: San Francisco, Miraflores, Punta Pacífica, Costa del Este, Casco Viejo, Bella Vista, El Cangrejo, Obarrio, Paitilla, Albrook y más. Si tienes duda de tu zona, escríbenos por WhatsApp.</p>
-    </details>
-    <details class="faq-item">
-      <summary class="faq-q">¿Cuánto tiempo dura el servicio?</summary>
-      <p class="faq-a">Un corte clásico toma entre 30 y 45 minutos. El pack completo (corte + barba + tratamiento) puede durar hasta 75 minutos. Siempre llegamos puntuales a la hora que agendaste.</p>
-    </details>
-    <details class="faq-item">
-      <summary class="faq-q">¿Qué necesito tener en casa?</summary>
-      <p class="faq-a">Solo un espacio con buena luz (puede ser tu baño, sala o balcón). Nosotros llevamos todas las herramientas profesionales: máquinas, tijeras, navajas, productos y capa de corte.</p>
-    </details>
-    <details class="faq-item">
-      <summary class="faq-q">¿Cómo se paga el servicio?</summary>
-      <p class="faq-a">Se requiere un depósito de $5 por Yappy para confirmar la cita. El resto se paga en efectivo o Yappy el día del servicio. Sin pagos online complicados.</p>
-    </details>
-    <details class="faq-item">
-      <summary class="faq-q">¿Atienden empresas y eventos corporativos?</summary>
-      <p class="faq-a">Sí. Ofrecemos servicio corporativo para oficinas y eventos con grupos de 5 personas o más. Contáctanos por WhatsApp para una cotización especial.</p>
-    </details>
-    <details class="faq-item">
-      <summary class="faq-q">¿Cuál es la diferencia con ir a una barbería?</summary>
-      <p class="faq-a">Cero tiempo de espera, cero desplazamiento y máxima comodidad. El mismo nivel profesional de una barbería premium, en la comodidad de tu hogar u oficina en Panamá.</p>
-    </details>
+<!-- ── Opiniones ──────────────────────────────────────────────── -->
+<section class="ed-section" id="resenas">
+  <div class="container">
+    {% if resenas %}
+    <div class="ed-head">
+      <div data-reveal>
+        <span class="ed-label">Opiniones</span>
+        <h2 class="ed-title" style="margin-top:16px;">Lo que dicen</h2>
+      </div>
+    </div>
+    <div class="ed-quotes">
+      {% for r in resenas[:4] %}
+      <figure class="ed-quote" data-reveal style="--d:{{ (loop.index0 % 2) * 0.1 }}s">
+        <div class="stars" aria-label="{{ r['estrellas'] }} de 5 estrellas">{{ '★' * r['estrellas'] }}</div>
+        <blockquote>“{{ r['comentario'] }}”</blockquote>
+        <figcaption>{{ r['nombre'] }}</figcaption>
+      </figure>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="ed-review">
+      <div data-reveal>
+        <span class="ed-label">{% if resenas %}Tu opinión{% else %}Opiniones{% endif %}</span>
+        <h2 class="ed-title" style="margin-top:16px;font-size:clamp(34px,4.4vw,56px);">¿Ya te atendimos?</h2>
+        <p class="ed-intro" style="margin-top:16px;">Cuéntanos cómo te fue. Tu opinión ayuda a otros clientes a decidir.</p>
+      </div>
+      <div class="resena-form-wrap" data-reveal style="--d:.1s">
+        <form action="{{ url_for('nueva_resena') }}" method="POST" class="resena-form">
+          <!-- honeypot anti-bot: oculto para humanos, visible para bots -->
+          <input type="text" name="website" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" />
+          <div class="form-row">
+            <div class="form-group">
+              <label for="r-nombre">Tu nombre</label>
+              <input type="text" id="r-nombre" name="nombre" placeholder="Ej: Carlos M." required maxlength="60" autocomplete="name">
+            </div>
+            <div class="form-group">
+              <label id="r-calif">Calificación</label>
+              <div class="star-picker" id="star-picker" role="group" aria-labelledby="r-calif">
+                {% for i in range(1,6) %}
+                <button type="button" class="star-btn" data-val="{{ i }}" aria-label="{{ i }} estrella{{ 's' if i > 1 }}">★</button>
+                {% endfor %}
+              </div>
+              <input type="hidden" name="estrellas" id="estrellas-val" value="5">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="r-comentario">Comentario</label>
+            <textarea id="r-comentario" name="comentario" rows="3" placeholder="¿Cómo fue tu experiencia?" required minlength="20" maxlength="400"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Publicar opinión</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Preguntas ─────────────────────────────────────────────── -->
+<section class="ed-section" id="preguntas">
+  <div class="container ed-faq">
+    <div data-reveal>
+      <span class="ed-label">Preguntas</span>
+      <h2 class="ed-title" style="margin-top:16px;">Antes de reservar</h2>
+    </div>
+    <div class="faq-list" data-reveal style="--d:.1s">
+      <details class="faq-item">
+        <summary class="faq-q">¿En qué zonas de Panamá trabajan?</summary>
+        <p class="faq-a">Atendemos la Ciudad de Panamá: San Francisco, Costa del Este, Punta Pacífica, Bella Vista, El Cangrejo, Obarrio, Paitilla, Albrook y más. Si tienes duda de tu zona, escríbenos por WhatsApp.</p>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">¿Cuánto dura el servicio?</summary>
+        <p class="faq-a">Un corte clásico toma entre 30 y 45 minutos. El pack completo (corte, barba y tratamiento) puede durar hasta 75 minutos.</p>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">¿Qué necesito tener en casa?</summary>
+        <p class="faq-a">Solo un espacio con buena luz: baño, sala o balcón. Nosotros llevamos máquinas, tijeras, navajas, productos y capa de corte.</p>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">¿Cómo se paga?</summary>
+        <p class="faq-a">Confirmas la cita con un depósito de $5 por Yappy. El resto se paga en efectivo o Yappy el día del servicio.</p>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">¿Atienden empresas y eventos?</summary>
+        <p class="faq-a">Sí. Tenemos servicio corporativo para oficinas y eventos con grupos de 5 personas o más. Escríbenos por WhatsApp para una cotización.</p>
+      </details>
+    </div>
   </div>
 </section>
 
@@ -300,34 +251,26 @@
   "@type": "FAQPage",
   "mainEntity": [
     { "@type": "Question", "name": "¿En qué zonas de Panamá trabajan?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Atendemos toda la Ciudad de Panamá: San Francisco, Miraflores, Punta Pacífica, Costa del Este, Casco Viejo, Bella Vista, El Cangrejo, Obarrio, Paitilla, Albrook y más." } },
-    { "@type": "Question", "name": "¿Cuánto tiempo dura el servicio?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Atendemos la Ciudad de Panamá: San Francisco, Costa del Este, Punta Pacífica, Bella Vista, El Cangrejo, Obarrio, Paitilla, Albrook y más." } },
+    { "@type": "Question", "name": "¿Cuánto dura el servicio?",
       "acceptedAnswer": { "@type": "Answer", "text": "Un corte clásico toma entre 30 y 45 minutos. El pack completo puede durar hasta 75 minutos." } },
     { "@type": "Question", "name": "¿Qué necesito tener en casa?",
       "acceptedAnswer": { "@type": "Answer", "text": "Solo un espacio con buena luz. Nosotros llevamos todas las herramientas profesionales." } },
-    { "@type": "Question", "name": "¿Cómo se paga el servicio?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Se requiere un depósito de $5 por Yappy para confirmar. El resto se paga en efectivo o Yappy el día del servicio." } },
-    { "@type": "Question", "name": "¿Atienden empresas y eventos corporativos?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Sí. Ofrecemos servicio corporativo para oficinas y eventos con grupos de 5 personas o más." } }
+    { "@type": "Question", "name": "¿Cómo se paga?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Confirmas con un depósito de $5 por Yappy. El resto se paga en efectivo o Yappy el día del servicio." } },
+    { "@type": "Question", "name": "¿Atienden empresas y eventos?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Sí. Tenemos servicio corporativo para oficinas y eventos con grupos de 5 personas o más." } }
   ]
 }
 </script>
 
-<!-- ── CTA Final ─────────────────────────────────────────────── -->
-<section class="section container" style="padding-top:0;">
-  <div class="cta-banner">
-    <div class="cta-banner-bg">
-      <img src="{{ url_for('static', filename='img/rasurado2.jpg') }}" alt="" />
-      <div class="cta-banner-overlay"></div>
-    </div>
-    <div class="cta-banner-content">
-      <span class="tag">¿Listo?</span>
-      <h2>Agenda tu cita hoy</h2>
-      <p>Sin filas, sin esperas. Solo tú, un corte de calidad y la comodidad de tu hogar.</p>
-      <a href="{{ url_for('agendar') }}" class="btn btn-primary" style="padding:16px 40px;font-size:14px;">
-        Reservar ahora
-      </a>
-    </div>
+<!-- ── Cierre ─────────────────────────────────────────────────── -->
+<section class="ed-cta">
+  <img src="{{ url_for('static', filename='img/rasurado2.jpg') }}" alt="" loading="lazy" />
+  <div class="container" data-reveal>
+    <span class="ed-label">Reserva</span>
+    <h2>Tu próximo corte, <em>sin salir</em> de casa.</h2>
+    <a href="{{ url_for('agendar') }}" class="btn btn-primary">Reservar cita</a>
   </div>
 </section>
 

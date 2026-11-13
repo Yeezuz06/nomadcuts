@@ -1,90 +1,44 @@
 {% extends "base.html" %}
 {% block title %}Servicios de Barbería a Domicilio en Panamá — NomadCuts{% endblock %}
-{% block meta_desc %}Corte clásico $15, Barba Premium $12, Pack Completo $24, Fade $18, Corte Niños $10. Barbería profesional a domicilio en toda Panamá. Agenda tu cita online.{% endblock %}
+{% block meta_desc %}Corte clásico $15, Barba Premium $12, Pack Completo $24, Fade $18, Corte Niños $10. Barbería profesional a domicilio en Panamá. Agenda tu cita online.{% endblock %}
 {% block canonical %}https://nomadcuts.online/servicios{% endblock %}
 
+{% set SERVICIOS = [
+  ('s1', 'Corte Clásico', 'Corte con tijera y máquina, acabado con navaja y fijador. Adaptado a tu tipo de cabello y a tu estilo personal.', '$15', 'por visita', 'Reservar'),
+  ('s5', 'Degradado / Fade', 'Transiciones suaves y precisas: skin fade, low, mid o high fade. Acabado profesional y simétrico.', '$18', 'por visita', 'Reservar'),
+  ('s2', 'Barba Premium', 'Perfilado con navaja, toalla caliente y tratamiento hidratante con aceite de barba. Un ritual completo.', '$12', 'por visita', 'Reservar'),
+  ('s3', 'Pack Completo', 'Corte, barba y tratamiento capilar hidratante. La experiencia NomadCuts en su máxima expresión.', '$24', 'por visita', 'Reservar'),
+  ('s4', 'Corte Niños', 'Para menores de 12 años. Trabajamos con paciencia y herramientas suaves para que sea una experiencia cómoda.', '$10', 'por visita', 'Reservar'),
+  ('s6', 'Servicio Corporativo', 'Visitas a oficinas o eventos. Atendemos a varias personas el mismo día. Cotización especial para grupos de 5 o más.', 'Cotizar', 'por grupo', 'Cotizar'),
+] %}
+
 {% block content %}
-<div class="container">
+<div class="container ed-services-page">
   <div class="page-header">
-    <span class="tag">Lo que ofrecemos</span>
-    <h1>Servicios</h1>
-    <p>Precisión profesional en la comodidad de tu espacio.</p>
+    <span class="ed-label">La carta</span>
+    <h1 style="margin:18px 0 16px;">Servicios</h1>
+    <p>Precisión profesional en la comodidad de tu espacio. Precios fijos, sin sorpresas.</p>
   </div>
 
-  <div class="services-grid" style="margin-bottom:64px;">
-
-    <div class="service-card">
-      <span class="service-card-num">01</span>
-      <div class="service-icon">✂️</div>
-      <div class="service-name">Corte Clásico</div>
-      <p class="service-desc">Corte con tijeras y máquina, acabado con navaja y fijador. Incluye lavado y secado. Adaptado a tu tipo de cabello y estilo personal.</p>
-      <div class="service-card-footer">
-        <div class="service-price">$15 <span>/ visita</span></div>
-        <a href="{{ url_for('agendar') }}?s=s1" class="btn-service">Agendar →</a>
+  <div class="ed-menu">
+    {% for code, nombre, desc, precio, unidad, accion in SERVICIOS %}
+    <a class="ed-menu-item" href="{{ url_for('agendar') }}?s={{ code }}" data-reveal style="--d:{{ loop.index0 * 0.05 }}s">
+      <div>
+        <div class="ed-menu-name"><span class="ed-menu-num">{{ '%02d'|format(loop.index) }}</span>{{ nombre }}</div>
+        <p class="ed-menu-desc">{{ desc }}</p>
       </div>
-    </div>
-
-    <div class="service-card">
-      <span class="service-card-num">02</span>
-      <div class="service-icon">🪒</div>
-      <div class="service-name">Barba Premium</div>
-      <p class="service-desc">Perfilado con navaja caliente, tratamiento hidratante con aceite de barba y toalla caliente. Un ritual completo para tu barba.</p>
-      <div class="service-card-footer">
-        <div class="service-price">$12 <span>/ visita</span></div>
-        <a href="{{ url_for('agendar') }}?s=s2" class="btn-service">Agendar →</a>
-      </div>
-    </div>
-
-    <div class="service-card">
-      <span class="service-card-num">03</span>
-      <div class="service-icon">💎</div>
-      <div class="service-name">Pack Completo</div>
-      <p class="service-desc">Corte + Barba + Tratamiento capilar hidratante. La experiencia NomadCuts en su máxima expresión. Ahorra vs contratar por separado.</p>
-      <div class="service-card-footer">
-        <div class="service-price">$24 <span>/ visita</span></div>
-        <a href="{{ url_for('agendar') }}?s=s3" class="btn-service">Agendar →</a>
-      </div>
-    </div>
-
-    <div class="service-card">
-      <span class="service-card-num">04</span>
-      <div class="service-icon">👦</div>
-      <div class="service-name">Corte Niños</div>
-      <p class="service-desc">Para menores de 12 años. Trabajamos con paciencia y herramientas suaves para que la experiencia sea cómoda y el resultado increíble.</p>
-      <div class="service-card-footer">
-        <div class="service-price">$10 <span>/ visita</span></div>
-        <a href="{{ url_for('agendar') }}?s=s4" class="btn-service">Agendar →</a>
-      </div>
-    </div>
-
-    <div class="service-card">
-      <span class="service-card-num">05</span>
-      <div class="service-icon">🎨</div>
-      <div class="service-name">Degradado / Fade</div>
-      <p class="service-desc">Transiciones suaves y precisas. Skin fade, low fade, mid fade o high fade. Acabado profesional garantizado.</p>
-      <div class="service-card-footer">
-        <div class="service-price">$18 <span>/ visita</span></div>
-        <a href="{{ url_for('agendar') }}?s=s5" class="btn-service">Agendar →</a>
-      </div>
-    </div>
-
-    <div class="service-card">
-      <span class="service-card-num">06</span>
-      <div class="service-icon">🏢</div>
-      <div class="service-name">Servicio Corporativo</div>
-      <p class="service-desc">Visita a oficinas o eventos. Atendemos múltiples personas en un mismo día. Cotización especial para grupos de 5 o más.</p>
-      <div class="service-card-footer">
-        <div class="service-price">Cotizar <span>/ grupo</span></div>
-        <a href="{{ url_for('agendar') }}?s=s6" class="btn-service">Cotizar →</a>
-      </div>
-    </div>
-
-  </div>
-
-  <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius);padding:56px 40px;text-align:center;margin-bottom:80px;">
-    <h2 style="font-family:var(--font-d);font-size:32px;margin-bottom:10px;">¿Qué servicio necesitas?</h2>
-    <p style="color:var(--muted);margin-bottom:28px;">Elige, agenda y nosotros llegamos a ti.</p>
-    <a href="{{ url_for('agendar') }}" class="btn btn-primary">Agendar ahora</a>
+      <div class="ed-menu-price">{{ precio }}<small>{{ unidad }}</small></div>
+    </a>
+    {% endfor %}
   </div>
 </div>
+
+<section class="ed-cta">
+  <img src="{{ url_for('static', filename='img/rasurado2.jpg') }}" alt="" loading="lazy" />
+  <div class="container" data-reveal>
+    <span class="ed-label">Reserva</span>
+    <h2>¿Qué servicio <em>necesitas</em>?</h2>
+    <a href="{{ url_for('agendar') }}" class="btn btn-primary">Reservar cita</a>
+  </div>
+</section>
 {% endblock %}

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <script>document.documentElement.classList.add('js');</script>
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -86,7 +87,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 <body>
@@ -94,11 +95,6 @@
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PQ3VDK7H"
   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->
-
-  <!-- ── Loader ── -->
-  <div class="loader" id="page-loader">
-    <span class="loader-text"></span>
-  </div>
 
   <!-- ── Navegación ── -->
   <nav class="nav" id="main-nav">
@@ -112,8 +108,8 @@
     <div class="nav-links">
       <a href="{{ url_for('inicio') }}">Inicio</a>
       <a href="{{ url_for('servicios') }}">Servicios</a>
-      <a href="{{ url_for('promociones') }}">Promociones</a>
-      <a href="{{ url_for('agendar') }}" class="nav-cta">Agendar cita</a>
+      <a href="{{ url_for('inicio') }}#preguntas">Preguntas</a>
+      <a href="{{ url_for('agendar') }}" class="nav-cta">Reservar</a>
     </div>
     <button class="nav-toggle" id="nav-toggle" aria-label="Menú">
       <span></span><span></span><span></span>
@@ -126,8 +122,8 @@
     <button class="nav-overlay-close" id="nav-overlay-close" aria-label="Cerrar">×</button>
     <a href="{{ url_for('inicio') }}">Inicio</a>
     <a href="{{ url_for('servicios') }}">Servicios</a>
-    <a href="{{ url_for('promociones') }}">Promociones</a>
-    <a href="{{ url_for('agendar') }}" style="color:var(--gold);">Agendar cita</a>
+    <a href="{{ url_for('inicio') }}#preguntas">Preguntas</a>
+    <a href="{{ url_for('agendar') }}" style="color:var(--gold);">Reservar cita</a>
   </div>
 
   <main>{% block content %}{% endblock %}</main>
@@ -138,12 +134,11 @@
       <div class="footer-brand">
         <span class="footer-logo">NOMADCUTS</span>
         <p>Barbería de precisión. A tu puerta.</p>
-        <p style="margin-top:8px;font-size:13px;">📍 Panamá · Servicio a domicilio</p>
+        <p style="margin-top:8px;font-size:13px;">Panamá · Servicio a domicilio</p>
       </div>
       <div class="footer-links">
         <a href="{{ url_for('inicio') }}">Inicio</a>
         <a href="{{ url_for('servicios') }}">Servicios</a>
-        <a href="{{ url_for('promociones') }}">Promociones</a>
         <a href="{{ url_for('agendar') }}">Agendar cita</a>
       </div>
       <div class="footer-contact">
@@ -152,7 +147,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2025 NomadCuts. Todos los derechos reservados.</p>
+      <p>&copy; NomadCuts · Barbería a domicilio en Panamá</p>
     </div>
   </footer>
 
@@ -165,12 +160,9 @@
     <span class="whatsapp-fab-label">WhatsApp</span>
   </a>
 
-  <!-- ── Lenis smooth scroll ── -->
-  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
   <!-- ── GSAP ── -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

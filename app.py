@@ -309,11 +309,24 @@ def email_rechazo(nombre, email, cita_id):
 
 # ── Rutas públicas ────────────────────────────────────────────
 
+def _dias_abiertos_texto(db):
+    """'sábado y domingo' / 'viernes, sábado y domingo' según el horario activo."""
+    activos = {r['dia'] for r in db.execute('SELECT dia FROM horario WHERE activo=1').fetchall()}
+    dias = [d for d in DIAS_SEMANA if d in activos]
+    if not dias:
+        return ''
+    if len(dias) == 7:
+        return 'todos los días'
+    if len(dias) == 1:
+        return dias[0]
+    return ', '.join(dias[:-1]) + ' y ' + dias[-1]
+
+
 @app.route('/')
 def inicio():
     db = get_db()
     return render_template('index.html',
-        promociones=db.execute('SELECT * FROM promociones WHERE activa=1').fetchall(),
+        dias_abiertos=_dias_abiertos_texto(db),
         resenas=db.execute('SELECT * FROM resenas WHERE aprobada=1 ORDER BY creado_en DESC').fetchall())
 
 
@@ -356,7 +369,6 @@ def sitemap():
         ('https://nomadcuts.online/',          '1.0',  'weekly'),
         ('https://nomadcuts.online/servicios', '0.9',  'monthly'),
         ('https://nomadcuts.online/agendar',   '0.9',  'weekly'),
-        ('https://nomadcuts.online/promociones','0.7', 'weekly'),
     ]
     xml = ['<?xml version="1.0" encoding="UTF-8"?>',
            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
@@ -380,9 +392,8 @@ def servicios():
 
 @app.route('/promociones')
 def promociones():
-    db = get_db()
-    return render_template('promociones.html',
-        promociones=db.execute('SELECT * FROM promociones WHERE activa=1').fetchall())
+    # Promociones desactivadas: cualquier link viejo lleva a la carta de servicios
+    return redirect(url_for('servicios'), code=301)
 
 
 # ── Agendamiento ──────────────────────────────────────────────
