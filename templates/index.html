@@ -1,15 +1,13 @@
 {% extends "base.html" %}
 {% block title %}NomadCuts — Barbería a Domicilio en Panamá | Corte, Fade y Barba{% endblock %}
-{% block meta_desc %}NomadCuts: barbería profesional a domicilio en Panamá. Corte clásico, degradado/fade y barba con navaja caliente. Llegamos a tu casa u oficina. Agenda en línea, sin filas.{% endblock %}
+{% block meta_desc %}NomadCuts: barbería profesional a domicilio en Panamá. Corte $15, corte fade $18, barba $12 y corte con barba $24. Llegamos a tu casa u oficina. Agenda en línea, sin filas.{% endblock %}
 {% block canonical %}https://nomadcuts.online{% endblock %}
 
 {% set SERVICIOS = [
-  ('s1', 'Corte Clásico', 'Tijera y máquina, acabado con navaja. Adaptado a tu tipo de cabello y a tu estilo.', '$15'),
-  ('s5', 'Degradado / Fade', 'Skin, low, mid o high fade. Transiciones limpias y simétricas.', '$18'),
-  ('s2', 'Barba Premium', 'Perfilado con navaja, toalla caliente y aceites naturales.', '$12'),
-  ('s3', 'Pack Completo', 'Corte, barba y tratamiento capilar. La experiencia completa.', '$24'),
-  ('s4', 'Corte Niños', 'Para menores de 12 años, con paciencia y herramientas suaves.', '$10'),
-  ('s6', 'Servicio Corporativo', 'Oficinas y eventos, grupos de 5 personas o más.', 'Cotizar'),
+  ('s1', 'Corte', 'Corte a máquina y tijera, a tu estilo.', '$15'),
+  ('s5', 'Corte fade', 'Degradado limpio y parejo: low, mid o high fade.', '$18'),
+  ('s2', 'Barba', 'Perfilado y arreglo de barba.', '$12'),
+  ('s3', 'Corte y barba', 'Corte completo más arreglo de barba.', '$24'),
 ] %}
 
 {% block content %}
@@ -57,7 +55,7 @@
           </div>
           <div class="ed-fact">
             <h3>Equipo profesional</h3>
-            <p>Máquinas, tijeras, navajas, toallas calientes y productos. Todo viene con nosotros.</p>
+            <p>Máquinas, tijeras y todo lo necesario para el corte. Tú solo pones el espacio.</p>
           </div>
           <div class="ed-fact">
             <h3>Pago simple</h3>
@@ -93,7 +91,7 @@
         </div>
         <div class="ed-menu-price">
           {{ precio }}
-          {% if precio != 'Cotizar' %}<small>por visita</small>{% else %}<small>por grupo</small>{% endif %}
+          <small>por visita</small>
         </div>
       </a>
       {% endfor %}
@@ -119,11 +117,11 @@
         <figcaption>Corte</figcaption>
       </figure>
       <figure>
-        <img src="{{ url_for('static', filename='img/navaja.jpg') }}" alt="Afeitado con navaja a domicilio" loading="lazy" />
-        <figcaption>Navaja</figcaption>
+        <img src="{{ url_for('static', filename='img/navaja.jpg') }}" alt="Detalle de barba a domicilio" loading="lazy" />
+        <figcaption>Detalle</figcaption>
       </figure>
       <figure>
-        <img src="{{ url_for('static', filename='img/rasurado.jpg') }}" alt="Rasurado con toalla caliente a domicilio" loading="lazy" />
+        <img src="{{ url_for('static', filename='img/rasurado.jpg') }}" alt="Arreglo de barba a domicilio" loading="lazy" />
         <figcaption>Barba</figcaption>
       </figure>
     </div>
@@ -143,7 +141,7 @@
       <div class="ed-step">
         <div class="ed-step-num">i.</div>
         <h3>Elige tu servicio</h3>
-        <p>Corte clásico, fade, barba o el pack completo. Todo con precio fijo.</p>
+        <p>Corte, corte fade, barba o corte con barba. Todo con precio fijo.</p>
       </div>
       <div class="ed-step">
         <div class="ed-step-num">ii.</div>
@@ -231,19 +229,15 @@
       </details>
       <details class="faq-item">
         <summary class="faq-q">¿Cuánto dura el servicio?</summary>
-        <p class="faq-a">Un corte clásico toma entre 30 y 45 minutos. El pack completo (corte, barba y tratamiento) puede durar hasta 75 minutos.</p>
+        <p class="faq-a">Un corte toma entre 30 y 45 minutos. Corte con barba, alrededor de una hora.</p>
       </details>
       <details class="faq-item">
         <summary class="faq-q">¿Qué necesito tener en casa?</summary>
-        <p class="faq-a">Solo un espacio con buena luz: baño, sala o balcón. Nosotros llevamos máquinas, tijeras, navajas, productos y capa de corte.</p>
+        <p class="faq-a">Solo un espacio con buena luz: baño, sala o balcón. Nosotros llevamos máquinas, tijeras y capa de corte.</p>
       </details>
       <details class="faq-item">
         <summary class="faq-q">¿Cómo se paga?</summary>
         <p class="faq-a">Confirmas la cita con un depósito de $5 por Yappy. El resto se paga en efectivo o Yappy el día del servicio.</p>
-      </details>
-      <details class="faq-item">
-        <summary class="faq-q">¿Atienden empresas y eventos?</summary>
-        <p class="faq-a">Sí. Tenemos servicio corporativo para oficinas y eventos con grupos de 5 personas o más. Escríbenos por WhatsApp para una cotización.</p>
       </details>
     </div>
   </div>
@@ -258,13 +252,11 @@
     { "@type": "Question", "name": "¿En qué zonas de Panamá trabajan?",
       "acceptedAnswer": { "@type": "Answer", "text": "Atendemos la Ciudad de Panamá: San Francisco, Costa del Este, Punta Pacífica, Bella Vista, El Cangrejo, Obarrio, Paitilla, Albrook y más." } },
     { "@type": "Question", "name": "¿Cuánto dura el servicio?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Un corte clásico toma entre 30 y 45 minutos. El pack completo puede durar hasta 75 minutos." } },
+      "acceptedAnswer": { "@type": "Answer", "text": "Un corte toma entre 30 y 45 minutos. Corte con barba, alrededor de una hora." } },
     { "@type": "Question", "name": "¿Qué necesito tener en casa?",
       "acceptedAnswer": { "@type": "Answer", "text": "Solo un espacio con buena luz. Nosotros llevamos todas las herramientas profesionales." } },
     { "@type": "Question", "name": "¿Cómo se paga?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Confirmas con un depósito de $5 por Yappy. El resto se paga en efectivo o Yappy el día del servicio." } },
-    { "@type": "Question", "name": "¿Atienden empresas y eventos?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Sí. Tenemos servicio corporativo para oficinas y eventos con grupos de 5 personas o más." } }
+      "acceptedAnswer": { "@type": "Answer", "text": "Confirmas con un depósito de $5 por Yappy. El resto se paga en efectivo o Yappy el día del servicio." } }
   ]
 }
 </script>
