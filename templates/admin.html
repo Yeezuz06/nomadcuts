@@ -11,9 +11,14 @@
       <span class="tag">Panel de administración</span>
       <h1 style="font-family:var(--font-d);font-size:36px;margin-top:8px;">Dashboard</h1>
     </div>
-    <a href="{{ url_for('admin_salir') }}" class="btn btn-outline" style="font-size:12px;">
-      Cerrar sesión
-    </a>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <a href="{{ url_for('admin_historial') }}" class="btn btn-primary" style="font-size:12px;">
+        Historial y ganancias
+      </a>
+      <a href="{{ url_for('admin_salir') }}" class="btn btn-outline" style="font-size:12px;">
+        Cerrar sesión
+      </a>
+    </div>
   </div>
 
   <!-- Resumen rápido -->
@@ -36,6 +41,11 @@
       <div style="font-size:32px;font-weight:700;color:var(--muted);">{{ rechazadas|length }}</div>
       <div style="font-size:13px;color:var(--muted);margin-top:4px;">Rechazadas</div>
     </div>
+    <a href="{{ url_for('admin_historial') }}" style="background:var(--bg-2);padding:24px 20px;display:block;">
+      <div style="font-size:32px;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums;">
+        ${{ '%.0f'|format(ganado_mes) }}</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px;">Ganado este mes →</div>
+    </a>
   </div>
 
   <!-- ══ RUTA DEL DÍA ══ -->

@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Historial — NomadCuts{% endblock %}
+
+{% set NOMBRE_ESTADO = {
+  'pendiente_pago': 'Pendiente de pago',
+  'pendiente': 'Pendiente',
+  'confirmada': 'Confirmada',
+  'rechazada': 'Rechazada'
+} %}
+{% set COLOR_ESTADO = {
+  'pendiente_pago': '#F5A623',
+  'pendiente': '#F5A623',
+  'confirmada': '#4CAF50',
+  'rechazada': 'var(--muted)'
+} %}
+{% set MESES = ['', 'Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio',
+                'Agosto','Septiembre','Octubre','Noviembre','Diciembre'] %}
+
+{% block content %}
+<div class="container" style="padding-top:96px;padding-bottom:80px;">
+
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;align-items:center;
+              margin-bottom:40px;flex-wrap:wrap;gap:16px;">
+    <div>
+      <span class="tag">Panel de administración</span>
+      <h1 style="font-family:var(--font-d);font-size:36px;margin-top:8px;">Historial y ganancias</h1>
+    </div>
+    <a href="{{ url_for('admin') }}" class="btn btn-outline" style="font-size:12px;">← Volver al dashboard</a>
+  </div>
+
+  <!-- Dinero -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+              gap:1px;border:1px solid var(--border);border-radius:var(--radius);
+              overflow:hidden;margin-bottom:16px;">
+    <div style="background:var(--bg-2);padding:24px 20px;">
+      <div style="font-size:30px;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums;">
+        ${{ '%.2f'|format(dinero.ganado_mes) }}</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px;">
+        Ganado este mes · {{ dinero.citas_mes }} cita{{ '' if dinero.citas_mes == 1 else 's' }}</div>
+    </div>
+    <div style="background:var(--bg-2);padding:24px 20px;">
+      <div style="font-size:30px;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums;">
+        ${{ '%.2f'|format(dinero.ganado_total) }}</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px;">
+        Ganado en total · {{ dinero.citas_realizadas }} cita{{ '' if dinero.citas_realizadas == 1 else 's' }}</div>
+    </div>
+    <div style="background:var(--bg-2);padding:24px 20px;">
+      <div style="font-size:30px;font-weight:700;color:#4CAF50;font-variant-numeric:tabular-nums;">
+        ${{ '%.2f'|format(dinero.por_cobrar) }}</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px;">Por cobrar (confirmadas próximas)</div>
+    </div>
+    <div style="background:var(--bg-2);padding:24px 20px;">
+      <div style="font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;">{{ total }}</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px;">Citas registradas en total</div>
+    </div>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:48px;">
+    "Ganado" cuenta solo citas confirmadas cuya fecha ya pasó (o es hoy). Si cobraste un monto distinto
+    (descuento, servicio corporativo), corrígelo en la columna Monto.
+  </p>
+
+  <!-- Por mes -->
+  {% if dinero.por_mes %}
+  <h2 style="font-family:var(--font-d);font-size:22px;margin-bottom:16px;">Por mes</h2>
+  <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:56px;">
+    {% for m in dinero.por_mes %}
+    <div style="display:flex;justify-content:space-between;gap:16px;padding:14px 20px;
+                background:var(--bg-2);{% if not loop.last %}border-bottom:1px solid var(--border);{% endif %}">
+      <span>{{ MESES[m.mes[5:7]|int] }} {{ m.mes[:4] }}</span>
+      <span style="color:var(--muted);">{{ m.citas }} cita{{ '' if m.citas == 1 else 's' }}</span>
+      <span style="color:var(--gold);font-weight:600;font-variant-numeric:tabular-nums;">${{ '%.2f'|format(m.total) }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Filtros -->
+  <h2 style="font-family:var(--font-d);font-size:22px;margin-bottom:16px;">Todas las citas</h2>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+    <a href="{{ url_for('admin_historial') }}" class="btn {{ 'btn-primary' if not estado else 'btn-outline' }}"
+       style="font-size:11px;padding:8px 16px;">Todas ({{ total }})</a>
+    {% for key, n in conteo.items() %}
+    <a href="{{ url_for('admin_historial', estado=key) }}"
+       class="btn {{ 'btn-primary' if estado == key else 'btn-outline' }}"
+       style="font-size:11px;padding:8px 16px;">{{ NOMBRE_ESTADO.get(key, key) }} ({{ n }})</a>
+    {% endfor %}
+  </div>
+
+  {% if citas %}
+  <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);">
+    <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:760px;">
+      <thead>
+        <tr style="background:var(--bg-3);text-align:left;color:var(--muted);">
+          <th style="padding:12px 16px;font-weight:500;">#</th>
+          <th style="padding:12px 16px;font-weight:500;">Fecha</th>
+          <th style="padding:12px 16px;font-weight:500;">Cliente</th>
+          <th style="padding:12px 16px;font-weight:500;">Servicio</th>
+          <th style="padding:12px 16px;font-weight:500;">Estado</th>
+          <th style="padding:12px 16px;font-weight:500;">Monto</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in citas %}
+        <tr id="cita-{{ c.id }}" style="border-top:1px solid var(--border);background:var(--bg-2);">
+          <td style="padding:12px 16px;color:var(--muted);">{{ c.id }}</td>
+          <td style="padding:12px 16px;white-space:nowrap;">{{ c.fecha }} · {{ c.hora }}</td>
+          <td style="padding:12px 16px;">
+            <div>{{ c.nombre }}</div>
+            <div style="color:var(--muted);font-size:12px;">{{ c.telefono }}</div>
+          </td>
+          <td style="padding:12px 16px;">{{ (c.servicio or '').split('—')[0].strip() }}</td>
+          <td style="padding:12px 16px;color:{{ COLOR_ESTADO.get(c.estado, 'var(--text)') }};white-space:nowrap;">
+            {{ NOMBRE_ESTADO.get(c.estado, c.estado) }}</td>
+          <td style="padding:8px 16px;">
+            <form method="POST" action="{{ url_for('editar_precio', cita_id=c.id) }}"
+                  style="display:flex;gap:6px;align-items:center;">
+              <input type="hidden" name="estado" value="{{ estado }}">
+              <span style="color:var(--muted);">$</span>
+              <input type="number" name="precio" step="0.01" min="0" value="{{ '%.2f'|format(c.precio or 0) }}"
+                     aria-label="Monto cobrado cita {{ c.id }}"
+                     style="width:80px;background:var(--bg);border:1px solid var(--border);color:var(--text);
+                            border-radius:4px;padding:6px 8px;font-size:13px;">
+              <button type="submit" class="btn btn-outline" style="font-size:11px;padding:6px 10px;">OK</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p style="color:var(--muted);">No hay citas en este filtro.</p>
+  {% endif %}
+</div>
+{% endblock %}

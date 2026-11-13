@@ -7,16 +7,31 @@ from flask import (
     Flask, render_template, request,
     redirect, url_for, session, jsonify
 )
-import sqlite3, requests, time, hmac, hashlib
-from datetime import datetime, date, timedelta
+import requests, time, hmac, hashlib, re
+from datetime import datetime, date, timedelta, timezone
 
 import os
 import config
+import db as dbmod
+from db import get_db
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'nomadcuts_clave_secreta_2024')
 app.jinja_env.globals['enumerate'] = enumerate
-DATABASE = 'nomadcuts.db'
+app.teardown_appcontext(dbmod.close_db)
+
+# Panamá es UTC-5 todo el año (sin horario de verano)
+PANAMA_TZ = timezone(timedelta(hours=-5))
+
+
+def hoy_panama():
+    return datetime.now(PANAMA_TZ).date()
+
+
+def precio_de_servicio(servicio):
+    """'Corte Clásico — $15' → 15.0 ; sin precio → 0.0"""
+    m = re.search(r'\$\s*(\d+(?:\.\d+)?)', servicio or '')
+    return float(m.group(1)) if m else 0.0
 
 # ── Anti-spam: rate limit por IP ──────────────────────────────
 _resena_timestamps: dict[str, float] = {}   # ip → último envío
@@ -29,52 +44,14 @@ DIAS_SEMANA = ['lunes','martes','miércoles','jueves','viernes','sábado','domin
 
 # ── Base de datos ─────────────────────────────────────────────
 
-def get_db():
-    conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row
-    return conn
-
-
 def init_db():
-    with get_db() as conn:
-        conn.executescript('''
-            CREATE TABLE IF NOT EXISTS citas (
-                id        INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre    TEXT NOT NULL,
-                email     TEXT NOT NULL,
-                telefono  TEXT NOT NULL,
-                servicio  TEXT NOT NULL,
-                fecha     TEXT NOT NULL,
-                hora      TEXT NOT NULL,
-                notas     TEXT,
-                estado    TEXT DEFAULT "pendiente_pago",
-                creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
+    with app.app_context():
+        conn = get_db()
+        dbmod.crear_esquema(conn)
 
-            CREATE TABLE IF NOT EXISTS promociones (
-                id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                titulo      TEXT NOT NULL,
-                descripcion TEXT,
-                descuento   TEXT,
-                activa      INTEGER DEFAULT 1
-            );
-
-            CREATE TABLE IF NOT EXISTS horario (
-                dia         TEXT PRIMARY KEY,
-                activo      INTEGER DEFAULT 1,
-                hora_inicio TEXT DEFAULT "08:00",
-                hora_fin    TEXT DEFAULT "18:00"
-            );
-
-            CREATE TABLE IF NOT EXISTS resenas (
-                id         INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre     TEXT NOT NULL,
-                comentario TEXT NOT NULL,
-                estrellas  INTEGER NOT NULL DEFAULT 5,
-                aprobada   INTEGER DEFAULT 1,
-                creado_en  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-        ''')
+        importadas = dbmod.importar_sqlite_si_vacio(conn)
+        if importadas:
+            print(f'✓ Datos importados de SQLite a Postgres: {importadas}')
 
         # Promociones de ejemplo
         if conn.execute('SELECT COUNT(*) FROM promociones').fetchone()[0] == 0:
@@ -87,26 +64,27 @@ def init_db():
                 ]
             )
 
-        # Horario por defecto: lunes–sábado 8am–6pm, domingo cerrado
+        # Horario por defecto: lunes–sábado, domingo cerrado
         if conn.execute('SELECT COUNT(*) FROM horario').fetchone()[0] == 0:
-            defaults = [
-                ('lunes',     1, '08:00', '18:00'),
-                ('martes',    1, '08:00', '18:00'),
-                ('miércoles', 1, '08:00', '18:00'),
-                ('jueves',    1, '08:00', '18:00'),
-                ('viernes',   1, '08:00', '18:00'),
-                ('sábado',    1, '09:00', '16:00'),
-                ('domingo',   0, '09:00', '14:00'),
-            ]
             conn.executemany(
                 'INSERT INTO horario (dia, activo, hora_inicio, hora_fin) VALUES (?,?,?,?)',
-                defaults
+                [
+                    ('lunes',     1, '08:00', '18:00'),
+                    ('martes',    1, '08:00', '18:00'),
+                    ('miércoles', 1, '08:00', '18:00'),
+                    ('jueves',    1, '08:00', '18:00'),
+                    ('viernes',   1, '08:00', '18:00'),
+                    ('sábado',    1, '09:00', '16:00'),
+                    ('domingo',   0, '09:00', '14:00'),
+                ]
             )
-        # Migración: columna direccion (segura si ya existe)
-        try:
-            conn.execute('ALTER TABLE citas ADD COLUMN direccion TEXT DEFAULT ""')
-        except Exception:
-            pass
+
+        # Rellenar precio de citas viejas a partir del nombre del servicio
+        for r in conn.execute(
+                'SELECT id, servicio FROM citas WHERE precio IS NULL OR precio = 0').fetchall():
+            p = precio_de_servicio(r['servicio'])
+            if p:
+                conn.execute('UPDATE citas SET precio=? WHERE id=?', (p, r['id']))
         conn.commit()
 
 
@@ -465,9 +443,10 @@ def agendar():
                 error='Ese horario ya está reservado. Elige otra hora.')
 
         cursor = db.execute('''
-            INSERT INTO citas (nombre,email,telefono,servicio,fecha,hora,notas,direccion,estado)
-            VALUES (?,?,?,?,?,?,?,?,'pendiente_pago')
-        ''', (nombre, email, telefono, servicio, fecha, hora, notas, direccion))
+            INSERT INTO citas (nombre,email,telefono,servicio,fecha,hora,notas,direccion,precio,estado)
+            VALUES (?,?,?,?,?,?,?,?,?,'pendiente_pago')
+        ''', (nombre, email, telefono, servicio, fecha, hora, notas, direccion,
+              precio_de_servicio(servicio)))
         cita_id = cursor.lastrowid
         db.commit()
 
@@ -627,7 +606,7 @@ def admin_salir():
 @admin_requerido
 def admin():
     db   = get_db()
-    hoy  = date.today().isoformat()
+    hoy  = hoy_panama().isoformat()
 
     # Citas agrupadas
     pendientes  = db.execute(
@@ -656,7 +635,62 @@ def admin():
         pendientes=pendientes, proximas=proximas,
         pasadas=pasadas, rechazadas=rechazadas,
         horario=horario, dias=DIAS_SEMANA, hoy=hoy,
-        resenas=resenas, citas_hoy=citas_hoy)
+        resenas=resenas, citas_hoy=citas_hoy,
+        ganado_mes=_resumen_dinero(
+            db.execute("SELECT fecha, estado, precio FROM citas WHERE estado='confirmada'").fetchall(),
+            hoy)['ganado_mes'])
+
+
+def _resumen_dinero(citas, hoy):
+    """Suma lo ganado (citas confirmadas ya realizadas) total y por mes."""
+    mes_actual = hoy[:7]
+    realizadas = [c for c in citas if c['estado'] == 'confirmada' and c['fecha'] <= hoy]
+    proximas   = [c for c in citas if c['estado'] == 'confirmada' and c['fecha'] > hoy]
+    por_mes = {}
+    for c in realizadas:
+        m = c['fecha'][:7]
+        d = por_mes.setdefault(m, {'mes': m, 'citas': 0, 'total': 0.0})
+        d['citas'] += 1
+        d['total'] += c['precio'] or 0
+    return {
+        'ganado_total':     sum((c['precio'] or 0) for c in realizadas),
+        'ganado_mes':       sum((c['precio'] or 0) for c in realizadas if c['fecha'][:7] == mes_actual),
+        'citas_realizadas': len(realizadas),
+        'citas_mes':        sum(1 for c in realizadas if c['fecha'][:7] == mes_actual),
+        'por_cobrar':       sum((c['precio'] or 0) for c in proximas),
+        'por_mes':          sorted(por_mes.values(), key=lambda d: d['mes'], reverse=True),
+    }
+
+
+@app.route('/admin/historial')
+@admin_requerido
+def admin_historial():
+    db  = get_db()
+    hoy = hoy_panama().isoformat()
+    estado = request.args.get('estado', '')
+    todas = db.execute('SELECT * FROM citas ORDER BY fecha DESC, hora DESC').fetchall()
+    citas = [c for c in todas if c['estado'] == estado] if estado else todas
+    conteo = {}
+    for c in todas:
+        conteo[c['estado']] = conteo.get(c['estado'], 0) + 1
+    return render_template('admin_historial.html',
+        citas=citas, total=len(todas), conteo=conteo, estado=estado, hoy=hoy,
+        dinero=_resumen_dinero(todas, hoy))
+
+
+@app.route('/admin/cita/<int:cita_id>/precio', methods=['POST'])
+@admin_requerido
+def editar_precio(cita_id):
+    try:
+        precio = max(0.0, float(request.form.get('precio', '0').replace(',', '.')))
+    except ValueError:
+        precio = None
+    if precio is not None:
+        db = get_db()
+        db.execute('UPDATE citas SET precio=? WHERE id=?', (precio, cita_id))
+        db.commit()
+    return redirect(url_for('admin_historial', estado=request.form.get('estado', '')) +
+                    f'#cita-{cita_id}')
 
 
 @app.route('/admin/confirmar/<int:cita_id>', methods=['POST'])
