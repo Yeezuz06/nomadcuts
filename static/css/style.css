@@ -2002,3 +2002,16 @@ h1, h2, h3 { font-family: var(--font-d); font-weight: 500; letter-spacing: -.01e
 .ed-3d-fallback { display: none; }
 .ed-3d.is-fallback .ed-3d-fallback { display: block; }
 .ed-3d.is-fallback .ed-3d-hint { display: none; }
+
+/* ── Ajustes: sin pin, sin arrastre, poste en Preguntas ── */
+.ed-3d { cursor: default; touch-action: auto; }
+.ed-3d-hint { display: none; }
+.ed-story-pin { min-height: 0; display: block; }
+@media (min-width: 900px) {
+  .ed-section.ed-story-section { padding: 120px 0; }
+  .ed-story { min-height: 0; }
+  .ed-cta { text-align: center; padding: 160px 0; }
+  .ed-cta h2 { margin-left: auto; }
+}
+.ed-3d--pole { aspect-ratio: 3 / 4; max-width: 300px; max-height: 56vh; margin-top: 36px; }
+@media (max-width: 899px) { .ed-3d--pole { max-width: 200px; max-height: 40vh; margin: 28px auto 0; } }

@@ -34,7 +34,6 @@
       <a href="#servicios" class="ed-link">Ver la carta</a>
     </div>
     <div class="ed-hero-meta">
-      {% if dias_abiertos %}<span>Agenda · <strong>{{ dias_abiertos }}</strong></span>{% endif %}
       <span>Depósito <strong>$5</strong> por Yappy</span>
       <span>Llevamos <strong>todo el equipo</strong></span>
     </div>
@@ -66,9 +65,8 @@
           </div>
         </div>
       </div>
-      <div class="ed-3d" id="scissors-3d" role="img" aria-label="Tijeras de barbero en 3D. Arrástralas para girarlas y tócalas para cortar.">
+      <div class="ed-3d" id="scissors-3d" aria-hidden="true">
         <img class="ed-3d-fallback" src="{{ url_for('static', filename='img/tijeras.jpg') }}" alt="" />
-        <span class="ed-3d-hint">Arrastra para girar · Toca para cortar</span>
       </div>
     </div>
   </div>
@@ -224,6 +222,7 @@
     <div>
       <span class="ed-label" data-reveal>Preguntas</span>
       <h2 class="ed-title js-split" style="margin-top:16px;">Antes de reservar</h2>
+      <div class="ed-3d ed-3d--pole" id="pole-3d" aria-hidden="true"></div>
     </div>
     <div class="faq-list" data-reveal style="--d:.1s">
       <details class="faq-item">
@@ -273,15 +272,10 @@
 <!-- ── Cierre + poste 3D ──────────────────────────────────────── -->
 <section class="ed-cta" id="reservar">
   <img src="{{ url_for('static', filename='img/rasurado2.jpg') }}" alt="" loading="lazy" />
-  <div class="container ed-cta-grid">
-    <div>
-      <span class="ed-label" data-reveal>Reserva</span>
-      <h2 class="js-split">Tu próximo corte, <em>sin salir</em> de casa.</h2>
-      <a href="{{ url_for('agendar') }}" class="btn btn-primary" data-reveal>Reservar cita</a>
-    </div>
-    <div class="ed-3d" id="pole-3d" role="img" aria-label="Poste de barbería en 3D. Arrástralo para girarlo.">
-      <span class="ed-3d-hint">Arrastra para girar</span>
-    </div>
+  <div class="container">
+    <span class="ed-label" data-reveal>Reserva</span>
+    <h2 class="js-split">Tu próximo corte, <em>sin salir</em> de casa.</h2>
+    <a href="{{ url_for('agendar') }}" class="btn btn-primary" data-reveal>Reservar cita</a>
   </div>
 </section>
 

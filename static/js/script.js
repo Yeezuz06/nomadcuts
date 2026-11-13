@@ -182,34 +182,17 @@ function splitWords(el) {
     });
   });
 
-  // 3. "El oficio": se fija en escritorio mientras las tijeras se abren/cierran
+  // 3. "El oficio": las tijeras avanzan y cortan mientras la sección cruza la pantalla
+  //    (sin fijar la página: el scroll nunca se congela)
   var story = document.getElementById('oficio');
   if (story) {
-    var facts = story.querySelectorAll('.ed-fact');
-    var mm = gsap.matchMedia();
-    mm.add('(min-width: 900px)', function() {
-      gsap.set(facts, { opacity: 0.22 });
-      var tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: story.querySelector('.ed-story-pin'), start: 'top top', end: '+=140%', pin: true,
-          scrub: 0.6, onUpdate: function(self) { NC3D.scissors = self.progress; }
-        }
-      });
-      facts.forEach(function(f, i) {
-        tl.to(f, { opacity: 1, duration: 1 }, i * 1.1)
-          .fromTo(f.querySelector('h3'), { x: -14 }, { x: 0, duration: 1 }, i * 1.1);
-      });
-      tl.to({}, { duration: 0.6 });
+    ScrollTrigger.create({
+      trigger: story, start: 'top bottom', end: 'bottom top',
+      onUpdate: function(self) { NC3D.scissors = self.progress; }
     });
-    mm.add('(max-width: 899px)', function() {
-      ScrollTrigger.create({
-        trigger: story, start: 'top bottom', end: 'bottom top',
-        onUpdate: function(self) { NC3D.scissors = self.progress; }
-      });
-      gsap.from(facts, {
-        y: 30, opacity: 0, duration: 1, ease: 'expo.out', stagger: 0.12,
-        scrollTrigger: { trigger: story.querySelector('.ed-facts'), start: 'top 85%', once: true }
-      });
+    gsap.from(story.querySelectorAll('.ed-fact'), {
+      y: 30, opacity: 0, duration: 1, ease: 'expo.out', stagger: 0.12,
+      scrollTrigger: { trigger: story.querySelector('.ed-facts'), start: 'top 85%', once: true }
     });
   }
 
@@ -263,8 +246,13 @@ function splitWords(el) {
         scrollTrigger: { trigger: cta, start: 'top bottom', end: 'bottom top', scrub: true }
       });
     }
+  }
+
+  // 8. Poste de barbería (en Preguntas): gira mientras la sección cruza la pantalla
+  var faq = document.getElementById('preguntas');
+  if (faq) {
     ScrollTrigger.create({
-      trigger: cta, start: 'top bottom', end: 'bottom top',
+      trigger: faq, start: 'top bottom', end: 'bottom top',
       onUpdate: function(self) { NC3D.pole = self.progress; }
     });
   }

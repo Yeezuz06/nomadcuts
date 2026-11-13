@@ -1,7 +1,7 @@
 // ============================================================
 //  NomadCuts — Objetos 3D interactivos (Three.js)
-//  · Tijeras: se abren/cierran con el scroll, se arrastran, "cortan" al tocar
-//  · Poste de barbería: gira con el scroll y se arrastra
+//  · Tijeras: avanzan y cortan siguiendo el scroll
+//  · Poste de barbería: gira con el scroll
 //  Todo se construye con geometría (sin modelos externos) y solo se
 //  renderiza mientras está en pantalla.
 // ============================================================
@@ -61,50 +61,6 @@ function createStage(container, { fov = 32, z = 9 } = {}) {
   return { renderer, scene, camera };
 }
 
-// ── Arrastrar para girar (ratón y táctil) con inercia ────────
-function makeInteractive(el, { onTap } = {}) {
-  const s = { rx: 0, ry: 0, vx: 0, vy: 0, px: 0, py: 0, dragging: false, lastX: 0, lastY: 0, moved: 0 };
-
-  el.addEventListener('pointerdown', (e) => {
-    s.dragging = true; s.moved = 0;
-    s.lastX = e.clientX; s.lastY = e.clientY;
-    el.setPointerCapture(e.pointerId);
-    el.classList.add('is-grabbing');
-  });
-  el.addEventListener('pointermove', (e) => {
-    const r = el.getBoundingClientRect();
-    s.px = ((e.clientX - r.left) / r.width - 0.5) * 2;
-    s.py = ((e.clientY - r.top) / r.height - 0.5) * 2;
-    if (!s.dragging) return;
-    const dx = e.clientX - s.lastX, dy = e.clientY - s.lastY;
-    s.lastX = e.clientX; s.lastY = e.clientY;
-    s.moved += Math.abs(dx) + Math.abs(dy);
-    s.vy = dx * 0.009;
-    s.vx = dy * 0.006;
-    s.ry += s.vy;
-    s.rx = THREE.MathUtils.clamp(s.rx + s.vx, -0.9, 0.9);
-  });
-  const end = () => {
-    if (!s.dragging) return;
-    s.dragging = false;
-    el.classList.remove('is-grabbing');
-    if (s.moved < 6 && onTap) onTap();
-  };
-  el.addEventListener('pointerup', end);
-  el.addEventListener('pointercancel', end);
-  el.addEventListener('pointerleave', () => { s.px = 0; s.py = 0; });
-
-  // Inercia: se llama cada frame
-  s.step = () => {
-    if (!s.dragging) {
-      s.ry += s.vy;
-      s.vy *= 0.94;
-      s.rx *= 0.94;
-    }
-  };
-  return s;
-}
-
 // ── Bucle que solo corre si el objeto está en pantalla ───────
 function runWhenVisible(container, tick) {
   let visible = false, raf = 0, last = performance.now();
@@ -146,18 +102,19 @@ function buildScissors() {
     bladeGeo.translate(0, 0, -0.025);
     g.add(new THREE.Mesh(bladeGeo, steel));
 
-    // Brazo curvo hasta el aro
+    // Brazo curvo hasta el aro, del lado OPUESTO a la hoja (como unas tijeras reales:
+    // hoja de arriba ↔ aro de abajo, así al abrir se separan hojas y aros a la vez)
     const arm = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-0.1, 0.1, 0),
-      new THREE.Vector3(-0.7, 0.18, 0),
-      new THREE.Vector3(-1.25, 0.42, 0),
-      new THREE.Vector3(-1.55, 0.62, 0),
+      new THREE.Vector3(-0.1, 0.0, 0),
+      new THREE.Vector3(-0.7, -0.12, 0),
+      new THREE.Vector3(-1.25, -0.4, 0),
+      new THREE.Vector3(-1.55, -0.62, 0),
     ]);
     g.add(new THREE.Mesh(new THREE.TubeGeometry(arm, 48, 0.075, 16, false), gold));
 
     // Aro para el dedo
     const ring = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.075, 20, 72), gold);
-    ring.position.set(-1.95, 0.8, 0);
+    ring.position.set(-1.95, -0.8, 0);
     g.add(ring);
     return g;
   }
@@ -190,35 +147,32 @@ function initScissors(container) {
   const { root, a, b } = buildScissors();
   scene.add(root);
 
-  const snip = { v: 0 };
-  const input = makeInteractive(container, {
-    onTap() {
-      if (typeof gsap === 'undefined') return;
-      gsap.killTweensOf(snip);
-      gsap.fromTo(snip, { v: 0 }, { v: 1, duration: 0.11, ease: 'power2.in', yoyo: true, repeat: 3 });
-      input.vy += 0.08;
-    },
-  });
+  const CUTS = 3;          // cortes completos mientras la sección cruza la pantalla
+  const OPEN_MAX = 0.46;   // apertura máxima (rad) en cada mitad
+  let p = 0;               // progreso suavizado 0..1
 
-  let smooth = 0;
   runWhenVisible(container, (dt, t) => {
-    input.step();
-    smooth += (NC3D.scissors - smooth) * Math.min(1, dt * 6);   // suaviza el scroll
+    // Suavizado tipo resorte: el movimiento sigue al scroll sin saltos
+    p += (NC3D.scissors - p) * Math.min(1, dt * 5);
 
-    // Apertura: con el scroll se abren y cierran dos veces; el toque las cierra de golpe
-    const scrollOpen = 0.5 - 0.5 * Math.cos(smooth * Math.PI * 4);
-    const idle = REDUCED ? 0 : 0.08 * (0.5 + 0.5 * Math.sin(t * 1.6));
-    const open = (0.05 + 0.42 * Math.max(scrollOpen, idle)) * (1 - snip.v);
+    // Ciclo de corte: abre rápido, cierra con decisión (como un corte real)
+    const phase = (p * CUTS) % 1;
+    const cut = phase < 0.55
+      ? Math.sin((phase / 0.55) * Math.PI / 2)                 // abriendo
+      : Math.cos(((phase - 0.55) / 0.45) * Math.PI / 2) ** 2;  // cerrando
+    const open = 0.03 + OPEN_MAX * cut;
     a.rotation.z = open;
     b.rotation.z = -open;
 
-    root.rotation.y = input.ry + smooth * Math.PI * 1.2 + input.px * 0.25;
-    root.rotation.x = input.rx + input.py * 0.18;
-    root.rotation.z = -0.55 + smooth * 0.5;
-    root.position.y = REDUCED ? 0 : Math.sin(t * 0.9) * 0.08;
+    // Avanza en diagonal hacia donde apuntan las puntas, sin girar de canto
+    root.rotation.z = 0.18 - 0.1 * p;
+    root.rotation.y = -0.28 + 0.2 * Math.sin(p * Math.PI);
+    root.rotation.x = 0.12;
+    root.position.x = -0.6 + 1.2 * p;
+    root.position.y = -0.25 + 0.5 * p + (REDUCED ? 0 : Math.sin(t * 0.8) * 0.05);
 
-    // En pantallas angostas la cámara se aleja para que entren los aros
-    camera.position.z = container.clientWidth < 520 ? 13 : 10;
+    // En pantallas angostas la cámara se aleja para que entren completas
+    camera.position.z = container.clientWidth < 520 ? 13.5 : 11;
 
     renderer.render(scene, camera);
   });
@@ -287,28 +241,14 @@ function initPole(container) {
   const { root, tex } = buildPole();
   scene.add(root);
 
-  const burst = { v: 0 };
-  const input = makeInteractive(container, {
-    onTap() {
-      if (typeof gsap === 'undefined') return;
-      gsap.fromTo(burst, { v: 1 }, { v: 0, duration: 1.6, ease: 'power3.out' });
-    },
-  });
-
-  let smooth = 0;
+  let p = 0;
   runWhenVisible(container, (dt, t) => {
-    input.step();
-    smooth += (NC3D.pole - smooth) * Math.min(1, dt * 6);
-
-    // Las franjas "suben" como en un poste real; más rápido al arrastrar o tocar
-    const speed = REDUCED ? 0 : 0.18 + Math.abs(input.vy) * 4 + burst.v * 1.5;
-    tex.offset.y -= dt * speed;
-
-    root.rotation.y = input.ry + smooth * Math.PI * 2 + input.px * 0.3;
-    root.rotation.x = input.rx * 0.6 + input.py * 0.12;
-    root.rotation.z = 0.12 * Math.sin(t * 0.7) * (REDUCED ? 0 : 1);
-    root.position.y = REDUCED ? 0 : Math.sin(t * 1.1) * 0.06;
-
+    p += (NC3D.pole - p) * Math.min(1, dt * 5);
+    // Las franjas suben como en un poste real
+    if (!REDUCED) tex.offset.y -= dt * 0.16;
+    root.rotation.y = p * Math.PI * 1.5;
+    root.rotation.z = 0.06;
+    root.position.y = REDUCED ? 0 : Math.sin(t * 1.1) * 0.05;
     renderer.render(scene, camera);
   });
   container.classList.add('is-ready');
